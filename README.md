@@ -1,10 +1,10 @@
 # Réalisation d'un moteur 3D temps réel réaliste. 🐵 
 Dépôt de projet du TER de deuxième semestre de M1 informatique.
 
-<b>Encradante :</b>    
+<b><u>Encadrante :</u></b>    
 -  Noura Faraj (noura.faraj@umontpellier.fr) 
 
-<b>Participants :</b>
+<b><u>Participants :</u></b>
 - Ange Clément (ange.clement@etu.umontpellier.fr) 
 - Erwan Reinders (erwan.reinders@etu.umontpellier.fr) 
 ______________________________
