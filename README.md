@@ -1,4 +1,4 @@
-# Réalisation d'un moteur 3D temps réel réaliste. 🐵 
+# Réalisation d'un moteur 3D temps réel réaliste.
 Dépôt de projet du TER de deuxième semestre de M1 informatique.
 
 <b>Encadrante :</b>    
