@@ -30,17 +30,6 @@ class Scene {
 
     /*Méthode permettant d'initialiser une scène*/
     init() {
-        try {
-            this.gl = this.canvas.getContext("webgl") ||
-                this.canvas.getContext("experimental-webgl");
-            if (!this.gl) {
-                throw "Browser does not support WebGL";
-            }
-        } catch (e) {
-            console.log("Sorry, could not get a WebGL graphics context.");
-            return;
-        }
-
         //Initialisation des matrices
         mat4.perspective(this.matrix.projectionMatrix, this.current_camera.fieldOfView, this.current_camera.aspect, this.current_camera.zNear, this.current_camera.zFar);
         //mat4.identity(this.matrix.modelMatrix);
