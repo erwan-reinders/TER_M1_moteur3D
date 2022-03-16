@@ -1,3 +1,4 @@
+/*Classe modélisant un matériel*/
 class Material {
     constructor() {
         this.albedo = vec3.clone([1, 0, 0]);
@@ -5,7 +6,7 @@ class Material {
         this.metalness = 0;
         this.ao = 0;
 
-        programInfo = {
+        this.programInfo = {
             uniformLocations : {
                 objectColor      : 'uObjectColor',
                 albedo 			 : 'uAlbedo',

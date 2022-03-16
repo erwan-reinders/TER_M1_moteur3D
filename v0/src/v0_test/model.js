@@ -126,7 +126,7 @@ class Model {
 
     render(){
         //On rend d'abord la texture asoociée à l'objet
-        this.texture.rendre();
+        this.texture.render();
         //this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,null);
 
         this.gl.useProgram(this.prog);
