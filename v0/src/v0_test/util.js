@@ -1,10 +1,12 @@
+var gl;
 //
 // Get gl from canvas
 //
-function initGl() {
+function initGl(canvasId) {
+    canvas = document.getElementById(canvasId);
     try {
-        gl = this.canvas.getContext("webgl") ||
-            this.canvas.getContext("experimental-webgl");
+        gl = canvas.getContext("webgl") ||
+            canvas.getContext("experimental-webgl");
         if (!gl) {
             throw "Browser does not support WebGL";
         }
