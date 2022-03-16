@@ -1,17 +1,357 @@
+/*Classes modélisants des textures particulières*/
 /*Classe modélisant une texture*/
 class Texture {
     /**Constructeur d'une texture
-     * @param vertexSH : ID_HTMLVertexShader de notre texture
-     * @param fragmentSH : ID_HTMLFragmentShader de notre texture**/
-    constructor(vertexSH_id, fragmentSH_id) {
-
+     * @param prog : programId renseignant le programme à passer à la texture**/
+    constructor(prog) {
+        this.program = prog;
     }
 
-    init();
+    /*Méthode permettant d'initialiser la texture*/
+    init(){};
 
-    update();
+    /*Méthode permettant de MAJ la texture*/
+    update(){};
 
-    init_data();
+    /*Méthode permettant d'initialiser la data de la texture*/
+    init_data(){};
 
-    render();
+    /*Méthode permettant de rendre la texture (utile pour les textures en plusieurs passes)*/
+    render(){};
+}
+
+
+/*Classe modélisant un texture à partir d'une image*/
+class Texture_image extends Texture{
+    constructor(progId, srcImg) {
+        super(progId);
+
+        this.image = new Image();
+        this.dessinable = false;
+
+        this.requestCORSIfNotSameOrigin(srcImg);
+        this.image.src = srcImg;
+        let obj = this;
+
+        this.image.addEventListener('load', function() {
+            console.log("J'AI CHARGE L'IMAGE");
+
+            gl.bindTexture(gl.TEXTURE_2D, obj.texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, obj.image);
+
+            if (Texture_image.isPowerOf2(obj.image.width) && Texture_image.isPowerOf2(obj.image.height)) {
+                // Oui, c'est une puissance de 2. Générer les mips
+                gl.generateMipmap(gl.TEXTURE_2D);
+            } else {
+                // Non, ce n'est pas une puissance de 2. Désactiver les mips et définir l'habillage
+                // comme "accrocher au bord"
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            }
+            obj.dessinable = true;
+        });
+    }
+
+    init(){
+        this.texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, /*Couleur par défaut si pas d'image*/new Uint8Array([0, 0, 255, 255]));
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    }
+
+    /**Méthode permettant de rechercher une image
+     * @param url : String URL de l'image à chercher**/
+    requestCORSIfNotSameOrigin(url) {
+        if ((new URL(url, window.location.href)).origin !== window.location.origin) {
+            this.image.crossOrigin = "";
+        }
+    }
+
+    isPowerOf2(value) {
+        return (value & (value - 1)) == 0;
+    }
+}
+
+/*Classe modélisant une texture animée, passant par un rendu dans un framebuffer*/
+class Texture_animee extends Texture{
+    /**Constructeur d'une texture_animee
+    * @param prog : programId renseignant le programme à passer à la texture
+    * @param elanim : Elem_anime renseignant la forme qui va évoluer sur la texture animée **/
+    constructor(prog, elanim) {
+        super(prog);
+
+        this.elem_anim = elanim;
+
+        this.programInfo = {
+            a_coords_loc_texture :  gl.getAttribLocation(this.program, "a_coords"),
+            u_translation_texture : gl.getUniformLocation(this.program, "translation"),
+            u_color_texture : gl.getUniformLocation(this.program, "color"),
+        }
+    }
+
+    init(){
+        //Récupération des différents éléments des shaders
+        gl.useProgram(this.program);
+        this.a_coords_loc_texture =  this.gl.getAttribLocation(this.prog, "a_coords");
+        this.u_translation_texture = this.gl.getUniformLocation(this.prog, "translation");
+        this.u_color_texture = this.gl.getUniformLocation(this.prog, "color");
+
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 512, 512, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+        this.framebuffer = this.gl.createFramebuffer();
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER,this.framebuffer);
+        this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.texture, 0);
+
+        if (this.gl.getError() != this.gl.NO_ERROR) {
+            console.log(this.gl.getError());
+            throw "Some WebGL error occurred while trying to create framebuffer.";
+        }
+        this.elem_anim.init();
+
+        this.buffer_texture = this.gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer_texture);
+        gl.bufferData(gl.ARRAY_BUFFER, this.elem_anim.coordonnees,gl.STATIC_DRAW);
+    }
+
+    render(){
+        let obj = this;
+        gl.bindFramebuffer(gl.FRAMEBUFFER,this.framebuffer);
+        gl.useProgram(this.program);
+
+        gl.clearColor(1,1,1,1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        gl.disable(gl.DEPTH_TEST);
+        gl.viewport(0,0,512,512);
+        gl.enable(gl.BLEND);
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO,gl.ONE);
+        gl.enableVertexAttribArray(this.a_coords_loc_texture);
+
+        //ON VA DESSINER LA TEXTURE DE BASE (CERCLES)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer_texture);
+        gl.vertexAttribPointer(this.a_coords_loc_texture, 2, gl.FLOAT, false, 0, 0);
+
+        this.elem_anim.render();
+
+        gl.disableVertexAttribArray(this.a_coords_loc_texture);
+        gl.disable(gl.BLEND);
+    }
+
+    update(){
+        this.elem_anim.update();
+    }
+}
+
+
+/*Classe modélisant un objet anime que l'on peut passer à la texture annimée*/
+class Elem_anime {
+    constructor(){
+        //objet renseignant les informations des formes à dessiner
+        this.forme = {
+            diametre : .3,
+        }
+        this.nombre_disque = 20;
+    }
+
+    init(){
+        console.log("J'INITIALISE LA TEXTURE NORMALE");
+
+        this.diskCenters = new Array(this.nombre_disque);
+        this.diskColors = new Array(this.nombre_disque);
+        this.diskVelocities = new Array(this.nombre_disque);
+        for (let i = 0; i < this.nombre_disque; i++) {
+            this.diskColors[i] = [ Math.random(), Math.random(), Math.random(), 0.5 ];
+            this.diskCenters[i] = [ 2*Math.random() - 1, 2*Math.random() - 1 ];
+            let angle = Math.random()*2*Math.PI;
+            let speed = 0.003 + 0.01*Math.random();
+            this.diskVelocities[i] = [ speed*Math.cos(angle), speed*Math.sin(angle) ];
+        }
+
+        this.coordonnees = new Float32Array(2*64);
+        for (let i = 0; i < 64; i++) {
+            let angle = i/64 * 2*Math.PI;
+            this.coordonnees[2*i] = this.forme.diametre/2 * Math.cos(angle);
+            this.coordonnees[2*i+1] = this.forme.diametre/2 * Math.sin(angle);
+        }
+    }
+
+    /**Méthode permettant à un objet animé dans une texture de pouvoir se dessiner sur celle-ci
+     * @param obj : Texture_animee renseignant la texture dans laquelle cet objet doit se rendre**/
+    render(obj){
+        gl.lineWidth(2);
+        //DRAWDISK
+        let DISK_DIAMETER = this.forme.diametre;
+        let DISK_COUNT = this.nombre_disque;
+
+        function disk(i, extraTranslateX, extraTranslateY) {
+            //console.log(obj);
+            gl.uniform4fv(obj.u_color_texture, obj.diskColors[i]);
+            gl.uniform2f(obj.u_translation_texture, obj.diskCenters[i][0] + extraTranslateX, obj.diskCenters[i][1] + extraTranslateY);
+            gl.drawArrays(obj.gl.TRIANGLE_FAN, 0, 64);
+            gl.uniform4f(obj.u_color_texture, 0, 0, 0, 1);
+            gl.drawArrays(obj.gl.LINE_LOOP, 0, 64);
+            //console.log("TOUT VA BIEN DISK TXTNORM");
+        }
+
+        let r = DISK_DIAMETER/2;
+        for (let i = 0; i < DISK_COUNT; i++) {
+            disk(i,0,0);
+            if (this.diskCenters[i][0] < -1 + r) {
+                disk(i,2,0);
+                disk(i,2,2);
+                disk(i,2,-2);
+            }
+            if (this.diskCenters[i][0] > 1 - r) {
+                disk(i,-2,0);
+                disk(i,-2,2);
+                disk(i,-2,-2);
+            }
+            if (this.diskCenters[i][1] < -1 + r) {
+                disk(i,0,2);
+            }
+            if (this.diskCenters[i][1] > 1 - r) {
+                disk(i,0,-2);
+            }
+        }
+    }
+
+    update(){
+        let DISK_COUNT = this.nombre_disque;
+        for (let i = 0; i < DISK_COUNT; i++) {
+            this.diskCenters[i][0] += this.diskVelocities[i][0];
+            if (this.diskCenters[i][0] < -1) {
+                this.diskCenters[i][0] += 2;
+            }
+            else if (this.diskCenters[i][0] > 1) {
+                this.diskCenters[i][0] -=2;
+            }
+            this.diskCenters[i][1] += this.diskVelocities[i][1];
+            if (this.diskCenters[i][1] < -1) {
+                this.diskCenters[i][1] += 2;
+            }
+            else if (this.diskCenters[i][1] > 1) {
+                this.diskCenters[i][1] -=2;
+            }
+            if (Math.random() < 0.02) {
+                let angle = Math.random()*2*Math.PI;
+                let speed = 0.003 + 0.01*Math.random();
+                this.diskVelocities[i] = [ speed*Math.cos(angle), speed*Math.sin(angle) ];
+            }
+        }
+    }
+}
+
+/*Classe modélisant un objet anime que l'on peut passer à la texture annimée*/
+class Elem_anime_texte extends Elem_anime{
+    constructor(){
+        super()
+
+        //largeur
+        this.width_text = 512;
+        //hauteur
+        this.height_text = 512;
+
+        //Objet représentant la/les formes de la texture
+        this.forme = {
+            //Vitesse de déplacement des formes de la texture
+            vitesse : .01,
+            //Valeur de taille des formes des textures
+            taille : [.3,.3],
+            //Deplacement de chacun des elements de la texture
+            deplacement : [1,1],
+            //Couleur des éléments de la texture (rouge par défaut)
+            couleur : [1, 0, 0, 1],
+            //Centre de la forme composant la texture
+            centre : [0, 0],
+            //Liste des sommets composants la forme
+            tab_coord : [],
+            //angle de direction
+            angle : 1/9,
+            //Nombre de triangles (dessin)
+            nombre_triangles : 0,
+        };
+    }
+
+    init(){
+        console.log("J'INITIALISE LA TEXTURE NORMALE");
+        let rectangle = function (tab,xDeb, yDeb, vect1, vect2){
+            tab.push(
+                xDeb,yDeb,
+                xDeb+vect1[0], yDeb+vect1[1],
+                xDeb+vect2[0], yDeb+vect2[1],
+                xDeb+vect2[0], yDeb+vect2[1],
+                xDeb+vect1[0], yDeb+vect1[1],
+                xDeb+vect1[0]+vect2[0], yDeb+vect1[1]+vect2[1],
+            );
+            return 6;
+        };
+        let lettre_D = function (tab,xDeb,yDeb,hauteur,largeur,italique){
+            let espacement = 1/16*hauteur;
+            let largeur_pol = 1/4*largeur;
+            let hauteur_pol = 1/4*hauteur;
+            return rectangle(tab,xDeb+italique-largeur_pol,yDeb+hauteur,[-italique/2,-1/4*hauteur],[(2/3)*largeur+italique-largeur_pol,0])
+                + rectangle(tab,xDeb+italique+(2*largeur/3)-largeur_pol,yDeb+hauteur,[-italique/2,-1/4*hauteur],[1/3*largeur-espacement,-1/4*hauteur])
+                + rectangle(tab,xDeb+largeur,yDeb+(3*hauteur/4),[-largeur_pol,0],[-italique+espacement,-1/2*hauteur])
+                + rectangle(tab,xDeb-(italique+espacement)/4,yDeb+(3*hauteur/4)-espacement,[-italique,-3/4*hauteur + espacement],[largeur_pol,0])
+                + rectangle(tab,xDeb+(italique/4)-espacement,yDeb+hauteur/4,[-italique,-1/4*hauteur],[largeur-largeur_pol,0]);
+        };
+        let lettre_V = function (tab,xDeb,yDeb,hauteur,largeur,italique){
+            let largeur_pol = largeur/4;
+            let hauteur_pol = hauteur/4;
+            let espacement = hauteur_pol/4;
+            return rectangle(tab,xDeb,yDeb+hauteur,[0,-hauteur_pol],[largeur_pol+espacement,0])
+                + rectangle(tab,xDeb+espacement+largeur_pol,yDeb+hauteur,[-italique,-largeur_pol],[largeur/2 -largeur_pol+espacement-italique,-hauteur+hauteur_pol+italique+espacement])
+                + rectangle(tab,xDeb+largeur/2-2*italique+2*espacement,yDeb+hauteur_pol,[italique-espacement,-hauteur_pol],[largeur/2-(largeur_pol+espacement)+italique,hauteur-hauteur_pol])
+                + rectangle(tab,xDeb-largeur_pol + largeur-italique+espacement,yDeb+hauteur,[0,-largeur_pol],[largeur_pol+espacement,0]);
+
+        };
+        let mot_DVD = function (tab,xDeb,yDeb,hauteur,largeur){
+            return lettre_D(tab,xDeb+.1,yDeb,hauteur,largeur/3,.1)
+                + lettre_V(tab,xDeb+largeur/3+.02,yDeb,hauteur,largeur/3,.05)
+                + lettre_D(tab,xDeb+2*largeur/3,yDeb,hauteur,largeur/3,.1);
+        };
+
+        this.forme.nombre_triangles += mot_DVD(this.forme.tab_coord,-.5,-1/6,1/3,1);
+        this.forme.taille[0] = 1/2;
+        this.forme.taille[1] = 1/6;
+
+        this.coordonnees = new Float32Array(this.forme.tab_coord);
+    }
+
+    /**Méthode permettant à un objet animé dans une texture de pouvoir se dessiner sur celle-ci
+     * @param obj : Texture_animee renseignant la texture dans laquelle cet objet doit se rendre**/
+    render(obj){
+        gl.lineWidth(2);
+        //DRAWDISK
+        //Couleur
+        this.gl.uniform4fv(obj.u_color_texture, this.forme.couleur);
+        this.gl.uniform2f(obj.u_translation_texture,this.forme.centre[0],this.forme.centre[1]);
+        //Coordonnées
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, this.forme.nombre_triangles);
+    }
+
+    update(){
+        let toucher = false;
+        this.forme.centre[0] += this.forme.deplacement[0]*this.forme.vitesse * Math.cos(this.forme.angle*Math.PI*2);
+        //Si on sort des limites, alors on doit procéder à un changement de direction
+        if(this.forme.centre[0] > 1-this.forme.taille[0] || this.forme.centre[0] < -1+this.forme.taille[0]){
+            toucher = true;
+            this.forme.deplacement[0] = this.forme.deplacement[0] * (-1);
+        }
+        //La nouvelle coordonnées y est formée de l'ancienne plus le décalage par rapport à son vecteur direction et sa vitesse et sa rotation sur lui même
+        this.forme.centre[1] += this.forme.deplacement[1]*this.forme.vitesse * Math.sin(this.forme.angle*Math.PI*2);
+        //Si on sort des limites, alors on doit procéder à un changement de direction
+        if(this.forme.centre[1] > 1-this.forme.taille[1] || this.forme.centre[1] < -1+this.forme.taille[1]){
+            toucher = true;
+            this.forme.deplacement[1] = this.forme.deplacement[1] * (-1);
+        }
+        if(toucher){
+            this.forme.couleur = [Math.random(),Math.random(),Math.random(),1];
+            this.forme.vitesse+=.0005;
+            this.forme.angle += (Math.random()-1)*.001;
+        }
+    }
 }
