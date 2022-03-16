@@ -10,8 +10,9 @@ class Model {
     * @param hauteur : Hauteur de la zone de dessin (canva.height)
     * @param largeur : Largeur de la zone de dessin (canva.width)
     * @param rotator : trackball rotator**/
-    constructor(modelData, texture, vertexSH_id,fragmentSH_id,hauteur,largeur,rotator) {
-        this.createProgram();
+    constructor(modelData, texture, vertexSH_id, fragmentSH_id, hauteur, largeur, rotator) {
+        this.createProgram(vertexSH_id, fragmentSH_id);
+
         this.modelData = modelData;
         this.texture = texture;
         this.hauteur = hauteur;
@@ -37,50 +38,8 @@ class Model {
 
 
     /*Méthode permettant de créer le programme à partir des shaders*/
-    createProgram(){
-        function getTextContent( elementID ) {
-            let element = document.getElementById(elementID);
-
-            //console.log("MON ELEM GETCTX CREATE PGR");
-            //console.log(element);
-
-            let node = element.firstChild;
-            let str = "";
-            while (node) {
-                if (node.nodeType == 3) // this is a text node
-                    str += node.textContent;
-                node = node.nextSibling;
-            }
-            return str;
-        }
-        let vertexShaderSource, fragmentShaderSource;
-        try {
-            vertexShaderSource = getTextContent( this.id_vertex_shader );
-            fragmentShaderSource = getTextContent( this.id_fragment_shader );
-        }
-        catch (e) {
-            throw "Error: Could not get shader source code from script elements.";
-        }
-        let vsh = gl.createShader( gl.VERTEX_SHADER );
-        gl.shaderSource(vsh,vertexShaderSource);
-        gl.compileShader(vsh);
-        if ( ! gl.getShaderParameter(vsh, gl.COMPILE_STATUS) ) {
-            throw "Error in vertex shader:  " + gl.getShaderInfoLog(vsh);
-        }
-        let fsh = gl.createShader( gl.FRAGMENT_SHADER );
-        gl.shaderSource(fsh, fragmentShaderSource);
-        gl.compileShader(fsh);
-        if ( ! gl.getShaderParameter(fsh, gl.COMPILE_STATUS) ) {
-            throw "Error in fragment shader:  " + gl.getShaderInfoLog(fsh);
-        }
-        let prog = gl.createProgram();
-        gl.attachShader(prog,vsh);
-        gl.attachShader(prog, fsh);
-        gl.linkProgram(prog);
-        if ( ! gl.getProgramParameter( prog, gl.LINK_STATUS) ) {
-            throw "Link error in program:  " + gl.getProgramInfoLog(prog);
-        }
-        this.prog = prog;
+    createProgram(id_vertex_shader, id_fragment_shader) {
+        initShaderProgramFromHTMLId(id_vertex_shader, id_fragment_shader);
     }
 
     init(){
@@ -96,6 +55,8 @@ class Model {
         this.model.texCoordsBuffer = gl.createBuffer();
         this.model.indexBuffer = gl.createBuffer();
         this.model.count = this.modelData.indices.length;
+        //TODO VBO
+        //gl.initVBO
         gl.bindBuffer(this.gl.ARRAY_BUFFER, this.model.coordsBuffer);
         gl.bufferData(this.gl.ARRAY_BUFFER, this.modelData.vertexPositions, this.gl.STATIC_DRAW);
         gl.bindBuffer(this.gl.ARRAY_BUFFER, this.model.normalBuffer);
@@ -104,14 +65,19 @@ class Model {
         gl.bufferData(this.gl.ARRAY_BUFFER, this.modelData.vertexTextureCoords, this.gl.STATIC_DRAW);
         gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.model.indexBuffer);
         gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.modelData.indices, this.gl.STATIC_DRAW);
+        //gl.atribPointer
+        //gl.endVBO
         let obj = this;
         this.model.render = function() {
+            //TODO Bind VBO
+            //delete 
             gl.bindBuffer(obj.gl.ARRAY_BUFFER, obj.model.coordsBuffer);
             gl.vertexAttribPointer(obj.programInfo.attribLocations.vertexPosition, 3, obj.gl.FLOAT, false, 0, 0);
             gl.bindBuffer(obj.gl.ARRAY_BUFFER, obj.model.normalBuffer);
             gl.vertexAttribPointer(obj.programInfo.attribLocations.vertexNormal, 3, obj.gl.FLOAT, false, 0, 0);
             gl.bindBuffer(obj.gl.ARRAY_BUFFER, obj.model.texCoordsBuffer);
             gl.vertexAttribPointer(obj.programInfo.attribLocations.vertexUV, 2, obj.gl.FLOAT, false, 0, 0);
+            //fin delete
 
             gl.uniformMatrix4fv(obj.programInfo.uniformLocations.modelMatrix, false, obj.matrix.modelMatrix);
 
