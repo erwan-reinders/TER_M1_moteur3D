@@ -1,4 +1,6 @@
-var gl;
+let gl;
+let canvas;
+
 //
 // Get gl from canvas
 //
@@ -15,7 +17,6 @@ function initGl(canvasId) {
         return;
     }
 }
-
 
 //
 // Get the content from a HTML tag

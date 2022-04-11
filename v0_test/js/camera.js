@@ -15,4 +15,17 @@ class Camera {
         this.up = up ?? vec3.clone([0, 1, 0]);
         this.target = target ?? vec3.clone([0, 0, 0]);
     }
+
+    getViewMatrix(){
+        let viewM = mat4.create();
+        mat4.lookAt(viewM, this.position, this.target, this.up);
+        return viewM;
+    }
+
+    getProjectionMatrix(){
+        let PerspecM = mat4.create();
+        mat4.perspective(PerspecM, this.fieldOfView, this.aspect, this.zNear, this.zFar);
+        return PerspecM;
+    }
+
 }

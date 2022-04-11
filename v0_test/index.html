@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Title</title>
 
-
     <script type="text/javascript" src="../v0/src/JS/trackball-rotator.js" ></script>
     <script type="text/javascript" src="../v0/src/JS/lib/gl-matrix-min.js" ></script>
     <script type="text/javascript" src="data/meshes/basic-object-models-IFS.js" ></script>
@@ -18,7 +17,6 @@
     <script type="text/javascript" src="js/scene.js"></script>
 </head>
 <body>
-
     <div id="canvas-holder">
         <canvas width=1200 height=600 id="webglcanvas" style="background-color:white"></canvas>
     </div>
@@ -71,22 +69,22 @@
 
             // ambient
             float ambientStrength = 0.1;
-            vec3 ambient = ambientStrength * uLightColor;
+            vec3 ambient = ambientStrength * uObjectColor;
 
             // diffuse
             vec3 norm = normalize(vNormal);
             vec3 lightDir = normalize(uLightPos - vFragPos);
             float diff = max(dot(norm, lightDir), 0.0);
-            vec3 diffuse = diff * uLightColor;
+            vec3 diffuse = diff * uLightColor * uObjectColor;
 
             // specular
-            float specularStrength = uShininess;
+            float specularStrength = 0.5;
             vec3 viewDir = normalize(uViewPos - vFragPos);
             vec3 reflectDir = reflect(-lightDir, norm);
-            float spec = max(dot(viewDir, reflectDir), 0.0);
+            float spec = pow(max(dot(viewDir, reflectDir), 0.0), uShininess);
             vec3 specular = specularStrength * spec * uLightColor;
 
-            vec3 result = (ambient + diffuse + specular) * uObjectColor;
+            vec3 result = ambient + diffuse + specular;
             FragColor = vec4(result, 1.0);
         }
     </script>
@@ -100,17 +98,61 @@
             scene.initModels();
             frame();
 
-            document.addEventListener('keydown', onKey);
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
             document.addEventListener('mousemove', onMousemove);
             document.addEventListener('mousedown', onClick);
         }
 
-        function onKey(event) {
-            console.log(event);
+        let controls = {
+            up : false,
+            down : false,
+            left : false,
+            right : false,
+            forward : false,
+            backward : false,
+        }
+
+        function onKeyDown(event) {
             if (event.key == "ArrowRight") {
-                vec3.add(scene.current_camera.position, scene.current_camera.position, vec3.clone([0.1, 0.0, 0.0]));
+                controls.right = true;
             }
-            frame();
+            if (event.key == "ArrowLeft") {
+                controls.left = true;
+            }
+            if (event.key == "ArrowUp") {
+                controls.up = true;
+            }
+            if (event.key == "ArrowDown") {
+                controls.down = true;
+            }
+            if (event.key == "z") {
+                controls.forward = true;
+            }
+            if (event.key == "s") {
+                controls.backward = true;
+            }
+        }
+
+        function onKeyUp(event) {
+            if (event.key == "ArrowRight") {
+                controls.right = false;
+            }
+            if (event.key == "ArrowLeft") {
+                controls.left = false;
+            }
+            if (event.key == "ArrowUp") {
+                controls.up = false;
+            }
+            if (event.key == "ArrowDown") {
+                controls.down = false;
+            }
+            if (event.key == "z") {
+                controls.forward = false;
+            }
+            if (event.key == "s") {
+                controls.backward = false;
+            }
         }
 
         function onMousemove(event) {
@@ -118,11 +160,148 @@
         }
 
         function onClick(event) {
-            console.log(event);
+            //console.log(event);
+        }
+
+        function processInput() {
+            let move = vec3.create();
+            let speed = 0.1;
+            if (controls.right) {
+                vec3.add(move, move, vec3.clone([speed, 0.0, 0.0]));
+            }
+            if (controls.left) {
+                vec3.add(move, move, vec3.clone([-speed, 0.0, 0.0]));
+            }
+            if (controls.up) {
+                vec3.add(move, move, vec3.clone([0.0, speed, 0.0]));
+            }
+            if (controls.down) {
+                vec3.add(move, move, vec3.clone([0.0, -speed, 0.0]));
+            }
+            if (controls.forward) {
+                vec3.add(move, move, vec3.clone([0.0, 0.0, -speed]));
+            }
+            if (controls.backward) {
+                vec3.add(move, move, vec3.clone([0.0, 0.0, speed]));
+            }
+            vec3.add(scene.current_camera.position, scene.current_camera.position, move);
         }
 
         function frame() {
+            processInput();
             scene.render();
+            requestAnimationFrame(frame);
+        }
+
+        //System message treatment
+        let message = {
+            color_ter : {
+                Reset : "\x1b[0m",
+                Bright : "\x1b[1m",
+                Dim : "\x1b[2m",
+                Underscore : "\x1b[4m",
+                Blink : "\x1b[5m",
+                Reverse : "\x1b[7m",
+                Hidden : "\x1b[8m",
+
+                FgBlack : "\x1b[30m",
+                FgRed : "\x1b[31m",
+                FgGreen : "\x1b[32m",
+                FgYellow : "\x1b[33m",
+                FgBlue : "\x1b[34m",
+                FgMagenta : "\x1b[35m",
+                FgCyan : "\x1b[36m",
+                FgWhite : "\x1b[37m",
+
+                BgBlack : "\x1b[40m",
+                BgRed : "\x1b[41m",
+                BgGreen : "\x1b[42m",
+                BgYellow : "\x1b[43m",
+                BgBlue : "\x1b[44m",
+                BgMagenta : "\x1b[45m",
+                BgCyan : "\x1b[46m",
+                BgWhite : "\x1b[47m",
+            },
+
+            informative : function (type, message){
+                console.log(this.color_ter.FgBlue + "ERREUR DETECTEE :" + this.color_ter.FgGreen + "\n  - TYPE : "+ this.color_ter.FgBlack + type + this.color_ter.FgGreen +"\n  - INTITULE : " + this.color_ter.FgBlack + message);
+            },
+            error : function (type, message){
+                console.log(this.color_ter.FgRed + "ERREUR DETECTEE :" + this.color_ter.FgYellow + "\n  - TYPE : "+ this.color_ter.FgBlack + type + this.color_ter.FgYellow +"\n  - INTITULE : " + this.color_ter.FgBlack + message);
+            },
+        };
+
+        let programs = {
+            elements : {
+                base : {
+                    infos : {
+                        in : {
+                            "aVertexPosition" : 0,
+                            "aVertexNormal" : 1,
+                            "aVertexUV" : 2,
+                        },
+                        uniform : {
+                            "uNormalMatrix" : undefined,
+                            "uViewMatrix" : undefined,
+                            "uModelMatrix" : undefined,
+                            "uModelViewMatrix" : undefined,
+                            "uProjectionMatrix" : undefined,
+                        },
+                    },
+                    vshader : "vs",
+                    fshader : "fs",
+                    shader_program : null,
+                },
+                test : {
+                    infos : {
+                        in : {
+                            "aVertexPosition" : 0,
+                            "aVertexNormal" : 1,
+                            "aVertexUV" : 2,
+                        },
+                        uniform : {
+                            "uNormalMatrix" : undefined,
+                            "uViewMatrix" : undefined,
+                            "uModelMatrix" : undefined,
+                            "uModelViewMatrix" : undefined,
+                            "uProjectionMatrix" : undefined,
+                        },
+                    },
+                    vshader : "vs",
+                    fshader : "s",
+                    shader_program : null,
+                },
+            },
+
+            functions : {
+                toString : function (elem){
+                    return " ->Vertex shader : " + programs.elements[elem].vshader + "\n ->Fragment shader : " + programs.elements[elem].fshader + "\n";
+                }
+            }
+        }
+
+        function init(){
+            message.informative("INITIALISATION", "initialisation of the scene");
+            initGl("webglcanvas");
+
+            //Init all the shaders then
+            for (const [key, value] of Object.entries(programs.elements)) {
+                try {
+                    console.log(key);
+                    let prg = initShaderProgramFromHTMLId(programs.elements[key].vshader, programs.elements[key].fshader);
+                    if(prg != null){
+                        programs.elements[key].program = prg;
+
+
+                    }else{
+                        message.error("SYSTEM INIT", "impossible to init shader : \n" + programs.functions.toString(key));
+                    }
+                }catch (e) {
+                    message.error("SYSTEM INIT", "impossible to get shaders : \n" + programs.functions.toString(key));
+                    console.log(e);
+                }
+
+            }
         }
 
         window.onload = main;
