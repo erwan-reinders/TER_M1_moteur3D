@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Title</title>
 
-
     <script type="text/javascript" src="../v0/src/JS/trackball-rotator.js" ></script>
     <script type="text/javascript" src="../v0/src/JS/lib/gl-matrix-min.js" ></script>
     <script type="text/javascript" src="data/meshes/basic-object-models-IFS.js" ></script>
@@ -17,11 +16,9 @@
     <script type="text/javascript" src="js/scene.js"></script>
 </head>
 <body>
-
     <div id="canvas-holder">
         <canvas width=1200 height=600 id="webglcanvas" style="background-color:white"></canvas>
     </div>
-
     <script id="vs" type="x-shader/x-vertex">
         precision highp float;
         attribute vec3 aVertexPosition;
@@ -90,9 +87,121 @@
     </script>
 
     <script type="text/javascript" defer>
-        function main() {
+        //System message treatment
+        let message = {
+            color_ter : {
+                Reset : "\x1b[0m",
+                Bright : "\x1b[1m",
+                Dim : "\x1b[2m",
+                Underscore : "\x1b[4m",
+                Blink : "\x1b[5m",
+                Reverse : "\x1b[7m",
+                Hidden : "\x1b[8m",
+
+                FgBlack : "\x1b[30m",
+                FgRed : "\x1b[31m",
+                FgGreen : "\x1b[32m",
+                FgYellow : "\x1b[33m",
+                FgBlue : "\x1b[34m",
+                FgMagenta : "\x1b[35m",
+                FgCyan : "\x1b[36m",
+                FgWhite : "\x1b[37m",
+
+                BgBlack : "\x1b[40m",
+                BgRed : "\x1b[41m",
+                BgGreen : "\x1b[42m",
+                BgYellow : "\x1b[43m",
+                BgBlue : "\x1b[44m",
+                BgMagenta : "\x1b[45m",
+                BgCyan : "\x1b[46m",
+                BgWhite : "\x1b[47m",
+            },
+
+            informative : function (type, message){
+                console.log(this.color_ter.FgBlue + "ERREUR DETECTEE :" + this.color_ter.FgGreen + "\n  - TYPE : "+ this.color_ter.FgBlack + type + this.color_ter.FgGreen +"\n  - INTITULE : " + this.color_ter.FgBlack + message);
+            },
+            error : function (type, message){
+                console.log(this.color_ter.FgRed + "ERREUR DETECTEE :" + this.color_ter.FgYellow + "\n  - TYPE : "+ this.color_ter.FgBlack + type + this.color_ter.FgYellow +"\n  - INTITULE : " + this.color_ter.FgBlack + message);
+            },
+        };
+
+        let programs = {
+            elements : {
+                base : {
+                    infos : {
+                        in : {
+                            "aVertexPosition" : 0,
+                            "aVertexNormal" : 1,
+                            "aVertexUV" : 2,
+                        },
+                        uniform : {
+                            "uNormalMatrix" : undefined,
+                            "uViewMatrix" : undefined,
+                            "uModelMatrix" : undefined,
+                            "uModelViewMatrix" : undefined,
+                            "uProjectionMatrix" : undefined,
+                        },
+                    },
+                    vshader : "vs",
+                    fshader : "fs",
+                    shader_program : null,
+                },
+                test : {
+                    infos : {
+                        in : {
+                            "aVertexPosition" : 0,
+                            "aVertexNormal" : 1,
+                            "aVertexUV" : 2,
+                        },
+                        uniform : {
+                            "uNormalMatrix" : undefined,
+                            "uViewMatrix" : undefined,
+                            "uModelMatrix" : undefined,
+                            "uModelViewMatrix" : undefined,
+                            "uProjectionMatrix" : undefined,
+                        },
+                    },
+                    vshader : "vs",
+                    fshader : "s",
+                    shader_program : null,
+                },
+            },
+
+            functions : {
+                toString : function (elem){
+                    return " ->Vertex shader : " + programs.elements[elem].vshader + "\n ->Fragment shader : " + programs.elements[elem].fshader + "\n";
+                }
+            }
+        }
+
+        function init(){
+            message.informative("INITIALISATION", "initialisation of the scene");
             initGl("webglcanvas");
-            let scene = new Scene("webglcanvas");
+
+            //Init all the shaders then
+            for (const [key, value] of Object.entries(programs.elements)) {
+                try {
+                    console.log(key);
+                    let prg = initShaderProgramFromHTMLId(programs.elements[key].vshader, programs.elements[key].fshader);
+                    if(prg != null){
+                        programs.elements[key].program = prg;
+
+
+                    }else{
+                        message.error("SYSTEM INIT", "impossible to init shader : \n" + programs.functions.toString(key));
+                    }
+                }catch (e) {
+                    message.error("SYSTEM INIT", "impossible to get shaders : \n" + programs.functions.toString(key));
+                    console.log(e);
+                }
+
+            }
+        }
+
+        function main() {
+            init();
+
+            //let scene = new Scene("webglcanvas");
         }
 
         window.onload = main;

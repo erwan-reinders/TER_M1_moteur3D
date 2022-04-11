@@ -1,23 +1,22 @@
 /*Classe modélisant une scene*/
 class Scene {
-    /**Constructeur d'une scene
-    * @param canvas : ID_HTML du canvas de rendu**/
-    constructor(canvas) {
-        this.canvas = document.getElementById(canvas);
+    /**Constructeur d'une scene**/
+    constructor() {
         this.models = [];
 
         this.matrix = {
-            projectionMatrix : mat4.create(),
-            viewMatrix       : mat4.create(),
-            normalMatrix     : mat4.create(),
+            projectionMatrix : mat4.identity(1),
+            viewMatrix       : mat4.identity(1),
+            normalMatrix     : mat4.identity(1),
         }
+
         this.current_camera = new Camera();
 
         this.programInfo = {
             uniformLocations : {
                 projectionMatrix : 'uProjectionMatrix',
                 normalMatrix     : 'uNormalMatrix',
-                viewMatrix       :  'uViewMatrix',
+                viewMatrix       : 'uViewMatrix',
             }
         };
     }
@@ -31,11 +30,8 @@ class Scene {
     /*Méthode permettant d'initialiser une scène*/
     init() {
         //Initialisation des matrices
-        mat4.perspective(this.matrix.projectionMatrix, this.current_camera.fieldOfView, this.current_camera.aspect, this.current_camera.zNear, this.current_camera.zFar);
-        //mat4.identity(this.matrix.modelMatrix);
-        mat4.lookAt(this.matrix.viewMatrix, this.current_camera.position, this.current_camera.target, this.current_camera.up);
-        mat4.invert(this.matrix.normalMatrix, mat4.identity());
-        mat4.transpose(this.matrix.normalMatrix, this.matrix.normalMatrix);
+        this.matrix.projectionMatrix = this.current_camera.getProjectionMatrix();
+        this.matrix.viewMatrix = this.current_camera.getViewMatrix();
     }
 
     /*Méthode permettant d'initialiser les modèles d'une scène*/
