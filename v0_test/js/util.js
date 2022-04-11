@@ -5,7 +5,7 @@ var gl;
 function initGl(canvasId) {
     canvas = document.getElementById(canvasId);
     try {
-        gl = canvas.getContext("webgl") ||
+        gl = canvas.getContext("webgl2") ||
             canvas.getContext("experimental-webgl");
         if (!gl) {
             throw "Browser does not support WebGL";

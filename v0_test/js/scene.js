@@ -12,14 +12,24 @@ class Scene {
             normalMatrix     : mat4.create(),
         }
         this.current_camera = new Camera();
+        this.current_light = new Light();
 
         this.programInfo = {
             uniformLocations : {
                 projectionMatrix : 'uProjectionMatrix',
                 normalMatrix     : 'uNormalMatrix',
-                viewMatrix       :  'uViewMatrix',
+                viewMatrix       : 'uViewMatrix',
+
+                viewPos    : 'uViewPos',
+                lightPos   : 'uLightPos',
+                lightColor : 'uLightColor',
+
+                objectColor : 'uObjectColor',
+                uShininess  : 'uShininess',
             }
         };
+
+        this.init();
     }
 
     /**Méthode permettant d'ajouter un modèle à la scène
@@ -34,8 +44,7 @@ class Scene {
         mat4.perspective(this.matrix.projectionMatrix, this.current_camera.fieldOfView, this.current_camera.aspect, this.current_camera.zNear, this.current_camera.zFar);
         //mat4.identity(this.matrix.modelMatrix);
         mat4.lookAt(this.matrix.viewMatrix, this.current_camera.position, this.current_camera.target, this.current_camera.up);
-        mat4.invert(this.matrix.normalMatrix, mat4.identity());
-        mat4.transpose(this.matrix.normalMatrix, this.matrix.normalMatrix);
+        mat4.identity(this.matrix.normalMatrix, 1);
     }
 
     /*Méthode permettant d'initialiser les modèles d'une scène*/
@@ -58,9 +67,16 @@ class Scene {
         for (let i = 0; i < this.models.length; i++) {
             gl.useProgram(this.models[i].prog);
             //Pour les élem uniformes
-            gl.uniformMatrix4fv(gl.getAttribLocation(this.models[i].prog, this.programInfo.uniformLocations.projectionMatrix), false, this.matrix.projectionMatrix);
-            gl.uniformMatrix4fv(gl.getAttribLocation(this.models[i].prog, this.programInfo.uniformLocations.viewMatrix), false, this.matrix.viewMatrix);
-            gl.uniformMatrix4fv(gl.getAttribLocation(this.models[i].prog, this.programInfo.uniformLocations.normalMatrix), false, this.matrix.normalMatrix);
+            gl.uniformMatrix4fv(gl.getUniformLocation(this.models[i].prog, this.programInfo.uniformLocations.projectionMatrix), false, this.matrix.projectionMatrix);
+            gl.uniformMatrix4fv(gl.getUniformLocation(this.models[i].prog, this.programInfo.uniformLocations.viewMatrix), false, this.matrix.viewMatrix);
+            gl.uniformMatrix4fv(gl.getUniformLocation(this.models[i].prog, this.programInfo.uniformLocations.normalMatrix), false, this.matrix.normalMatrix);
+            
+            gl.uniform3fv(gl.getUniformLocation(this.models[i].prog, this.programInfo.uniformLocations.viewPos), this.current_camera.position);
+            gl.uniform3fv(gl.getUniformLocation(this.models[i].prog, this.programInfo.uniformLocations.lightPos), this.current_light.position);
+            gl.uniform3fv(gl.getUniformLocation(this.models[i].prog, this.programInfo.uniformLocations.lightColor), this.current_light.color);
+
+            gl.uniform3fv(gl.getUniformLocation(this.models[i].prog, this.programInfo.uniformLocations.objectColor), vec3.clone([1.0, 0.0, 0.0]));
+            gl.uniform1f(gl.getUniformLocation(this.models[i].prog, this.programInfo.uniformLocations.shininess), .5);
 
             this.models[i].render();
 

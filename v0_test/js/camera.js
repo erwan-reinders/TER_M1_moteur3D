@@ -11,7 +11,7 @@ class Camera {
         this.zNear = 0.1;
         this.zFar = 100.0;
 
-        this.position = pos ?? vec3.clone([5, 2, 5]);
+        this.position = pos ?? vec3.clone([0, 0, 5]);
         this.up = up ?? vec3.clone([0, 1, 0]);
         this.target = target ?? vec3.clone([0, 0, 0]);
     }
