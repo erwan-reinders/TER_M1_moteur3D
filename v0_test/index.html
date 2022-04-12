@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
 
-    <script type="text/javascript" src="../v0/src/JS/trackball-rotator.js" ></script>
-    <script type="text/javascript" src="../v0/src/JS/lib/gl-matrix-min.js" ></script>
+    <script type="text/javascript" src="lib/gl-matrix-min.js" ></script>
     <script type="text/javascript" src="data/meshes/basic-object-models-IFS.js" ></script>
     <script type="text/javascript" src="data/meshes/teapot-model-IFS.js" ></script>
 
@@ -186,6 +185,7 @@
                 vec3.add(move, move, vec3.clone([0.0, 0.0, speed]));
             }
             vec3.add(scene.current_camera.position, scene.current_camera.position, move);
+            //vec3.add(scene.current_light.position, scene.current_light.position, move);
         }
 
         function frame() {
