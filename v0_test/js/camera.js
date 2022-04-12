@@ -16,6 +16,10 @@ class Camera {
         this.target = target ?? vec3.clone([0, 0, 0]);
     }
 
+    getForward() {
+        return vec3.normalize([], vec3.subtract([], this.target, this.position));
+    }
+
     getViewMatrix(){
         let viewM = mat4.create();
         mat4.lookAt(viewM, this.position, this.target, this.up);

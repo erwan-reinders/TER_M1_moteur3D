@@ -1,9 +1,7 @@
 let gl;
 let canvas;
 
-//
 // Get gl from canvas
-//
 function initGl(canvasId) {
     canvas = document.getElementById(canvasId);
     try {
@@ -30,9 +28,7 @@ function loadFile(filePath) {
     return result;
 }
 
-//
 // Get the content from a HTML tag
-//
 function getTextContent( elementID ) {
     let element = document.getElementById(elementID);
 
@@ -46,62 +42,41 @@ function getTextContent( elementID ) {
     return str;
 }
 
-//
-// Méthode permettant de créer le programme à partir des shaders
-//
-function initShaderProgramFromHTMLId(id_vertex_shader, id_fragment_shader){
-    let vertexShaderSource, fragmentShaderSource;
-    try {
-        vertexShaderSource = getTextContent( id_vertex_shader );
-        fragmentShaderSource = getTextContent( id_fragment_shader );
-    }
-    catch (e) {
-        throw "Error: Could not get shader source code from script elements.";
-    }
-    return initShaderProgram(vertexShaderSource, fragmentShaderSource);
-}
+//System message treatment
+let message = {
+    color_ter : {
+        Reset : "\x1b[0m",
+        Bright : "\x1b[1m",
+        Dim : "\x1b[2m",
+        Underscore : "\x1b[4m",
+        Blink : "\x1b[5m",
+        Reverse : "\x1b[7m",
+        Hidden : "\x1b[8m",
 
-//
-// Initialize a shader program, so WebGL knows how to draw our data
-//
-function initShaderProgram(vsSource, fsSource) {
-    const vertexShader = loadShader(gl.VERTEX_SHADER, vsSource);
-    const fragmentShader = loadShader(gl.FRAGMENT_SHADER, fsSource);
+        FgBlack : "\x1b[30m",
+        FgRed : "\x1b[31m",
+        FgGreen : "\x1b[32m",
+        FgYellow : "\x1b[33m",
+        FgBlue : "\x1b[34m",
+        FgMagenta : "\x1b[35m",
+        FgCyan : "\x1b[36m",
+        FgWhite : "\x1b[37m",
 
-    // Create the shader program
-    const shaderProgram = gl.createProgram();
-    gl.attachShader(shaderProgram, vertexShader);
-    gl.attachShader(shaderProgram, fragmentShader);
-    gl.linkProgram(shaderProgram);
+        BgBlack : "\x1b[40m",
+        BgRed : "\x1b[41m",
+        BgGreen : "\x1b[42m",
+        BgYellow : "\x1b[43m",
+        BgBlue : "\x1b[44m",
+        BgMagenta : "\x1b[45m",
+        BgCyan : "\x1b[46m",
+        BgWhite : "\x1b[47m",
+    },
 
-    // If creating the shader program failed, alert
-    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-        alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
-        return null;
-    }
-
-    return shaderProgram;
-}
-//
-// creates a shader of the given type, uploads the source and
-// compiles it.
-//
-function loadShader(type, source) {
-    const shader = gl.createShader(type);
-
-    // Send the source to the shader object
-    gl.shaderSource(shader, source);
-
-    // Compile the shader program
-    gl.compileShader(shader);
-
-    // See if it compiled successfully
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        const error = gl.getShaderInfoLog(shader);
-        console.error('glsl:' + error);
-        gl.deleteShader(shader);
-        return null;
-    }
-
-    return shader;
-}
+    informative : function (type, message){
+        console.log(this.color_ter.FgBlue + "INFORMATION :" + this.color_ter.FgGreen + "\n  - TYPE : "+ this.color_ter.FgBlack + type + this.color_ter.FgGreen +"\n  - INTITULE : " + this.color_ter.FgBlack + message);
+    },
+    error : function (type, message, line){
+        let lin = line ?? 0;
+        console.log(lin + "-" + this.color_ter.FgRed + "ERREUR DETECTEE :" + this.color_ter.FgYellow + "\n  - TYPE : "+ this.color_ter.FgBlack + type + this.color_ter.FgYellow +"\n  - INTITULE : " + this.color_ter.FgBlack + message);
+    },
+};
