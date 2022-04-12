@@ -16,6 +16,8 @@
     <script type="text/javascript" src="js/camera.js" ></script>
     <script type="text/javascript" src="js/Light.js" ></script>
     <script type="text/javascript" src="js/scene.js"></script>
+    <script type="text/javascript" src="js/shaderProgram.js"></script>
+
 </head>
 <body>
     <div id="canvas-holder">
@@ -31,6 +33,7 @@
         uniform mat4 uNormalMatrix;
         uniform mat4 uViewMatrix;
         uniform mat4 uModelMatrix;
+        uniform mat4 uModelViewMatrix;
         uniform mat4 uProjectionMatrix;
 
         out vec3 vNormal;
@@ -91,6 +94,10 @@
     </script>
 
     <script type="text/javascript" defer>
+        let shaders = [
+            new ShaderProgram("vs","fs"),
+            new ShaderProgram("test","fs"),
+        ];
         let scene;
         function main() {
             initGl("webglcanvas");
@@ -284,25 +291,30 @@
         function init(){
             message.informative("INITIALISATION", "initialisation of the scene");
             initGl("webglcanvas");
+            shaders.forEach(el => el.init());
+        }
 
-            //Init all the shaders then
-            for (const [key, value] of Object.entries(programs.elements)) {
-                try {
-                    console.log(key);
-                    let prg = initShaderProgramFromHTMLId(programs.elements[key].vshader, programs.elements[key].fshader);
-                    if(prg != null){
-                        programs.elements[key].program = prg;
+        function main() {
+            init();
+            shaders[0].setUniform("uNormalMatrix", (valType.Mat4fv));
+            shaders[0].setUniform("uViewMatrix", (valType.Mat4fv));
+            shaders[0].setUniform("uModelMatrix", (valType.Mat4fv));
+            shaders[0].setAllPos();
 
-
-                    }else{
-                        message.error("SYSTEM INIT", "impossible to init shader : \n" + programs.functions.toString(key));
-                    }
-                }catch (e) {
-                    message.error("SYSTEM INIT", "impossible to get shaders : \n" + programs.functions.toString(key));
-                    console.log(e);
+            prop = {
+                normalMat : {
+                    name : "uNormalMatrix",
+                    typ : valType.Mat4fv,
                 }
-
             }
+
+            shaders[0].use();
+            shaders[0].setUniformValueByName("uNormalMatrix",mat4.create());
+            shaders[0].setUniformValueByName("uViewMatrix",mat4.create());
+            shaders[0].setUniformValueByName("uModelMatrix",mat4.create());
+            console.log(shaders[0].toStringUniforms());
+
+            shaders[0].commitValues();
         }
 
         window.onload = main;

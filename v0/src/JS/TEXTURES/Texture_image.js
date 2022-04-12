@@ -59,3 +59,32 @@ Texture_image.prototype.requestCORSIfNotSameOrigin = function (url) {
 Texture_image.isPowerOf2 = function (value) {
     return (value & (value - 1)) == 0;
 }
+
+
+gl.uniform1f (emplacementFloat, v);                 // pour les float
+gl.uniform1fv(emplacementFloat, [v]);               // pour les float ou tableaux de float
+gl.uniform2f (emplacementVec2,  v0, v1);            // pour les vec2
+gl.uniform2fv(emplacementVec2,  [v0, v1]);          // pour les vec2 ou tableaux de vec2
+gl.uniform3f (emplacementVec3,  v0, v1, v2);        // pour les vec3
+gl.uniform3fv(emplacementVec3,  [v0, v1, v2]);      // pour les vec3 ou tableaux de vec3
+gl.uniform4f (emplacementVec4,  v0, v1, v2, v4);    // pour les vec4
+gl.uniform4fv(emplacementVec4,  [v0, v1, v2, v4]);  // pour les vec4 ou tableaux de vec4
+
+gl.uniformMatrix2fv(EmplacementMat2, false, [ tableau à  4 éléments ])  // pour les mat2 ou tableaux de mat2
+gl.uniformMatrix3fv(EmplacementMat3, false, [ tableau à  9 éléments ])  // pour les mat3 ou tableaux de mat3
+gl.uniformMatrix4fv(EmplacementMat4, false, [ tableau à 16 éléments ])  // pour les mat4 ou tableaux de mat4
+
+gl.uniform1i (emplacementInt,   v);                 // pour les int
+gl.uniform1iv(emplacementInt, [v]);                 // pour les int ou tableaux de int
+gl.uniform2i (emplacementIvec2, v0, v1);            // pour les ivec2
+gl.uniform2iv(emplacementIvec2, [v0, v1]);          // pour les ivec2 ou tableaux de ivec2
+gl.uniform3i (emplacementIvec3, v0, v1, v2);        // pour les ivec3
+gl.uniform3iv(emplacementIvec3, [v0, v1, v2]);      // pour les ivec3 ou tableaux de ivec3
+gl.uniform4i (emplacementIvec4, v0, v1, v2, v4);    // pour les ivec4
+gl.uniform4iv(emplacementIvec4, [v0, v1, v2, v4]);  // pour les ivec4 ou tableaux de ivec4
+
+gl.uniform1i (emplacementSampler2D,   v);           // pour les sampler2D (textures)
+gl.uniform1iv(emplacementSampler2D, [v]);           // pour les sampler2D ou tableaux de sampler2D
+
+gl.uniform1i (emplacementSamplerCube,   v);         // pour les samplerCube (textures)
+gl.uniform1iv(emplacementSamplerCube, [v]);
