@@ -141,7 +141,12 @@ class ShaderProgram {
         this.vsID = vertexShaderID;
         this.fsID = fragmentShaderID;
 
-        this.updateRenderUniform = undefined;
+        this.beforeRenderFunction = function (model, scene) {
+
+        };
+        this.afterRenderFunction  = function (model, scene) {
+            
+        };
 
         this.init();
     }
@@ -194,8 +199,12 @@ class ShaderProgram {
         });
     }
 
-    setUpdateRenderUniformFunction(updateRenderUniformFunction) {
-        this.updateRenderUniform = updateRenderUniformFunction;
+    setBeforeRenderFunction(beforeRenderFunction) {
+        this.beforeRenderFunction = beforeRenderFunction;
+    }
+
+    setAfterRenderFunction(afterRenderFunction) {
+        this.afterRenderFunction = afterRenderFunction;
     }
 
     /**Function for set uniform value with shader name

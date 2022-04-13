@@ -19,6 +19,38 @@
  */
 
 
+
+/**
+ * Create a model of a quad on xy plane with coordinates equals -1, 0 or 1.
+ */
+function quad() {
+    var coords = [];
+    var normals = [];
+    var texCoords = [];
+    var indices = [];
+
+    coords.push(-1.0,  1.0,  0.0);
+    coords.push(-1.0, -1.0,  0.0);
+    coords.push( 1.0,  1.0,  0.0);
+    coords.push( 1.0, -1.0,  0.0);
+
+    normals.push(0.0, 0.0, -1.0);
+
+    texCoords.push(0, 1);
+    texCoords.push(0, 0);
+    texCoords.push(1, 1);
+    texCoords.push(1, 0);
+
+    indices.push(0, 1, 2, 2, 1, 3);
+    
+    return {
+        vertexPositions: new Float32Array(coords),
+        vertexNormals: new Float32Array(normals),
+        vertexTextureCoords: new Float32Array(texCoords),
+        indices: new Uint16Array(indices)
+    };
+}
+
 /**
  * Create a model of a cube, centered at the origin.  (This is not
  * a particularly good format for a cube, since an IFS representation

@@ -49,12 +49,6 @@ class Scene {
         this.matrix.viewMatrix = this.current_camera.getViewMatrix();
         //On rend les modèles de la scène
         for (let i = 0; i < this.models.length; i++) {
-            this.models[i].shader.use();
-            //Pour les élem uniformes
-            this.models[i].shader.setUniformValueByName("uProjectionMatrix", this.matrix.projectionMatrix);
-            this.models[i].shader.setUniformValueByName("uViewMatrix",       this.matrix.viewMatrix);
-            this.models[i].shader.setUniformValueByName("uNormalMatrix",     this.matrix.normalMatrix);
-
             this.models[i].render();
         }
         // gl.activeTexture(gl.TEXTURE0);

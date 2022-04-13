@@ -4,13 +4,11 @@
 class Model {
     /**Constructeur d'un model
     * @param modelData : ObjetModel renseignant les sommets, la géométrie et les normales d'un objet 3D représentant notre modèle
-    * @param texture : Texture à appliquer à notre modèle
     * @param shaderKey : Key cle key c'est clef en françait pour le shader ("programme sur GPU ("carte graphique")")**/
-    constructor(modelData, texture, shaderKey) {
+    constructor(modelData, shaderKey) {
         this.shader = shaders.get(shaderKey);
 
         this.modelData = modelData;
-        this.texture = texture;
 
         this.matrix = {
             modelMatrix      : mat4.create(),
@@ -27,8 +25,6 @@ class Model {
     }
 
     init(){
-        if (this.texture)
-            this.texture.init();
         this.createModel();
     }
 
@@ -64,8 +60,6 @@ class Model {
             gl.vertexAttribPointer(obj.programInfo.attribLocations.vertexUV, 2, gl.FLOAT, false, 0, 0);
             //fin delete
 
-            obj.shader.setUniformValueByName("uModelMatrix", obj.matrix.modelMatrix);
-
             //mat3.normalFromMat4(obj.normalMatrix, obj.matrix.modelMatrix);
             //gl.uniformMatrix3fv(obj.u_transformation, false, obj.transformation);
             //gl.uniform3f(obj.u_translation, obj.translation[0],obj.translation[1],obj.translation[2]);
@@ -78,12 +72,10 @@ class Model {
 
     render(){
         //On rend d'abord la texture asoociée à l'objet
-        if (this.texture)
-            this.texture.render();
         //gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 
         this.shader.use();
-        this.shader.updateRenderUniform(scene);
+        this.shader.beforeRenderFunction(this, scene);
 
         //gl.clearColor(0,0,0,1);
         //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -95,13 +87,13 @@ class Model {
         gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexPosition);
         gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexNormal);
         gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexUV);
-        if (this.texture)
-            gl.bindTexture(gl.TEXTURE_2D, this.texture.texture);
 
         this.model.render();
 
         gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexPosition);
         gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexNormal);
         gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexUV);
+
+        this.shader.afterRenderFunction(this, scene);
     }
 }
