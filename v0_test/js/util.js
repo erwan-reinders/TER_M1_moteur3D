@@ -4,6 +4,8 @@ let canvas;
 // Get gl from canvas
 function initGl(canvasId) {
     canvas = document.getElementById(canvasId);
+    canvas.width = screen.availWidth - 20;
+    canvas.height = screen.availHeight - 130;
     try {
         gl = canvas.getContext("webgl2") ||
             canvas.getContext("experimental-webgl");
@@ -24,6 +26,9 @@ function loadFile(filePath) {
     xmlhttp.send();
     if (xmlhttp.status==200) {
         result = xmlhttp.responseText;
+    }
+    else {
+        throw "Error loading file "+filePath+".";
     }
     return result;
 }
@@ -73,11 +78,22 @@ let message = {
     },
 
     informative : function (type, message){
-        console.log(this.color_ter.FgBlue + "INFORMATION :" + this.color_ter.FgGreen + "\n  - TYPE : "+ this.color_ter.FgBlack + type + this.color_ter.FgGreen +"\n  - INTITULE : " + this.color_ter.FgBlack + message);
+        if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1){
+            console.info("INFORMATION :\n  - TYPE : "+type+"\n  - INTITULE : "+ message);
+        }
+        else {
+            console.log(this.color_ter.FgBlue + "INFORMATION :" + this.color_ter.FgGreen + "\n  - TYPE : "+ this.color_ter.FgBlack + type + this.color_ter.FgGreen +"\n  - INTITULE : " + this.color_ter.FgBlack + message);
+        }
     },
     error : function (type, message, line){
         let lin = line ?? 0;
-        console.log(lin + "-" + this.color_ter.FgRed + "ERREUR DETECTEE :" + this.color_ter.FgYellow + "\n  - TYPE : "+ this.color_ter.FgBlack + type + this.color_ter.FgYellow +"\n  - INTITULE : " + this.color_ter.FgBlack + message);
+        if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1){
+            console.log(lin + "-");
+            console.error("ERREUR DETECTEE :\n  - TYPE : "+ type + "\n  - INTITULE : "+ message);
+        }
+        else {
+            console.log(lin + "-" + this.color_ter.FgRed + "ERREUR DETECTEE :" + this.color_ter.FgYellow + "\n  - TYPE : "+ this.color_ter.FgBlack + type + this.color_ter.FgYellow +"\n  - INTITULE : " + this.color_ter.FgBlack + message);
+        }
     },
 };
 

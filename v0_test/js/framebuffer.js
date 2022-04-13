@@ -35,7 +35,7 @@ class Framebuffer {
         gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, SCR_WIDTH, SCR_HEIGHT);
         gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.rboDepth);
         if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE)
-            console.log("Framebuffer not complete!");
+            message.error("FRAMEBUFFER INIT", "Framebuffer not complete!");
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }

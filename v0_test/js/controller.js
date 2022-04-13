@@ -9,6 +9,7 @@ class Controller {
 
     constructor(scene) {
         this.keyControls = new Map();
+        this.mouseControls = new Map();
         this.scene = scene;
         this.initControls();
     }
@@ -20,6 +21,8 @@ class Controller {
         this.keyControls.set("right",    new Input("ArrowLeft"));
         this.keyControls.set("forward",  new Input("z"));
         this.keyControls.set("backward", new Input("s"));
+
+        this.mouseControls.set("drag", new Input(1));
     }
 
     onKeyDown(event) {
@@ -40,14 +43,23 @@ class Controller {
 
     onMouseMove(event) {
         //console.log(event);
+        // if (this.mouseControls.get("drag").value) {
+        //     console.log(event.clientX + " " + event.clientY);
+        // }
     }
 
     onMouseDown(event) {
-        //console.log(event);
+        for (let input of this.mouseControls) {
+            if (event.buttons == input[1].name) {
+                input[1].value = true;
+            }
+        }
     }
 
     onMouseUp(event) {
-        //console.log(event);
+        for (let input of this.mouseControls) {
+            input[1].value = false;
+        }
     }
 
     processInput() {
@@ -55,29 +67,30 @@ class Controller {
 
         let cameraForward = this.scene.current_camera.getForward();
         let cameraUp = this.scene.current_camera.up;
-        let cameraRight = vec3.cross([], cameraForward, cameraUp);
+        let cameraRight = vec3.normalize([], vec3.cross([], cameraUp, cameraForward));
+        cameraUp = vec3.normalize([], vec3.cross([], cameraForward, cameraRight));
 
         let speed = 0.1;
         let speedVec = vec3.fromValues(speed, speed, speed);
         let speedVecInv = vec3.fromValues(-speed, -speed, -speed);
         
         if (this.keyControls.get("right").value) {
-            vec3.add(move, move, vec3.multiply([], cameraRight, speedVecInv));
-        }
-        if (this.keyControls.get("left").value) {
             vec3.add(move, move, vec3.multiply([], cameraRight, speedVec));
         }
+        if (this.keyControls.get("left").value) {
+            vec3.add(move, move, vec3.multiply([], cameraRight, speedVecInv));
+        }
         if (this.keyControls.get("up").value) {
-            vec3.add(move, move, vec3.clone([0.0, speed, 0.0]));
+            vec3.add(move, move, vec3.multiply([], cameraUp, speedVec));
         }
         if (this.keyControls.get("down").value) {
-            vec3.add(move, move, vec3.clone([0.0, -speed, 0.0]));
+            vec3.add(move, move, vec3.multiply([], cameraUp, speedVecInv));
         }
         if (this.keyControls.get("forward").value) {
-            vec3.add(move, move, vec3.clone([0.0, 0.0, -speed]));
+            vec3.add(move, move, vec3.multiply([], cameraForward, speedVec));
         }
         if (this.keyControls.get("backward").value) {
-            vec3.add(move, move, vec3.clone([0.0, 0.0, speed]));
+            vec3.add(move, move, vec3.multiply([], cameraForward, speedVecInv));
         }
         vec3.add(this.scene.current_camera.position, this.scene.current_camera.position, move);
         //vec3.add(scene.current_light.position, scene.current_light.position, move);

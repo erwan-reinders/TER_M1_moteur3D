@@ -11,6 +11,19 @@ function initShaderProgramFromHTMLId(id_vertex_shader, id_fragment_shader){
     return initShaderProgram(vertexShaderSource, fragmentShaderSource);
 }
 
+function initShaderProgramFromFile(file_vertex_shader, file_fragment_shader) {
+    let shaderPath = "data/shaders/";
+    let vertexShaderSource, fragmentShaderSource;
+    try {
+        vertexShaderSource = loadFile( shaderPath + file_vertex_shader );
+        fragmentShaderSource = loadFile( shaderPath + file_fragment_shader );
+    }
+    catch (e) {
+        throw "Error: Could not get shader source code from file.";
+    }
+    return initShaderProgram(vertexShaderSource, fragmentShaderSource);
+}
+
 //Initialize a shader program, so WebGL knows how to draw our data
 function initShaderProgram(vsSource, fsSource) {
     const vertexShader = loadShader(gl.VERTEX_SHADER, vsSource);
@@ -80,13 +93,13 @@ const valType = {
     },
 
     Mat2fv : function (emplacement, v){
-        gl.uniformMatrix2fv(emplacement, false,v);
+        gl.uniformMatrix2fv(emplacement, false, v);
     },
     Mat3fv : function (emplacement, v){
-        gl.uniformMatrix3fv(emplacement, false,v);
+        gl.uniformMatrix3fv(emplacement, false, v);
     },
     Mat4fv : function (emplacement, v){
-        gl.uniformMatrix4fv(emplacement, false,v);
+        gl.uniformMatrix4fv(emplacement, false, v);
     },
 
     i1 : function (emplacement, v){
@@ -127,10 +140,28 @@ class ShaderProgram {
         this.uniforms = [];
         this.vsID = vertexShaderID;
         this.fsID = fragmentShaderID;
+
+        this.updateRenderUniform = undefined;
+
+        this.init();
     }
 
-    //Function for init the shader
+    //Function to initialize the shader
     init(){
+        try {
+            let prg = initShaderProgramFromFile(this.vsID, this.fsID);
+            if(prg != null){
+                this.programID = prg;
+            }else{
+                message.error("SYSTEM INIT", "impossible to init shader : \n" + this.toString());
+            }
+        }catch (e) {
+            message.error("SYSTEM INIT", "impossible to get shaders : \n" + this.toString());
+            console.log(e);
+        }
+    }
+
+    initFromId(){
         try {
             let prg = initShaderProgramFromHTMLId(this.vsID, this.fsID);
             if(prg != null){
@@ -163,10 +194,15 @@ class ShaderProgram {
         });
     }
 
+    setUpdateRenderUniformFunction(updateRenderUniformFunction) {
+        this.updateRenderUniform = updateRenderUniformFunction;
+    }
+
     /**Function for set uniform value with shader name
      * @param name : String name of the param
      * @param val : Float32Array value of the parameter**/
-    setUniformValueByName(name,val){
+    setUniformValueByName(name, val){
+        //TODO remplacer ça par une map
         let elem = undefined;
         for (let i = 0; i < this.uniforms.length; i++) {
             let element = this.uniforms[i];
@@ -177,6 +213,7 @@ class ShaderProgram {
         }
         if(elem !== undefined){
             elem.val = val;
+            elem.type(elem.pos, val);
         }else{
             message.error("SHADER", "set uniform value undefined " + name, Error().lineNumbe);
         }
@@ -185,7 +222,7 @@ class ShaderProgram {
     /**Function for set uniform value with shader pos
      * @param pos : Number name of the param
      * @param val : Float32Array value of the parameter**/
-    setUniformValueByPos(pos,val){
+    setUniformValueByPos(pos, val){
         let elem = undefined;
         for (let i = 0; i < this.uniforms.length; i++) {
             let element = this.uniforms[i];

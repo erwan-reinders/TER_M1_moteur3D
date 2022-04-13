@@ -5,17 +5,12 @@ class Model {
     /**Constructeur d'un model
     * @param modelData : ObjetModel renseignant les sommets, la géométrie et les normales d'un objet 3D représentant notre modèle
     * @param texture : Texture à appliquer à notre modèle
-    * @param vertexSH : ID_HTMLVertexShader du programme de dessin du modèle
-    * @param fragmentSH : ID_HTMLFragmentShader du programme de dessin du modèle
-    * @param hauteur : Hauteur de la zone de dessin (canva.height)
-    * @param largeur : Largeur de la zone de dessin (canva.width)**/
-    constructor(modelData, texture, vertexSH_id, fragmentSH_id, hauteur, largeur) {
-        this.prog = this.createProgram(vertexSH_id, fragmentSH_id);
+    * @param shaderKey : Key cle key c'est clef en françait pour le shader ("programme sur GPU ("carte graphique")")**/
+    constructor(modelData, texture, shaderKey) {
+        this.shader = shaders.get(shaderKey);
 
         this.modelData = modelData;
         this.texture = texture;
-        this.hauteur = hauteur;
-        this.largeur = largeur;
 
         this.matrix = {
             modelMatrix      : mat4.create(),
@@ -26,29 +21,19 @@ class Model {
                 vertexNormal   : 1,
                 vertexUV       : 2,
             },
-            uniformLocations : {
-                modelMatrix      : gl.getUniformLocation(this.prog, 'uModelMatrix'),
-                texture          : gl.getUniformLocation(this.prog, "texture"),
-            }
         };
 
         this.init();
     }
 
-
-    /*Méthode permettant de créer le programme à partir des shaders*/
-    createProgram(id_vertex_shader, id_fragment_shader) {
-        return initShaderProgramFromHTMLId(id_vertex_shader, id_fragment_shader);
-    }
-
     init(){
         if (this.texture)
             this.texture.init();
-        gl.useProgram(this.prog);
         this.createModel();
     }
 
     createModel(){
+        this.shader.use();
         this.model = {};
         this.model.coordsBuffer = gl.createBuffer();
         this.model.normalBuffer = gl.createBuffer();
@@ -79,7 +64,7 @@ class Model {
             gl.vertexAttribPointer(obj.programInfo.attribLocations.vertexUV, 2, gl.FLOAT, false, 0, 0);
             //fin delete
 
-            gl.uniformMatrix4fv(obj.programInfo.uniformLocations.modelMatrix, false, obj.matrix.modelMatrix);
+            obj.shader.setUniformValueByName("uModelMatrix", obj.matrix.modelMatrix);
 
             //mat3.normalFromMat4(obj.normalMatrix, obj.matrix.modelMatrix);
             //gl.uniformMatrix3fv(obj.u_transformation, false, obj.transformation);
@@ -97,7 +82,8 @@ class Model {
             this.texture.render();
         //gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 
-        gl.useProgram(this.prog);
+        this.shader.use();
+        this.shader.updateRenderUniform(scene);
 
         //gl.clearColor(0,0,0,1);
         //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -105,6 +91,7 @@ class Model {
         //gl.enable(gl.DEPTH_TEST);
         //gl.viewport(0,0,this.largeur,this.hauteur);
 
+        //TODO VBO
         gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexPosition);
         gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexNormal);
         gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexUV);
