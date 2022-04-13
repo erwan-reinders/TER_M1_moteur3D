@@ -80,3 +80,64 @@ let message = {
         console.log(lin + "-" + this.color_ter.FgRed + "ERREUR DETECTEE :" + this.color_ter.FgYellow + "\n  - TYPE : "+ this.color_ter.FgBlack + type + this.color_ter.FgYellow +"\n  - INTITULE : " + this.color_ter.FgBlack + message);
     },
 };
+
+
+// TEXTURE LOADING
+
+/**Method for loading textures from an image
+ * @param src : String for ressource image texture
+ * @return WebGLTexture of the image ressource**/
+function getTextureImage(src){
+    let img = new Image();
+
+    let texture = initTexture( 3);
+
+    img.addEventListener('load', function() {
+
+        message.informative("IMG LOADER", "I've got the image : " + this.src);
+
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this);
+
+        if (isPowerOf2(this.width) && isPowerOf2(this.height)) {
+            // MIP MAP GENERATION
+            gl.generateMipmap(gl.TEXTURE_2D);
+        } else {
+            //Not power of two
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        }
+    });
+
+    requestCORSIfNotSameOrigin(img,src);
+    img.src = src;
+    return texture;
+}
+
+//https://webglfundamentals.org/webgl/lessons/webgl-cors-permission.html
+/**Function for request an image if its not from local region
+ * @param img : Image requested
+ * @param url : String url of the ressource image**/
+function requestCORSIfNotSameOrigin(img, url) {
+    if ((new URL(url, window.location.href)).origin !== window.location.origin) {
+        img.crossOrigin = "";
+    }
+}
+
+/**Function for init the webgl texture
+ * @param nbCanal : Number of canals of the texture image (RGB, RGBA, LOG)
+ * @return WebGLTexture index for texture**/
+function initTexture( nbCanal){
+    let text = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, text);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, /*Default color*/new Uint8Array([0, 0, 255, 255]));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    return text;
+}
+
+/**Function for determining if a number is a power of two
+ * @param value : Number for determination**/
+function isPowerOf2(value) {
+    return (value & (value - 1)) == 0;
+}

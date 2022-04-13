@@ -98,10 +98,8 @@
             new ShaderProgram("vs","fs"),
             new ShaderProgram("test","fs"),
         ];
-        
+
         let scene;
-
-
 
         function init(){
             message.informative("INITIALISATION", "initialisation of the scene");
@@ -115,6 +113,7 @@
             scene = new Scene("webglcanvas");
             scene.addModel(new Model(cube(), null, "vs", "fs", gl.drawingBufferHeight, gl.drawingBufferWidth));
             scene.initModels();
+            frame();
 
             controler = new Controller(scene);
             document.addEventListener('keydown', onKeyDown);
