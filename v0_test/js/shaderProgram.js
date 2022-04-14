@@ -147,6 +147,9 @@ class ShaderProgram {
         this.afterRenderFunction  = function (model, scene) {
             
         };
+        this.beforeAnyRendering   = function () {
+            
+        }
 
         this.init();
     }
@@ -205,6 +208,10 @@ class ShaderProgram {
 
     setAfterRenderFunction(afterRenderFunction) {
         this.afterRenderFunction = afterRenderFunction;
+    }
+    
+    setBeforeAnyRendering(beforeAnyRendering) {
+        this.beforeAnyRendering = beforeAnyRendering;
     }
 
     /**Function for set uniform value with shader name

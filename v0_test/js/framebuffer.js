@@ -24,11 +24,17 @@ class Framebuffer {
         this.framebuffer = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
 
+        gl.activeTexture(gl.TEXTURE0);
+        
+        if (!gl.getExtension("EXT_color_buffer_float")) {
+            message.error("FRAMEBUFFER INIT", "FLOAT color buffer not available : EXT_color_buffer_float is unavailable on this system.");
+        }
+
         let attachements = new Array();
         for (let i = 0; i < this.textures.length; i++) {
             this.textures[i] = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, this.textures[i]);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, SCR_WIDTH, SCR_HEIGHT, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, gl.RGBA, gl.FLOAT, null);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0 + i, gl.TEXTURE_2D, this.textures[i], 0);

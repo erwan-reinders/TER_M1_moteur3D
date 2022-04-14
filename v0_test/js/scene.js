@@ -45,6 +45,10 @@ class Scene {
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+        shaders.forEach((v, k) => {
+            v.beforeAnyRendering();
+        });
+
         this.matrix.projectionMatrix = this.current_camera.getProjectionMatrix();
         this.matrix.viewMatrix = this.current_camera.getViewMatrix();
         //On rend les modèles de la scène

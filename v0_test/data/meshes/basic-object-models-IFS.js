@@ -35,6 +35,7 @@ function quad() {
     coords.push( 1.0, -1.0,  0.0);
 
     normals.push(0.0, 0.0, -1.0);
+    normals.push(0.0, 0.0, -1.0);
 
     texCoords.push(0, 1);
     texCoords.push(0, 0);

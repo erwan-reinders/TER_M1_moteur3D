@@ -87,7 +87,6 @@
 
             s.setAllPos();
 
-            s.texture = getTextureImage("data/img/chouette.png");
             s.setBeforeRenderFunction(function (model, scene) {
                 this.use();
                 //Pour le vertex shader
@@ -98,7 +97,7 @@
                 this.setUniformValueByName("uModelMatrix", model.matrix.modelMatrix);
 
                 gl.activeTexture(gl.TEXTURE0);
-                gl.bindTexture(gl.TEXTURE_2D, this.texture);
+                gl.bindTexture(gl.TEXTURE_2D, model.texture);
                 this.setUniformValueByName("uSampler", 0);
             });
 
@@ -121,6 +120,11 @@
             s.setAllPos();
 
             s.framebuffer = new Framebuffer(canvas.width, canvas.height, 3);
+            s.setBeforeAnyRendering(function () {
+                this.framebuffer.use();
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+                Framebuffer.clear();
+            });
             s.setBeforeRenderFunction(function (model, scene) {
                 this.use();
                 //Pour le vertex shader
@@ -131,7 +135,6 @@
                 this.setUniformValueByName("uModelMatrix", model.matrix.modelMatrix);
                 
                 this.framebuffer.use();
-                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
                 this.setUniformValueByName("uObjectColor",    vec3.clone([0.0, 1.0, 1.0]));
                 this.setUniformValueByName("uObjectSpecular", 16.0);
@@ -169,18 +172,65 @@
 
             shaders.set("testGBufferLight", s);
 
+
+
+            s = new ShaderProgram("ScreenPosVertexShader.glsl", "LightBlinnPhongFragmentShader.glsl");
+            s.use();
+
+            s.setUniform("gPosition",   valType.i1);
+            s.setUniform("gNormal",     valType.i1);
+            s.setUniform("gAlbedoSpec", valType.i1);
+
+            s.setUniform("uViewPos",    valType.f3v);
+
+            s.setAllPos();
+
+            s.setBeforeRenderFunction(function (model, scene) {
+                this.setUniformValueByName("gPosition", 0);
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, shaders.get("basicGBuffer").framebuffer.textures[0]);
+
+                this.setUniformValueByName("gNormal", 1);
+                gl.activeTexture(gl.TEXTURE1);
+                gl.bindTexture(gl.TEXTURE_2D, shaders.get("basicGBuffer").framebuffer.textures[1]);
+
+                this.setUniformValueByName("gAlbedoSpec", 2);
+                gl.activeTexture(gl.TEXTURE2);
+                gl.bindTexture(gl.TEXTURE_2D, shaders.get("basicGBuffer").framebuffer.textures[2]);
+                
+                this.setUniformValueByName("uViewPos",    scene.current_camera.position);
+            });
+
+            shaders.set("lightBlinnPhong", s);
+
         }
 
         let controler;
         function main() {
             init();
             scene = new Scene("webglcanvas");
-            scene.addModel(new Model(cube(), "texture"));
-            scene.models[0].matrix.modelMatrix = mat4.clone([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.5, 0.0, 0.0, 1.0]);
-            scene.addModel(new Model(cube(), "blinnPhong"));
-            scene.models[1].matrix.modelMatrix = mat4.clone([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, -1.5, 0.0, 0.0, 1.0]);
+
             scene.addModel(new Model(cube(), "basicGBuffer"));
-            scene.addModel(new Model(quad(), "testGBufferLight"));
+            let m = new Model(cube(), "basicGBuffer");
+            m.matrix.modelMatrix = mat4.clone(
+                [1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                2, 0, 0, 1]
+            )
+            scene.addModel(m);
+
+            m = new Model(cube(), "basicGBuffer");
+            m.matrix.modelMatrix = mat4.clone(
+                [100, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 100, 0,
+                0, -1, 0, 1]
+            )
+            scene.addModel(m);
+
+            scene.addModel(new Model(quad(), "lightBlinnPhong"));
+            
             scene.initModels();
 
             controler = new Controller(scene);
