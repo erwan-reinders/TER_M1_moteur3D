@@ -136,8 +136,10 @@
                 
                 this.framebuffer.use();
 
-                this.setUniformValueByName("uObjectColor",    vec3.clone([0.0, 1.0, 1.0]));
-                this.setUniformValueByName("uObjectSpecular", 16.0);
+                let color = (model.color) ? model.color : vec3.clone([0.0, 1.0, 1.0]);
+                let spec = (model.spec) ? model.spec : 1.0;
+                this.setUniformValueByName("uObjectColor",    color);
+                this.setUniformValueByName("uObjectSpecular", spec);
             });
             s.setAfterRenderFunction(function (model, scene) {
                 Framebuffer.clear();
@@ -210,20 +212,50 @@
             init();
             scene = new Scene("webglcanvas");
 
-            scene.addModel(new Model(cube(), "basicGBuffer"));
-            let m = new Model(cube(), "basicGBuffer");
+            let m;
+
+            //BRONZE
+            m = new Model(cube(), "basicGBuffer");
+            m.matrix.modelMatrix = mat4.clone(
+                [1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                -2, 0, 0, 1]
+            )
+            m.color = vec3.clone([0.86, 0.61, 0.23]);
+            m.spec = 10.0;
+            scene.addModel(m);
+
+            //SILVER
+            m = new Model(cube(), "basicGBuffer");
+            m.matrix.modelMatrix = mat4.clone(
+                [1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1]
+            )
+            m.color = vec3.clone([0.66, 0.61, 0.63]);
+            m.spec = 30.0;
+            scene.addModel(m);
+
+            
+            //GOLD
+            m = new Model(cube(), "basicGBuffer");
             m.matrix.modelMatrix = mat4.clone(
                 [1, 0, 0, 0,
                 0, 1, 0, 0,
                 0, 0, 1, 0,
                 2, 0, 0, 1]
             )
+            m.color = vec3.clone([0.96, 0.91, 0.23]);
+            m.spec = 100.0;
             scene.addModel(m);
+
 
             m = new Model(cube(), "basicGBuffer");
             m.matrix.modelMatrix = mat4.clone(
                 [100, 0, 0, 0,
-                0, 1, 0, 0,
+                0, 0.01, 0, 0,
                 0, 0, 100, 0,
                 0, -1, 0, 1]
             )
