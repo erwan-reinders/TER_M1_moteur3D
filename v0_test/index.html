@@ -34,75 +34,6 @@
             initGl("webglcanvas");
             
             shaders = new Map();
-
-            //BLINN PHONG
-            let s = new ShaderProgram("MVPVertexShader.glsl", "BlinnPhongFragmentShader.glsl");
-            s.use();
-            // uniform for vertex shader
-            s.setUniform("uModelMatrix",      valType.Mat4fv);
-            s.setUniform("uViewMatrix",       valType.Mat4fv);
-            s.setUniform("uProjectionMatrix", valType.Mat4fv);
-            s.setUniform("uNormalMatrix",     valType.Mat4fv);
-
-            // uniform for fragment shader
-            s.setUniform("uViewPos",    valType.f3v);
-            s.setUniform("uLightPos",   valType.f3v);
-            s.setUniform("uLightColor", valType.f3v);
-
-            s.setUniform("uObjectColor", valType.f3v);
-            s.setUniform("uShininess",   valType.f1);
-
-            s.setAllPos();
-
-            s.setBeforeRenderFunction(function (model, scene) {
-                this.use();
-                //Pour le vertex shader
-                this.setUniformValueByName("uProjectionMatrix", scene.matrix.projectionMatrix);
-                this.setUniformValueByName("uViewMatrix",       scene.matrix.viewMatrix);
-                this.setUniformValueByName("uNormalMatrix",     scene.matrix.normalMatrix);
-
-                this.setUniformValueByName("uModelMatrix", model.matrix.modelMatrix);
-
-                this.setUniformValueByName("uViewPos",    scene.current_camera.position);
-                this.setUniformValueByName("uLightPos",   scene.current_light.position);
-                this.setUniformValueByName("uLightColor", scene.current_light.color);
-                
-                this.setUniformValueByName("uObjectColor", vec3.clone([1.0, 0.0, 1.0]));
-                this.setUniformValueByName("uShininess",   16.0);
-            });
-
-            shaders.set("blinnPhong", s);
-
-            //TEXTURE
-            s = new ShaderProgram("MVPVertexShader.glsl", "TextureBrutFragmentShader.glsl");
-            s.use();
-            // uniform for vertex shader
-            s.setUniform("uModelMatrix",      valType.Mat4fv);
-            s.setUniform("uViewMatrix",       valType.Mat4fv);
-            s.setUniform("uProjectionMatrix", valType.Mat4fv);
-            s.setUniform("uNormalMatrix",     valType.Mat4fv);
-
-            // uniform for fragment shader
-            s.setUniform("uSampler",   valType.i1);
-
-            s.setAllPos();
-
-            s.setBeforeRenderFunction(function (model, scene) {
-                this.use();
-                //Pour le vertex shader
-                this.setUniformValueByName("uProjectionMatrix", scene.matrix.projectionMatrix);
-                this.setUniformValueByName("uViewMatrix",       scene.matrix.viewMatrix);
-                this.setUniformValueByName("uNormalMatrix",     scene.matrix.normalMatrix);
-
-                this.setUniformValueByName("uModelMatrix", model.matrix.modelMatrix);
-
-                gl.activeTexture(gl.TEXTURE0);
-                gl.bindTexture(gl.TEXTURE_2D, model.texture);
-                this.setUniformValueByName("uSampler", 0);
-            });
-
-            shaders.set("texture", s);
-
             
             //GBUFFER
             s = new ShaderProgram("MVPVertexShader.glsl", "GBufferBasicFragmentShader.glsl");
@@ -148,6 +79,59 @@
             shaders.set("basicGBuffer", s);
 
 
+
+            s = new ShaderProgram("MVPVertexShader.glsl", "GBufferTextureFragmentShader.glsl");
+            s.use();
+            // uniform for vertex shader
+            s.setUniform("uModelMatrix",      valType.Mat4fv);
+            s.setUniform("uViewMatrix",       valType.Mat4fv);
+            s.setUniform("uProjectionMatrix", valType.Mat4fv);
+            s.setUniform("uNormalMatrix",     valType.Mat4fv);
+
+            // uniform for fragment shader
+            s.setUniform("uDiffuseTexture",  valType.i1);
+            s.setUniform("uSpecularTexture", valType.i1);
+            s.setUniform("uDiffuseFactor",   valType.f3v);
+            s.setUniform("uSpecularFactor",  valType.f1);
+
+            s.setAllPos();
+
+            s.framebuffer = new Framebuffer(canvas.width, canvas.height, 3);
+            s.setBeforeAnyRendering(function () {
+                this.framebuffer.use();
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+                Framebuffer.clear();
+            });
+            s.setBeforeRenderFunction(function (model, scene) {
+                this.use();
+                //Pour le vertex shader
+                this.setUniformValueByName("uProjectionMatrix", scene.matrix.projectionMatrix);
+                this.setUniformValueByName("uViewMatrix",       scene.matrix.viewMatrix);
+                this.setUniformValueByName("uNormalMatrix",     scene.matrix.normalMatrix);
+
+                this.setUniformValueByName("uModelMatrix", model.matrix.modelMatrix);
+                
+                this.framebuffer.use();
+
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, model.diffuseTexture);
+                this.setUniformValueByName("uDiffuseTexture", 0);
+                gl.activeTexture(gl.TEXTURE1);
+                gl.bindTexture(gl.TEXTURE_2D, model.specularTexture);
+                this.setUniformValueByName("uSpecularTexture", 1);
+
+                let diffuseFactor  = (model.diffuseFactor)  ? model.diffuseFactor  : vec3.clone([1.0, 1.0, 1.0]);
+                let specularFactor = (model.specularFactor) ? model.specularFactor : 1.0;
+                this.setUniformValueByName("uDiffuseFactor",  diffuseFactor);
+                this.setUniformValueByName("uSpecularFactor", specularFactor);
+            });
+            s.setAfterRenderFunction(function (model, scene) {
+                Framebuffer.clear();
+            });
+
+            shaders.set("textureGBuffer", s);
+
+
             //LIGHTING
             s = new ShaderProgram("ScreenPosVertexShader.glsl", "GBufferTestLightFragmentShader.glsl");
             s.use();
@@ -190,15 +174,15 @@
             s.setBeforeRenderFunction(function (model, scene) {
                 this.setUniformValueByName("gPosition", 0);
                 gl.activeTexture(gl.TEXTURE0);
-                gl.bindTexture(gl.TEXTURE_2D, shaders.get("basicGBuffer").framebuffer.textures[0]);
+                gl.bindTexture(gl.TEXTURE_2D, shaders.get("textureGBuffer").framebuffer.textures[0]);
 
                 this.setUniformValueByName("gNormal", 1);
                 gl.activeTexture(gl.TEXTURE1);
-                gl.bindTexture(gl.TEXTURE_2D, shaders.get("basicGBuffer").framebuffer.textures[1]);
+                gl.bindTexture(gl.TEXTURE_2D, shaders.get("textureGBuffer").framebuffer.textures[1]);
 
                 this.setUniformValueByName("gAlbedoSpec", 2);
                 gl.activeTexture(gl.TEXTURE2);
-                gl.bindTexture(gl.TEXTURE_2D, shaders.get("basicGBuffer").framebuffer.textures[2]);
+                gl.bindTexture(gl.TEXTURE_2D, shaders.get("textureGBuffer").framebuffer.textures[2]);
                 
                 this.setUniformValueByName("uViewPos",    scene.current_camera.position);
             });
@@ -214,51 +198,59 @@
 
             let m;
 
-            //BRONZE
-            m = new Model(cube(), "basicGBuffer");
+            //Texture
+            m = new Model(cube(), "textureGBuffer");
+            m.matrix.modelMatrix = mat4.clone(
+                [1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, -2, 1]
+            )
+            m.diffuseTexture = getTextureImage("data/img/chouette.png");
+            m.diffuseFactor = vec3.clone([2.0, 2.0, 2.0]);
+            m.specularTexture = getTextureImage("data/img/baboon.png");
+            m.specularFactor = 10.0;
+            scene.addModel(m);
+
+
+            //YELLOW
+            m = new Model(cube(), "textureGBuffer");
             m.matrix.modelMatrix = mat4.clone(
                 [1, 0, 0, 0,
                 0, 1, 0, 0,
                 0, 0, 1, 0,
                 -2, 0, 0, 1]
             )
-            m.color = vec3.clone([0.86, 0.61, 0.23]);
-            m.spec = 10.0;
+            m.diffuseTexture = getTextureImage("data/img/yellow.png");
+            m.diffuseFactor = vec3.clone([2.0, 2.0, 2.0])
+            m.specularTexture = getTextureImage("data/img/white.png");
             scene.addModel(m);
 
-            //SILVER
-            m = new Model(cube(), "basicGBuffer");
-            m.matrix.modelMatrix = mat4.clone(
-                [1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1]
-            )
-            m.color = vec3.clone([0.66, 0.61, 0.63]);
-            m.spec = 30.0;
-            scene.addModel(m);
-
-            
-            //GOLD
-            m = new Model(cube(), "basicGBuffer");
+            //MAGENTA
+            m = new Model(cube(), "textureGBuffer");
             m.matrix.modelMatrix = mat4.clone(
                 [1, 0, 0, 0,
                 0, 1, 0, 0,
                 0, 0, 1, 0,
                 2, 0, 0, 1]
             )
-            m.color = vec3.clone([0.96, 0.91, 0.23]);
-            m.spec = 100.0;
+            m.diffuseTexture = getTextureImage("data/img/magenta.png");
+            m.diffuseFactor = vec3.clone([2.0, 2.0, 2.0]);
+            m.specularTexture = getTextureImage("data/img/white.png");
             scene.addModel(m);
 
 
-            m = new Model(cube(), "basicGBuffer");
+            //SOL
+            m = new Model(cube(), "textureGBuffer");
             m.matrix.modelMatrix = mat4.clone(
                 [100, 0, 0, 0,
                 0, 0.01, 0, 0,
                 0, 0, 100, 0,
                 0, -1, 0, 1]
             )
+            m.diffuseTexture = getTextureImage("data/img/blue.png");
+            m.diffuseFactor = vec3.clone([2.0, 2.0, 2.0]);
+            m.specularTexture = getTextureImage("data/img/white.png");
             scene.addModel(m);
 
             scene.addModel(new Model(quad(), "lightBlinnPhong"));

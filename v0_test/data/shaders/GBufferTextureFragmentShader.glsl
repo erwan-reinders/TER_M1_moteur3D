@@ -9,13 +9,15 @@ in vec3 vNormal;
 in vec3 vFragPos;
 in vec2 vFragUV;
 
-uniform vec3 uObjectColor;
-uniform float uObjectSpecular;
+uniform sampler2D uDiffuseTexture;
+uniform vec3 uDiffuseFactor;
+uniform sampler2D uSpecularTexture;
+uniform float uSpecularFactor;
 
 void main()
 {    
     gPosition = vFragPos;
     gNormal = normalize(vNormal);
-    gAlbedoSpec.rgb = uObjectColor;
-    gAlbedoSpec.a = uObjectSpecular;
+    gAlbedoSpec.rgb = texture(uDiffuseTexture, vFragUV).rgb * uDiffuseFactor;
+    gAlbedoSpec.a = texture(uSpecularTexture, vFragUV).r * uSpecularFactor;
 }
