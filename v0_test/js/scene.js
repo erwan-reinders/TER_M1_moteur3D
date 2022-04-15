@@ -11,7 +11,7 @@ class Scene {
         }
 
         this.current_camera = new Camera();
-        this.current_light = new Light();
+        this.lights = [];
 
         this.init();
     }
@@ -20,6 +20,12 @@ class Scene {
      * @param model : Model à ajouter à la scène**/
     addModel(model) {
         this.models.push(model);
+    }
+
+    /**Méthode permettant d'ajouter une lumière à la scène
+     * @param light : Lumière à ajouter à la scène**/
+    addLight(light) {
+        this.lights.push(light);
     }
 
     /*Méthode permettant d'initialiser une scène*/

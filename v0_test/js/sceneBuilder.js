@@ -62,5 +62,10 @@ function testScene(scene) {
     
     scene.initModels();
 
+
+
+    scene.addLight(new Light());
+    scene.addLight(new Light(vec3.clone([-5.0, 5.0, -5.0]), vec3.clone([0.9, 0.7, 0.3]), 0.4, 0.1));
+
     return scene;
 }

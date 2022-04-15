@@ -99,6 +99,14 @@ function initLight() {
 
     s.setUniform("uViewPos",    valType.f3v);
 
+    let NR_LIGHTS = 8;
+    for (let i = 0; i < NR_LIGHTS; i++) {
+        s.setUniform("uLights["+i+"].Position"  , valType.f3v);
+        s.setUniform("uLights["+i+"].Color"     , valType.f3v);
+        s.setUniform("uLights["+i+"].Linear"    , valType.f1);
+        s.setUniform("uLights["+i+"].Quadratic" , valType.f1);
+    }
+
     s.setAllPos();
 
     s.setBeforeRenderFunction(function (model, scene) {
@@ -115,6 +123,13 @@ function initLight() {
         gl.bindTexture(gl.TEXTURE_2D, shaders.get("textureGBuffer").framebuffer.textures[2]);
         
         this.setUniformValueByName("uViewPos",    scene.current_camera.position);
+
+        for (let i = 0; i < scene.lights.length; i++) {
+            this.setUniformValueByName("uLights["+i+"].Position"  , scene.lights[i].position);
+            this.setUniformValueByName("uLights["+i+"].Color"     , scene.lights[i].color);
+            this.setUniformValueByName("uLights["+i+"].Linear"    , scene.lights[i].linear);
+            this.setUniformValueByName("uLights["+i+"].Quadratic" , scene.lights[i].quadratic);
+        }
     });
 
     shaders.set("lightBlinnPhong", s);
