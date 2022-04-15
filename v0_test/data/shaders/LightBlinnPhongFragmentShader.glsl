@@ -1,6 +1,8 @@
 #version 300 es
 precision highp float;
 
+layout (location = 0) out vec4 FragColor;
+
 in vec2 TexCoords;
 
 uniform sampler2D gPosition;
@@ -18,7 +20,6 @@ const int NR_LIGHTS = 8;
 uniform Light uLights[NR_LIGHTS];
 
 uniform vec3 uViewPos;
-out vec4 FragColor;
 
 void main()
 {

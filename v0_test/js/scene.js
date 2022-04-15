@@ -59,7 +59,7 @@ class Scene {
         this.matrix.viewMatrix = this.current_camera.getViewMatrix();
         //On rend les modèles de la scène
         for (let i = 0; i < this.models.length; i++) {
-            this.models[i].render();
+            this.models[i].render(this.models[i-1]);
         }
         // gl.activeTexture(gl.TEXTURE0);
         // gl.bindTexture(gl.TEXTURE_2D, texture);

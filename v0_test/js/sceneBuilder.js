@@ -12,7 +12,6 @@ function testScene(scene) {
         0, 0, -2, 1]
     )
     m.diffuseTexture = getTextureImage("data/img/chouette.png");
-    m.diffuseFactor = vec3.clone([3.0, 3.0, 3.0]);
     m.specularTexture = getTextureImage("data/img/baboon.png");
     m.specularFactor = 16.0;
     scene.addModel(m);
@@ -27,7 +26,6 @@ function testScene(scene) {
         -2, 0, 0, 1]
     )
     m.diffuseTexture = getTextureImage("data/img/yellow.png");
-    m.diffuseFactor = vec3.clone([2.0, 2.0, 2.0])
     m.specularTexture = getTextureImage("data/img/white.png");
     scene.addModel(m);
 
@@ -40,7 +38,6 @@ function testScene(scene) {
         2, 0, 0, 1]
     )
     m.diffuseTexture = getTextureImage("data/img/magenta.png");
-    m.diffuseFactor = vec3.clone([2.0, 2.0, 2.0]);
     m.specularTexture = getTextureImage("data/img/white.png");
     scene.addModel(m);
 
@@ -54,11 +51,16 @@ function testScene(scene) {
         0, -1, 0, 1]
     )
     m.diffuseTexture = getTextureImage("data/img/blue.png");
-    m.diffuseFactor = vec3.clone([2.0, 2.0, 2.0]);
     m.specularTexture = getTextureImage("data/img/white.png");
     scene.addModel(m);
 
     scene.addModel(new Model(quad(), "lightBlinnPhong"));
+
+    m = new Model(quad(), "postEffectGammaCorrection");
+    m.gamma = 2.5;
+    scene.addModel(m);
+
+    scene.addModel(new Model(quad(), "end"));
     
     scene.initModels();
 

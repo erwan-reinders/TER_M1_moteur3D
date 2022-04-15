@@ -70,12 +70,12 @@ class Model {
         };
     }
 
-    render(){
+    render(previousModelToRender){
         //On rend d'abord la texture asoociée à l'objet
         //gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 
         this.shader.use();
-        this.shader.beforeRenderFunction(this, scene);
+        this.shader.beforeRenderFunction(previousModelToRender, this, scene);
 
         //gl.clearColor(0,0,0,1);
         //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -94,6 +94,6 @@ class Model {
         gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexNormal);
         gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexUV);
 
-        this.shader.afterRenderFunction(this, scene);
+        this.shader.afterRenderFunction(previousModelToRender, this, scene);
     }
 }

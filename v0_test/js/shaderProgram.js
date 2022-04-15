@@ -141,10 +141,10 @@ class ShaderProgram {
         this.vsID = vertexShaderID;
         this.fsID = fragmentShaderID;
 
-        this.beforeRenderFunction = function (model, scene) {
+        this.beforeRenderFunction = function (previousModelToRender, model, scene) {
 
         };
-        this.afterRenderFunction  = function (model, scene) {
+        this.afterRenderFunction  = function (previousModelToRender, model, scene) {
             
         };
         this.beforeAnyRendering   = function () {

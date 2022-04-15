@@ -32,7 +32,7 @@ function initGBuffer() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         Framebuffer.clear();
     });
-    s.setBeforeRenderFunction(function (model, scene) {
+    s.setBeforeRenderFunction(function (previousModelToRender, model, scene) {
         this.use();
         //Pour le vertex shader
         this.setUniformValueByName("uProjectionMatrix", scene.matrix.projectionMatrix);
@@ -55,41 +55,15 @@ function initGBuffer() {
         this.setUniformValueByName("uDiffuseFactor",  diffuseFactor);
         this.setUniformValueByName("uSpecularFactor", specularFactor);
     });
-    s.setAfterRenderFunction(function (model, scene) {
+    s.setAfterRenderFunction(function (previousModelToRender, model, scene) {
         Framebuffer.clear();
     });
 
     shaders.set("textureGBuffer", s);
 }
 
+
 function initLight() {
-    s = new ShaderProgram("ScreenPosVertexShader.glsl", "GBufferTestLightFragmentShader.glsl");
-    s.use();
-
-    s.setUniform("gPosition",   valType.i1);
-    s.setUniform("gNormal",     valType.i1);
-    s.setUniform("gAlbedoSpec", valType.i1);
-
-    s.setAllPos();
-
-    s.setBeforeRenderFunction(function (model, scene) {
-        this.setUniformValueByName("gPosition", 0);
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, shaders.get("basicGBuffer").framebuffer.textures[0]);
-
-        this.setUniformValueByName("gNormal", 1);
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, shaders.get("basicGBuffer").framebuffer.textures[1]);
-
-        this.setUniformValueByName("gAlbedoSpec", 2);
-        gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, shaders.get("basicGBuffer").framebuffer.textures[2]);
-    });
-
-    shaders.set("testGBufferLight", s);
-
-
-
     s = new ShaderProgram("ScreenPosVertexShader.glsl", "LightBlinnPhongFragmentShader.glsl");
     s.use();
 
@@ -109,18 +83,28 @@ function initLight() {
 
     s.setAllPos();
 
-    s.setBeforeRenderFunction(function (model, scene) {
+    s.framebuffer = new Framebuffer(canvas.width, canvas.height, 1);
+    s.setBeforeAnyRendering(function () {
+        this.framebuffer.use();
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        Framebuffer.clear();
+    });
+    s.setBeforeRenderFunction(function (previousModelToRender, model, scene) {
+        this.use();
+
+        this.framebuffer.use();
+
         this.setUniformValueByName("gPosition", 0);
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, shaders.get("textureGBuffer").framebuffer.textures[0]);
+        gl.bindTexture(gl.TEXTURE_2D, previousModelToRender.shader.framebuffer.textures[0]);
 
         this.setUniformValueByName("gNormal", 1);
         gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, shaders.get("textureGBuffer").framebuffer.textures[1]);
+        gl.bindTexture(gl.TEXTURE_2D, previousModelToRender.shader.framebuffer.textures[1]);
 
         this.setUniformValueByName("gAlbedoSpec", 2);
         gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, shaders.get("textureGBuffer").framebuffer.textures[2]);
+        gl.bindTexture(gl.TEXTURE_2D, previousModelToRender.shader.framebuffer.textures[2]);
         
         this.setUniformValueByName("uViewPos",    scene.current_camera.position);
 
@@ -131,8 +115,66 @@ function initLight() {
             this.setUniformValueByName("uLights["+i+"].Quadratic" , scene.lights[i].quadratic);
         }
     });
+    s.setAfterRenderFunction(function (previousModelToRender, model, scene) {
+        Framebuffer.clear();
+    });
 
     shaders.set("lightBlinnPhong", s);
+}
+
+function initPostEffect() {
+    s = new ShaderProgram("ScreenPosVertexShader.glsl", "PostEffectGammaCorrection.glsl");
+    s.use();
+
+    s.setUniform("inputColor", valType.i1);
+
+    s.setUniform("gamma", valType.f1);
+
+    s.setAllPos();
+
+    s.framebuffer = new Framebuffer(canvas.width, canvas.height, 1);
+    s.setBeforeAnyRendering(function () {
+        this.framebuffer.use();
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        Framebuffer.clear();
+    });
+    s.setBeforeRenderFunction(function (previousModelToRender, model, scene) {
+        this.use();
+
+        this.framebuffer.use();
+
+        this.setUniformValueByName("inputColor", 0);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, previousModelToRender.shader.framebuffer.textures[0]);
+
+        let gamma = model.gamma ?? 2.2;
+        this.setUniformValueByName("gamma", gamma);
+    });
+    s.setAfterRenderFunction(function (previousModelToRender, model, scene) {
+        Framebuffer.clear();
+    });
+
+
+    shaders.set("postEffectGammaCorrection", s);
+}
+
+function initEnd() {
+    s = new ShaderProgram("ScreenPosVertexShader.glsl", "EndFragmentShader.glsl");
+    s.use();
+
+    s.setUniform("inputColor", valType.i1);
+
+    s.setAllPos();
+
+    s.setBeforeRenderFunction(function (previousModelToRender, model, scene) {
+        this.use();
+
+        this.setUniformValueByName("inputColor", 0);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, previousModelToRender.shader.framebuffer.textures[0]);
+    });
+
+    shaders.set("end", s);
 }
 
 function initShaders() {
@@ -141,4 +183,8 @@ function initShaders() {
     initGBuffer();
 
     initLight();
+
+    initPostEffect();
+
+    initEnd();
 }
