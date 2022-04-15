@@ -1,4 +1,4 @@
-function testScene(scene) {
+function testScene() {
     scene = new Scene("webglcanvas");
 
     let m;
@@ -25,7 +25,8 @@ function testScene(scene) {
         0, 0, 1, 0,
         -2, 0, 0, 1]
     )
-    m.diffuseTexture = getTextureImage("data/img/yellow.png");
+    m.diffuseTexture = getTextureImage("data/img/white.png");
+    m.diffuseFactor = vec3.clone([0.76, 0.69, 0.48]);
     m.specularTexture = getTextureImage("data/img/white.png");
     scene.addModel(m);
 
@@ -37,7 +38,8 @@ function testScene(scene) {
         0, 0, 1, 0,
         2, 0, 0, 1]
     )
-    m.diffuseTexture = getTextureImage("data/img/magenta.png");
+    m.diffuseTexture = getTextureImage("data/img/white.png");
+    m.diffuseFactor = vec3.clone([0.76, 0.48, 0.69]);
     m.specularTexture = getTextureImage("data/img/white.png");
     scene.addModel(m);
 
@@ -50,7 +52,8 @@ function testScene(scene) {
         0, 0, 100, 0,
         0, -1, 0, 1]
     )
-    m.diffuseTexture = getTextureImage("data/img/blue.png");
+    m.diffuseTexture = getTextureImage("data/img/white.png");
+    m.diffuseFactor = vec3.clone([0.48, 0.76, 0.76]);
     m.specularTexture = getTextureImage("data/img/white.png");
     scene.addModel(m);
 
@@ -68,6 +71,22 @@ function testScene(scene) {
 
     scene.addLight(new Light());
     scene.addLight(new Light(vec3.clone([-5.0, 5.0, -5.0]), vec3.clone([0.9, 0.7, 0.3]), 0.4, 0.1));
+
+    return scene;
+}
+
+function skyboxScene() {
+    scene = new Scene("webglcanvas");
+
+    m = new Model(cube(), "skybox");
+    m.cubemap = getCubeMapImage([
+        "data/img/chouette.png",
+        "data/img/chouette.png",
+        "data/img/chouette.png",
+        "data/img/chouette.png",
+        "data/img/chouette.png",
+        "data/img/chouette.png"]);
+    scene.addModel(m);
 
     return scene;
 }

@@ -18,6 +18,6 @@ void main()
 {    
     gPosition = vFragPos;
     gNormal = normalize(vNormal);
-    gAlbedoSpec.rgb = texture(uDiffuseTexture, vFragUV).rgb * uDiffuseFactor;
+    gAlbedoSpec.rgb = texture(uDiffuseTexture, vFragUV).rgb * pow(uDiffuseFactor, vec3(2.2));
     gAlbedoSpec.a = texture(uSpecularTexture, vFragUV).r * uSpecularFactor;
 }

@@ -187,4 +187,31 @@ function initShaders() {
     initPostEffect();
 
     initEnd();
+
+    s = new ShaderProgram("VPFragCoordVertexShader.glsl", "testSkyboxFragmentShader.glsl");
+    s.use();
+
+    s.setUniform("uProjectionMatrix", valType.Mat4fv);
+    s.setUniform("uViewMatrix",       valType.Mat4fv);
+
+    s.setUniform("skybox", valType.i1);
+
+    s.setAllPos();
+
+    s.setBeforeRenderFunction(function (previousModelToRender, model, scene) {
+        this.use();
+        gl.depthMask(gl.FALSE);
+        
+        this.setUniformValueByName("uProjectionMatrix", scene.matrix.projectionMatrix);
+        this.setUniformValueByName("uViewMatrix",       scene.matrix.viewMatrix);
+
+        this.setUniformValueByName("skybox", 0);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.cubemap);
+    });
+    s.setAfterRenderFunction(function (previousModelToRender, model, scene) {
+        gl.depthMask(gl.TRUE);
+    });
+
+    shaders.set("skybox", s);
 }

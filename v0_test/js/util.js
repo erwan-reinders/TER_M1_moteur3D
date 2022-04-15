@@ -155,3 +155,59 @@ function initTexture( nbCanal){
 function isPowerOf2(value) {
     return (value & (value - 1)) == 0;
 }
+
+
+function getCubeMap(width, height) {
+    let texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE); 
+
+    for (let i = 0; i < 6; i++) {
+        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.RGBA16F, width, height, 0, gl.RGBA, gl.FLOAT, null);
+    }
+
+    return texture
+}
+
+
+//TODO
+//https://webglfundamentals.org/webgl/lessons/webgl-cube-maps.html 
+function getCubeMapImage(srcs) {
+    let texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    for (let i = 0; i < 6; i++) {
+        gl.texImage2D(gl.TEXTURE_CUBE_MAP, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
+    }
+
+    for (let i = 0; i < 6; i++) {
+        let img = new Image();
+
+        img.addEventListener('load', function() {
+
+            message.informative("IMG LOADER", "I've got the cubemap image "+i+" : " + this.src);
+
+            gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+            gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.SRGB8, gl.RGB, gl.UNSIGNED_BYTE, this);
+
+            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE); 
+
+            if (isPowerOf2(this.width) && isPowerOf2(this.height)) {
+                // MIP MAP GENERATION
+                gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+            }
+        });
+        requestCORSIfNotSameOrigin(img, srcs[i]);
+        img.src = srcs[i];
+    }
+
+    return texture;
+}
