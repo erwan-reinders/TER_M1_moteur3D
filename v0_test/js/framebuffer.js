@@ -67,4 +67,10 @@ class Framebuffer {
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
     }
 
+    copyBitsOf(otherFramebuffer, bit) {
+        gl.bindFramebuffer(gl.READ_FRAMEBUFFER, otherFramebuffer.framebuffer);
+        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this.framebuffer);
+        gl.blitFramebuffer(0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height, bit, gl.NEAREST);
+    }
+
 };

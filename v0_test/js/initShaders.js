@@ -94,17 +94,21 @@ function initLight() {
 
         this.framebuffer.use();
 
+        //let shader = shaders.get("textureGBuffer");
+        let shader = scene.models[0].shader;
+        //let shader = previousModelToRender.shader;
+
         this.setUniformValueByName("gPosition", 0);
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, previousModelToRender.shader.framebuffer.textures[0]);
+        gl.bindTexture(gl.TEXTURE_2D, shader.framebuffer.textures[0]);
 
         this.setUniformValueByName("gNormal", 1);
         gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, previousModelToRender.shader.framebuffer.textures[1]);
+        gl.bindTexture(gl.TEXTURE_2D, shader.framebuffer.textures[1]);
 
         this.setUniformValueByName("gAlbedoSpec", 2);
         gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, previousModelToRender.shader.framebuffer.textures[2]);
+        gl.bindTexture(gl.TEXTURE_2D, shader.framebuffer.textures[2]);
         
         this.setUniformValueByName("uViewPos",    scene.current_camera.position);
 
@@ -188,6 +192,38 @@ function initShaders() {
 
     initEnd();
 
+    s = new ShaderProgram("ScreenPosVertexShader.glsl", "fusionColorFragmentShader.glsl");
+    s.use();
+
+    s.setUniform("inputColor1", valType.i1);
+    s.setUniform("inputColor2", valType.i1);
+
+    s.setAllPos();
+
+    s.framebuffer = new Framebuffer(canvas.width, canvas.height, 1);
+    s.setBeforeAnyRendering(function () {
+        this.framebuffer.use();
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        Framebuffer.clear();
+    });
+    s.setBeforeRenderFunction(function (previousModelToRender, model, scene) {
+        this.use();
+
+        this.framebuffer.use();
+
+        this.setUniformValueByName("inputColor1", 0);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, model.texture0.framebuffer.textures[0]);
+        this.setUniformValueByName("inputColor2", 1);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, model.texture1.framebuffer.textures[0]);
+    });
+    s.setAfterRenderFunction(function (previousModelToRender, model, scene) {
+        Framebuffer.clear();
+    });
+    shaders.set("fusion", s);
+
+
     s = new ShaderProgram("VPFragCoordVertexShader.glsl", "testSkyboxFragmentShader.glsl");
     s.use();
 
@@ -197,11 +233,21 @@ function initShaders() {
     s.setUniform("skybox", valType.i1);
 
     s.setAllPos();
-
+    s.framebuffer = new Framebuffer(canvas.width, canvas.height, 1);
+    s.setBeforeAnyRendering(function () {
+        this.framebuffer.use();
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        Framebuffer.clear();
+    });
     s.setBeforeRenderFunction(function (previousModelToRender, model, scene) {
         this.use();
-        gl.depthMask(gl.FALSE);
-        
+
+        gl.depthFunc(gl.LEQUAL);
+
+        this.framebuffer.copyBitsOf(scene.models[0].shader.framebuffer, gl.DEPTH_BUFFER_BIT);
+        //this.framebuffer.copyBitsOf(scene.models[0].shader.framebuffer, gl.COLOR_BUFFER_BIT);
+        this.framebuffer.use();
+
         this.setUniformValueByName("uProjectionMatrix", scene.matrix.projectionMatrix);
         this.setUniformValueByName("uViewMatrix",       scene.matrix.viewMatrix);
 
@@ -210,7 +256,8 @@ function initShaders() {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.cubemap);
     });
     s.setAfterRenderFunction(function (previousModelToRender, model, scene) {
-        gl.depthMask(gl.TRUE);
+        Framebuffer.clear();
+        gl.depthFunc(gl.LESS);
     });
 
     shaders.set("skybox", s);

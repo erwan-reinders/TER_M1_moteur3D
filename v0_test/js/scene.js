@@ -61,10 +61,6 @@ class Scene {
         for (let i = 0; i < this.models.length; i++) {
             this.models[i].render(this.models[i-1]);
         }
-        // gl.activeTexture(gl.TEXTURE0);
-        // gl.bindTexture(gl.TEXTURE_2D, texture);
-        // gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
-
     }
 
     /*Méthode permettant de clear une scène*/

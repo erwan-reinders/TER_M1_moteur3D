@@ -60,7 +60,7 @@ function testScene() {
     scene.addModel(new Model(quad(), "lightBlinnPhong"));
 
     m = new Model(quad(), "postEffectGammaCorrection");
-    m.gamma = 2.5;
+    m.gamma = 2.2;
     scene.addModel(m);
 
     scene.addModel(new Model(quad(), "end"));
@@ -78,6 +78,21 @@ function testScene() {
 function skyboxScene() {
     scene = new Scene("webglcanvas");
 
+    //YELLOW
+    m = new Model(cube(), "textureGBuffer");
+    m.matrix.modelMatrix = mat4.clone(
+        [1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        -2, 0, 0, 1]
+    )
+    m.diffuseTexture = getTextureImage("data/img/white.png");
+    m.diffuseFactor = vec3.clone([0.76, 0.69, 0.48]);
+    m.specularTexture = getTextureImage("data/img/white.png");
+    scene.addModel(m);
+
+    scene.addModel(new Model(quad(), "lightBlinnPhong"));
+    
     m = new Model(cube(), "skybox");
     m.cubemap = getCubeMapImage([
         "data/img/chouette.png",
@@ -87,6 +102,21 @@ function skyboxScene() {
         "data/img/chouette.png",
         "data/img/chouette.png"]);
     scene.addModel(m);
+
+    m = new Model(quad(), "fusion");
+    m.texture0 = shaders.get("skybox");
+    m.texture1 = shaders.get("lightBlinnPhong");
+    scene.addModel(m);
+
+
+    m = new Model(quad(), "postEffectGammaCorrection");
+    m.gamma = 2.2;
+    scene.addModel(m);
+
+    scene.addModel(new Model(quad(), "end"));
+
+
+    scene.addLight(new Light());
 
     return scene;
 }

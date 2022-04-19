@@ -11,5 +11,6 @@ out vec3 vFragCoord;
 void main()
 {
     vFragCoord = aVertexPosition;
-    gl_Position = uProjectionMatrix * uViewMatrix * vec4(aVertexPosition, 1.0);
+    vec4 pos = uProjectionMatrix * mat4(mat3(uViewMatrix)) * vec4(aVertexPosition, 1.0);
+    gl_Position = pos.xyww;
 }  
