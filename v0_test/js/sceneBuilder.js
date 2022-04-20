@@ -61,6 +61,8 @@ function testScene() {
 
     m = new Model(quad(), "postEffectGammaCorrection");
     m.gamma = 2.2;
+    //             attribu        nom         min  max  increment
+    //createSlider(m.gama, "gamma correction", 0.0, 5.0, 0.1);
     scene.addModel(m);
 
     scene.addModel(new Model(quad(), "end"));
@@ -84,39 +86,103 @@ function skyboxScene() {
         [1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
-        -2, 0, 0, 1]
+        0, 0, 0, 1]
     )
     m.diffuseTexture = getTextureImage("data/img/white.png");
     m.diffuseFactor = vec3.clone([0.76, 0.69, 0.48]);
     m.specularTexture = getTextureImage("data/img/white.png");
     scene.addModel(m);
 
-    scene.addModel(new Model(quad(), "lightBlinnPhong"));
+
+    let c = getCubeMapImage([
+        "data/img/baboon256.png",
+        "data/img/chouette256.png",
+        "data/img/baboon256.png",
+        "data/img/chouette256.png",
+        "data/img/chouette256.png",
+        "data/img/chouette256.png"]);
+    m = new Model(quad(), "cubeMapReflexion");
+    // m.cubemap = getCubeMapImage([
+    //     "data/img/baboon256.png",
+    //     "data/img/chouette256.png",
+    //     "data/img/chouette256.png",
+    //     "data/img/chouette256.png",
+    //     "data/img/chouette256.png",
+    //     "data/img/chouette256.png"]);
+    m.cubemap = c;
+    scene.addModel(m);
     
     m = new Model(cube(), "skybox");
-    m.cubemap = getCubeMapImage([
-        "data/img/chouette.png",
-        "data/img/chouette.png",
-        "data/img/chouette.png",
-        "data/img/chouette.png",
-        "data/img/chouette.png",
-        "data/img/chouette.png"]);
+    // m.cubemap = getCubeMapImage([
+    //     "data/img/baboon256.png",
+    //     "data/img/chouette256.png",
+    //     "data/img/chouette256.png",
+    //     "data/img/chouette256.png",
+    //     "data/img/chouette256.png",
+    //     "data/img/chouette256.png"]);
+    m.cubemap = c;
     scene.addModel(m);
 
     m = new Model(quad(), "fusion");
     m.texture0 = shaders.get("skybox");
-    m.texture1 = shaders.get("lightBlinnPhong");
+    m.texture1 = shaders.get("cubeMapReflexion");
     scene.addModel(m);
 
+
+    // m = new Model(quad(), "postEffectGammaCorrection");
+    // m.gamma = 2.2;
+    // scene.addModel(m);
+
+    scene.addModel(new Model(quad(), "end"));
+
+
+    scene.addLight(new Light());
+
+    return scene;
+}
+
+function reflexion() {
+    scene = new Scene("webglcanvas");
+
+    let c = getCubeMapImage([
+        "data/img/skybox/right.jpg",
+        "data/img/skybox/left.jpg",
+        "data/img/skybox/top.jpg",
+        "data/img/skybox/bottom.jpg",
+        "data/img/skybox/front.jpg",
+        "data/img/skybox/back.jpg"
+        ]);
+
+    m = new Model(cube(), "cubeMapReflexionSOLO");
+    m.cubemap = c;
+    scene.addModel(m);
+    
+    m = new Model(cube(), "cubeMapRefractionSOLO");
+    m.matrix.modelMatrix = mat4.clone(
+        [1, 0, 0, 0,
+        0, 2, 0, 0,
+        0, 0, 1, 0,
+        2, 0, 0, 1]
+    )
+    m.cubemap = c;
+    m.ratio = 0.75;
+    scene.addModel(m);
+
+    m = new Model(cube(), "skybox");
+    m.cubemap = c;
+    scene.addModel(m);
+
+    m = new Model(quad(), "fusion3");
+    m.texture0 = shaders.get("cubeMapReflexionSOLO");
+    m.texture1 = shaders.get("cubeMapRefractionSOLO");
+    m.texture2 = shaders.get("skybox");
+    scene.addModel(m);
 
     m = new Model(quad(), "postEffectGammaCorrection");
     m.gamma = 2.2;
     scene.addModel(m);
 
     scene.addModel(new Model(quad(), "end"));
-
-
-    scene.addLight(new Light());
 
     return scene;
 }

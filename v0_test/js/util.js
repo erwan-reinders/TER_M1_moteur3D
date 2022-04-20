@@ -16,6 +16,7 @@ function initGl(canvasId) {
         console.log("Sorry, could not get a WebGL graphics context.");
         return;
     }
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
 }
 
 // https://stackoverflow.com/questions/36921947/read-a-server-side-file-using-javascript
@@ -207,11 +208,6 @@ function getCubeMapImage(srcs) {
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE); 
-                
-                if (isPower2) {
-                    // MIP MAP GENERATION
-                    gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
-                }
             }
         });
         requestCORSIfNotSameOrigin(img, srcs[i]);
