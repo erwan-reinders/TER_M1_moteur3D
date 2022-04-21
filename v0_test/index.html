@@ -52,14 +52,12 @@
             initGl("webglcanvas");
 
             initShaders();
-
-            //test_ui();
         }
 
         let controler;
         function main() {
             init();
-            scene = reflexion();
+            scene = testScene();
 
             controler = new Controller(scene);
             document.addEventListener('keydown', onKeyDown);

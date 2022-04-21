@@ -89,7 +89,7 @@ function createVecN_UI(elem,name, N, step = default_step, color = false) {
     rendering_options.appendChild(wrapper);
 }
 
-function createValueSlider_UI(elem, name,val_min = default_val_min,val_max = default_val_max,step = default_step){
+function createValueSlider_UI(elem, obj, name,val_min = default_val_min,val_max = default_val_max,step = default_step){
     let wrapper = create_wrapper_UI(name,CSS_TAG.number);
 
     let span = document.createElement("span");
@@ -98,17 +98,30 @@ function createValueSlider_UI(elem, name,val_min = default_val_min,val_max = def
     let input = document.createElement("input");
     input.type = "range";
     input.step = step;
-    input.value = elem;
+    input.value = obj[elem];
     input.min = val_min;
     input.max = val_max;
+    input.defaultValue = obj[elem];
 
-    input.addEventListener("change", function (event) {
-        elem = this.value;
-        span.innerHTML =this.value;
+    input.addEventListener("input", function (event) {
+        obj[elem] = this.value;
+        span.innerHTML = this.value;
     });
+    input.onmouseup = function () {
+        this.blur();
+    }
+
+    let btn = document.createElement("button");
+    btn.innerHTML = "reset";
+    btn.onclick = function () {
+        obj[elem] = input.defaultValue;
+        input.value = input.defaultValue;
+        span.innerHTML = input.defaultValue;
+    }
 
     wrapper.appendChild(input);
     wrapper.appendChild(span);
+    wrapper.appendChild(btn);
     rendering_options.appendChild(wrapper);
 }
 

@@ -72,7 +72,7 @@ function initLight() {
 
     s.setUniform("uViewPos",    valType.f3v);
 
-    let NR_LIGHTS = 1;
+    let NR_LIGHTS = 2;
     for (let i = 0; i < NR_LIGHTS; i++) {
         s.setUniform("uLights["+i+"].Position"  , valType.f3v);
         s.setUniform("uLights["+i+"].Color"     , valType.f3v);
@@ -447,7 +447,7 @@ function initShaders() {
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.cubemap);
 
-        let ratio = m.ration ?? 0.75;
+        let ratio = model.ratio ?? 0.75;
         this.setUniformValueByName("uRatio", ratio);
     });
     s.setAfterRenderFunction(function (previousModelToRender, model, scene) {

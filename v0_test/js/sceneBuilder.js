@@ -18,7 +18,7 @@ function testScene() {
 
 
     //YELLOW
-    m = new Model(cube(), "textureGBuffer");
+    m = new Model(uvSphere(), "textureGBuffer");
     m.matrix.modelMatrix = mat4.clone(
         [1, 0, 0, 0,
         0, 1, 0, 0,
@@ -31,7 +31,7 @@ function testScene() {
     scene.addModel(m);
 
     //MAGENTA
-    m = new Model(cube(), "textureGBuffer");
+    m = new Model(uvTorus(), "textureGBuffer");
     m.matrix.modelMatrix = mat4.clone(
         [1, 0, 0, 0,
         0, 1, 0, 0,
@@ -61,8 +61,7 @@ function testScene() {
 
     m = new Model(quad(), "postEffectGammaCorrection");
     m.gamma = 2.2;
-    //             attribu        nom         min  max  increment
-    //createSlider(m.gama, "gamma correction", 0.0, 5.0, 0.1);
+    createValueSlider_UI("gamma", m, "gamma correction", 0.0, 5.0, 0.1);
     scene.addModel(m);
 
     scene.addModel(new Model(quad(), "end"));
@@ -102,24 +101,10 @@ function skyboxScene() {
         "data/img/chouette256.png",
         "data/img/chouette256.png"]);
     m = new Model(quad(), "cubeMapReflexion");
-    // m.cubemap = getCubeMapImage([
-    //     "data/img/baboon256.png",
-    //     "data/img/chouette256.png",
-    //     "data/img/chouette256.png",
-    //     "data/img/chouette256.png",
-    //     "data/img/chouette256.png",
-    //     "data/img/chouette256.png"]);
     m.cubemap = c;
     scene.addModel(m);
     
     m = new Model(cube(), "skybox");
-    // m.cubemap = getCubeMapImage([
-    //     "data/img/baboon256.png",
-    //     "data/img/chouette256.png",
-    //     "data/img/chouette256.png",
-    //     "data/img/chouette256.png",
-    //     "data/img/chouette256.png",
-    //     "data/img/chouette256.png"]);
     m.cubemap = c;
     scene.addModel(m);
 
@@ -127,11 +112,6 @@ function skyboxScene() {
     m.texture0 = shaders.get("skybox");
     m.texture1 = shaders.get("cubeMapReflexion");
     scene.addModel(m);
-
-
-    // m = new Model(quad(), "postEffectGammaCorrection");
-    // m.gamma = 2.2;
-    // scene.addModel(m);
 
     scene.addModel(new Model(quad(), "end"));
 
@@ -166,6 +146,7 @@ function reflexion() {
     )
     m.cubemap = c;
     m.ratio = 0.75;
+    createValueSlider_UI("ratio", m, "refraction ratio", 0.0, 2.0, 0.01);
     scene.addModel(m);
 
     m = new Model(cube(), "skybox");
