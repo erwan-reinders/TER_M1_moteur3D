@@ -7,7 +7,7 @@ class Camera {
      * @param target : vec3 cible de la camera **/
     constructor(pos, up, target) {
         this.fieldOfView = 90 * Math.PI / 180;   // in radians
-        this.aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+        this.aspect = gl.canvas.width / gl.canvas.height;
         this.zNear = 0.1;
         this.zFar = 100.0;
 
