@@ -216,3 +216,4 @@ function getCubeMapImage(srcs) {
 
     return texture;
 }
+

@@ -4,11 +4,23 @@
     <meta charset="UTF-8">
     <title>Title</title>
 
+    <!-- ==================== FONT ==================== -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+    <!-- ==================== CSS ==================== -->
+    <link rel="stylesheet" href="css/general.css" />
+    <link rel="stylesheet" href="css/ui.css" />
+
+    <!-- ==================== JS ==================== -->
+    <!-- LIB -->
     <script type="text/javascript" src="lib/gl-matrix-min.js" ></script>
+    <!-- MODELS -->
     <script type="text/javascript" src="data/meshes/basic-object-models-IFS.js" ></script>
     <script type="text/javascript" src="data/meshes/teapot-model-IFS.js" ></script>
 
-    <script type="text/javascript" src="js/util.js" ></script>
+    <!-- rendering source code -->
+    <script type="text/javascript" src="js/util.js" defer></script>
+    <script type="text/javascript" src="js/util_ui.js" defer ></script>
     <script type="text/javascript" src="js/framebuffer.js" ></script>
     <script type="text/javascript" src="js/texture.js" ></script>
     <script type="text/javascript" src="js/model.js" ></script>
@@ -23,7 +35,12 @@
 </head>
 <body>
     <div id="canvas-holder">
-        <canvas width=1200 height=600 id="webglcanvas" style="background-color:white"></canvas>
+        <!--<canvas width=1200 height=600 id="webglcanvas"></canvas>-->
+        <canvas id="webglcanvas"></canvas>
+    </div>
+
+    <div id="options">
+        <h1 id="options_title">RENDERING OPTIONS</h1>
     </div>
 
     <script type="text/javascript" defer>
@@ -35,6 +52,8 @@
             initGl("webglcanvas");
 
             initShaders();
+
+            //test_ui();
         }
 
         let controler;
@@ -72,6 +91,18 @@
             controler.processInput();
             scene.render();
             requestAnimationFrame(frame);
+        }
+
+
+        let val = 0;
+        function test_ui(){
+            let obj = {
+                val : 0,
+                test : function () {
+                    console.log(this.val);
+                }
+            }
+            createValue_UI("val",obj,"test");
         }
 
         window.onload = main;

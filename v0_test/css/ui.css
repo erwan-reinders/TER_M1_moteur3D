@@ -1,0 +1,46 @@
+/*CSS for the UI behavior*/
+#options{
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    padding: 20px;
+
+    background-color: var(--option_bg_color);
+    color: var(--main_text_color);
+    font-family: var(--text_font);
+
+    border-bottom : solid var(--option_border_size) var(--option_border_color);
+    border-right  : solid var(--option_border_size) var(--option_border_color);
+    border-radius: 0 0 var(--option_border_radius) 0;
+}
+
+#options #options_title{
+    text-align: center;
+    color: var(--option_text_title_color);
+}
+
+
+#options div.vec2,#options div.vec3,#options div.vec4 {
+
+}
+
+#options div span.description{
+
+}
+
+#options div input{
+
+}
+
+#options div input.sliderdescription{
+
+}
+
+#options div input.number{
+
+}
+
+#options div input.texture{
+
+}
