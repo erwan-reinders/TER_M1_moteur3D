@@ -1,7 +1,11 @@
-let gl;
-let canvas;
+let gl; // Le WebGL2RenderingContext attaché au canvas.
+let canvas; // Le HTMLCanvasElement de la page.
 
-// Get gl from canvas
+/**
+ * Récupère et initialise le contexte webgl2 du canvas.
+ * @param {string} canvasId L'id du canvas.
+ * @returns {WebGL2RenderingContext} Le contexte webgl2.
+ */
 function initGl(canvasId) {
     canvas = document.getElementById(canvasId);
     canvas.width = screen.availWidth - 20;
@@ -17,9 +21,17 @@ function initGl(canvasId) {
         return;
     }
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
 }
 
 // https://stackoverflow.com/questions/36921947/read-a-server-side-file-using-javascript
+/**
+ * Récupère le contenu d'un fichier.
+ * @param {string} filePath Le chemin vers le fichier.
+ * @returns {string} Le contenu du fichier.
+ */
 function loadFile(filePath) {
     var result = null;
     var xmlhttp = new XMLHttpRequest();
@@ -35,6 +47,11 @@ function loadFile(filePath) {
 }
 
 // Get the content from a HTML tag
+/**
+ * Récupère le contenue d'une balise.
+ * @param {string} elementID L'id de l'element.
+ * @returns {string} Le contenu de la balise.
+ */
 function getTextContent( elementID ) {
     let element = document.getElementById(elementID);
 
@@ -78,6 +95,11 @@ let message = {
         BgWhite : "\x1b[47m",
     },
 
+    /**
+     * Affiche une information dans la console.
+     * @param {string} type Le type de message.
+     * @param {string} message Le message à afficher.
+     */
     informative : function (type, message){
         if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1){
             console.info("INFORMATION :\n  - TYPE : "+type+"\n  - INTITULE : "+ message);
@@ -86,6 +108,12 @@ let message = {
             console.log(this.color_ter.FgBlue + "INFORMATION :" + this.color_ter.FgGreen + "\n  - TYPE : "+ this.color_ter.FgBlack + type + this.color_ter.FgGreen +"\n  - INTITULE : " + this.color_ter.FgBlack + message);
         }
     },
+    /**
+     * Affiche une erreur dans la console.
+     * @param {string} type Le type d'erreur.
+     * @param {string} message Le message d'erreur.
+     * @param {number} line La ligne de l'erreur.
+     */
     error : function (type, message, line){
         let lin = line ?? 0;
         if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1){
@@ -101,9 +129,11 @@ let message = {
 
 // TEXTURE LOADING
 
-/**Method for loading textures from an image
- * @param src : String for ressource image texture
- * @return WebGLTexture of the image ressource**/
+/**
+ * Génère une texture à partir du chemin vers une image.
+ * @param {string} src Chemin vers l'image.
+ * @return {WebGLTexture} Texture générée.
+ */
 function getTextureImage(src){
     let img = new Image();
 
@@ -131,18 +161,22 @@ function getTextureImage(src){
 }
 
 //https://webglfundamentals.org/webgl/lessons/webgl-cors-permission.html
-/**Function for request an image if its not from local region
+/**
+ * Function for request an image if its not from local region
  * @param img : Image requested
- * @param url : String url of the ressource image**/
+ * @param url : String url of the ressource image
+ */
 function requestCORSIfNotSameOrigin(img, url) {
     if ((new URL(url, window.location.href)).origin !== window.location.origin) {
         img.crossOrigin = "";
     }
 }
 
-/**Function for init the webgl texture
+/**
+ * Function for init the webgl texture
  * @param nbCanal : Number of canals of the texture image (RGB, RGBA, LOG)
- * @return WebGLTexture index for texture**/
+ * @return WebGLTexture index for texture
+ */
 function initTexture( nbCanal){
     let text = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, text);
@@ -151,13 +185,21 @@ function initTexture( nbCanal){
     return text;
 }
 
-/**Function for determining if a number is a power of two
- * @param value : Number for determination**/
+/**
+ * Function for determining if a number is a power of two
+ * @param value : Number for determination
+ */
 function isPowerOf2(value) {
     return (value & (value - 1)) == 0;
 }
 
 
+/**
+ * Génère une cubemap vide.
+ * @param {number} width La largeur de la cubemap.
+ * @param {number} height La hauteur de la cubemap.
+ * @returns {WebGLTexture} La cubemap générée.
+ */
 function getCubeMap(width, height) {
     let texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
@@ -193,7 +235,12 @@ function getDepthCubeMap(width, height) {
 }
 
 
-//https://webglfundamentals.org/webgl/lessons/webgl-cube-maps.html 
+//https://webglfundamentals.org/webgl/lessons/webgl-cube-maps.html
+/**
+ * Génère une cubemap à partir de 6 images.
+ * @param {string[6]} srcs Les 6 chemins vers les 6 fichiers images.
+ * @returns {WebGLTexture} La cubemap générée.
+ */
 function getCubeMapImage(srcs) {
     let textureObject = {ready : false, texture : gl.createTexture()};
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, textureObject.texture);

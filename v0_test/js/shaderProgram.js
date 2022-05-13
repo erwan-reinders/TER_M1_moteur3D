@@ -1,4 +1,9 @@
-//Function for create program for shader ID
+/**
+ * Génère un programme à partir des identifiants des balises contenant les shaders.
+ * @param {string} id_vertex_shader L'id de l'element contenant le vertex shader.
+ * @param {string} id_fragment_shader L'id de l'element contenant le fragment shader.
+ * @returns {WebGLProgram} Le programme généré.
+ */
 function initShaderProgramFromHTMLId(id_vertex_shader, id_fragment_shader){
     let vertexShaderSource, fragmentShaderSource;
     try {
@@ -11,6 +16,12 @@ function initShaderProgramFromHTMLId(id_vertex_shader, id_fragment_shader){
     return initShaderProgram(vertexShaderSource, fragmentShaderSource);
 }
 
+/**
+ * Génère un programme à partir des chemins vers les fichiers contenant les shaders.
+ * @param {string} file_vertex_shader Chemin vers le fichier du vertex shader
+ * @param {string} file_fragment_shader Chemin vers le fihier du fragment shader
+ * @returns {WebGLProgram} Le programme généré.
+ */
 function initShaderProgramFromFile(file_vertex_shader, file_fragment_shader) {
     let shaderPath = "data/shaders/";
     let vertexShaderSource, fragmentShaderSource;
@@ -24,7 +35,12 @@ function initShaderProgramFromFile(file_vertex_shader, file_fragment_shader) {
     return initShaderProgram(vertexShaderSource, fragmentShaderSource);
 }
 
-//Initialize a shader program, so WebGL knows how to draw our data
+/**
+ * Génère un programme à partir du code source des shaders.
+ * @param {string} vsSource Le code source du vertex shader.
+ * @param {string} fsSource Le code source du fragment shader.
+ * @returns {WebGLProgram} Le programme généré.
+ */
 function initShaderProgram(vsSource, fsSource) {
     const vertexShader = loadShader(gl.VERTEX_SHADER, vsSource);
     const fragmentShader = loadShader(gl.FRAGMENT_SHADER, fsSource);
@@ -44,7 +60,12 @@ function initShaderProgram(vsSource, fsSource) {
     return shaderProgram;
 }
 
-//creates a shader of the given type, uploads the source and compiles it.
+/**
+ * Génère et compile un shader à partir du code source.
+ * @param {number} type Le type de shader à générer (Soit gl.VERTEX_SHADER, soit gl.FRAGMENT_SHADER).
+ * @param {string} source Le code source du shader.
+ * @returns {WebGLShader} Le shader généré.
+ */
 function loadShader(type, source) {
     const shader = gl.createShader(type);
 
@@ -65,7 +86,9 @@ function loadShader(type, source) {
     return shader;
 }
 
-
+/**
+ * Enumération permettant de définir un type d'uniform.
+ */
 const valType = {
     f1 : function (emplacement, v){
         gl.uniform1f(emplacement, v);
@@ -128,36 +151,32 @@ const valType = {
     },
 };
 
-/*Class for shader implementation*/
+/**
+ * Classe modélisant un programme shader.
+ */
 class ShaderProgram {
 
-    /**Constructor for a shader
-     * @param vertexShaderID : String ID of the vertexShader
-     * @param fragmentShaderID : String ID of the fragmentShader**/
-    constructor(vertexShaderID, fragmentShaderID) {
+    /**
+     * Constructeur d'un programme shader
+     * @param {string} vertexShaderFile Chemin vers le fichier du vertexShader
+     * @param {string} fragmentShaderFile Chemin vers le fichier du fragmentShader
+     */
+    constructor(vertexShaderFile, fragmentShaderFile) {
         this.programID = undefined;
 
-        this.uniforms = [];
-        this.vsID = vertexShaderID;
-        this.fsID = fragmentShaderID;
-
-        this.beforeRenderFunction = function (previousModelToRender, model, scene) {
-
-        };
-        this.afterRenderFunction  = function (previousModelToRender, model, scene) {
-            
-        };
-        this.beforeAnyRendering   = function () {
-            
-        }
+        this.uniforms = new Map();
+        this.vsFile = vertexShaderFile;
+        this.fsFile = fragmentShaderFile;
 
         this.init();
     }
 
-    //Function to initialize the shader
+    /**
+     * Initialise le programme shader à partir du chemin vers les shaders.
+     */
     init(){
         try {
-            let prg = initShaderProgramFromFile(this.vsID, this.fsID);
+            let prg = initShaderProgramFromFile(this.vsFile, this.fsFile);
             if(prg != null){
                 this.programID = prg;
             }else{
@@ -169,9 +188,12 @@ class ShaderProgram {
         }
     }
 
+    /**
+     * Initialise le programme shader à partir des id des balises contenant les shaders.
+     */
     initFromId(){
         try {
-            let prg = initShaderProgramFromHTMLId(this.vsID, this.fsID);
+            let prg = initShaderProgramFromHTMLId(this.vsFile, this.fsFile);
             if(prg != null){
                 this.programID = prg;
             }else{
@@ -183,50 +205,35 @@ class ShaderProgram {
         }
     }
 
-    //Function for init all the pos of attributes
+    /**
+     * Initialise les positions des uniformes
+     */
     setAllPos(){
-        this.uniforms.forEach(el => {
-            el.pos = gl.getUniformLocation(this.programID, el.name);
+        this.uniforms.forEach((value, key) => {
+            value.pos = gl.getUniformLocation(this.programID, key);
         });
     }
 
-    /**Function for set a shader uniform value
-     * @param elem : String name of the attribute
-     * @param vtype : valType type of the att **/
+    /**
+     * Définit un uniform.
+     * @param {string} elem Nom de l'uniform, doit être identique à celui du le shader.
+     * @param {valType} vtype Type de l'uniform.
+     */
     setUniform(elem, vtype){
-        this.uniforms.push({
-            name : elem,
+        this.uniforms.set(elem, {
             pos : undefined,
             val : undefined,
             type : vtype,
         });
     }
 
-    setBeforeRenderFunction(beforeRenderFunction) {
-        this.beforeRenderFunction = beforeRenderFunction;
-    }
-
-    setAfterRenderFunction(afterRenderFunction) {
-        this.afterRenderFunction = afterRenderFunction;
-    }
-    
-    setBeforeAnyRendering(beforeAnyRendering) {
-        this.beforeAnyRendering = beforeAnyRendering;
-    }
-
-    /**Function for set uniform value with shader name
-     * @param name : String name of the param
-     * @param val : Float32Array value of the parameter**/
+    /**
+     * Affecte une valeur dans l'uniform à partir de son nom.
+     * @param {string} name Nom de l'uniform.
+     * @param {Float32Array}val Valeur de l'uniform.
+     */
     setUniformValueByName(name, val){
-        //TODO remplacer ça par une map
-        let elem = undefined;
-        for (let i = 0; i < this.uniforms.length; i++) {
-            let element = this.uniforms[i];
-            if(element.name === name){
-                elem = element;
-                break;
-            }
-        }
+        let elem = this.uniforms.get(name);
         if(elem !== undefined){
             elem.val = val;
             elem.type(elem.pos, val);
@@ -235,15 +242,16 @@ class ShaderProgram {
         }
     }
 
-    /**Function for set uniform value with shader pos
-     * @param pos : Number name of the param
-     * @param val : Float32Array value of the parameter**/
+    /**
+     * Affecte une valeur dans l'uniform à partir de sa position.
+     * @param {number} pos Position de l'uniform.
+     * @param {Float32Array}val Valeur de l'uniform.
+     */
     setUniformValueByPos(pos, val){
         let elem = undefined;
-        for (let i = 0; i < this.uniforms.length; i++) {
-            let element = this.uniforms[i];
-            if(element.pos === pos){
-                elem = element;
+        for (const [key, value] of this.uniforms) {
+            if(value.pos === pos){
+                elem = value;
                 break;
             }
         }
@@ -254,32 +262,43 @@ class ShaderProgram {
         }
     }
 
-    //Function for using the shader
+    /**
+     * Permet d'utilise le programme shader.
+     */
     use(){
         gl.useProgram(this.programID);
     }
 
-    //Function for commiting all the currents values of the shader
+    /**
+     * Envoie toutes les données des uniform dans le programme.
+     */
     commitValues(){
-        this.uniforms.forEach(el => {
-            if(el.val) {
-                el.type(el.pos, el.val);
+        this.uniforms.forEach((value, key) => {
+            if(value.val) {
+                value.type(value.pos, value.val);
             }
         });
     }
 
-    //toString
+    /**
+     * Génère une chaine de charactères représentant la liste des uniforms.
+     * @returns {string} La chaine générée.
+     */
     toStringUniforms(){
         let res = "";
-        this.uniforms.forEach(el => {
-            res += "name : " + el.name + "\n";
-            res += "pos : " + el.pos + "\n";
-            res += "val : " + el.val + "\n";
-            res += "type : " + el.type + "\n";
+        this.uniforms.forEach((value, key) => {
+            res += "name : " + key + "\n";
+            res += "pos : " + value.pos + "\n";
+            res += "val : " + value.val + "\n";
+            res += "type : " + value.type + "\n";
         });
         return res;
     }
+    /**
+     * Génère une chaine de charactères contenant les nom des fichiers utilisé pour générer le programme shader.
+     * @returns {string} La chaine générée.
+     */
     toString(){
-        return "SHADER : \n VSID : " + this.vsID + "\n FSID : " + this.fsID + "\n";
+        return "SHADER : \n VSFILE : " + this.vsFile + "\n FSFILE : " + this.fsFile + "\n";
     }
 }

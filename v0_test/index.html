@@ -22,15 +22,27 @@
     <script type="text/javascript" src="js/util.js" defer></script>
     <script type="text/javascript" src="js/util_ui.js" defer ></script>
     <script type="text/javascript" src="js/framebuffer.js" ></script>
+    <!--
     <script type="text/javascript" src="js/texture.js" ></script>
-    <script type="text/javascript" src="js/model.js" ></script>
+    -->
     <script type="text/javascript" src="js/camera.js" ></script>
-    <script type="text/javascript" src="js/Light.js" ></script>
+    <script type="text/javascript" src="js/model.js" ></script>
+    <script type="text/javascript" src="js/light.js" ></script>
     <script type="text/javascript" src="js/scene.js"></script>
-    <script type="text/javascript" src="js/controller.js"></script>
     <script type="text/javascript" src="js/shaderProgram.js"></script>
-    <script type="text/javascript" src="js/initShaders.js"></script>
-    <script type="text/javascript" src="js/sceneBuilder.js"></script>
+    <script type="text/javascript" src="js/shaderRendererResult.js"></script>
+    <script type="text/javascript" src="js/shaderRenderer.js"></script>
+    <script type="text/javascript" src="js/shaderPipeline.js"></script>
+    <script type="text/javascript" src="js/controller.js"></script>
+    
+    <script type="text/javascript" src="js/Shaders/textureGBuffer.js"></script>
+    <script type="text/javascript" src="js/Shaders/applyToScreen.js"></script>
+    <script type="text/javascript" src="js/Shaders/blinnPhong.js"></script>
+    <script type="text/javascript" src="js/Shaders/gammaCorrection.js"></script>
+
+    <script type="text/javascript" src="js/Builders/sceneBuilder.js"></script>
+    <script type="text/javascript" src="js/Builders/shaderBuilder.js"></script>
+    <script type="text/javascript" src="js/Builders/pipelineBuilder.js"></script>
 
 </head>
 <body>
@@ -45,21 +57,25 @@
 
     <script type="text/javascript" defer>
 
-        let scene;
+        let updateRender = true;
+        let currentScene = 0;
+        let currentPipeline = 0;
+
+        let controler;
 
         function init(){
             message.informative("INITIALISATION", "initialisation of the scene");
             initGl("webglcanvas");
 
-            initShaders();
+            buildScenes();
+            buildShaders();
+            buildPipelines();
         }
 
-        let controler;
         function main() {
             init();
-            scene = shadow();
 
-            controler = new Controller(scene);
+            controler = new Controller(scenes[currentScene]);
             document.addEventListener('keydown', onKeyDown);
             document.addEventListener('keyup', onKeyUp);
             document.addEventListener('mousemove', onMouseMove);
@@ -87,7 +103,10 @@
 
         function frame() {
             controler.processInput();
-            scene.render();
+            if (updateRender) {
+                scenes[currentScene].update();
+                pipelines[currentPipeline].render(scenes[currentScene]);
+            }
             requestAnimationFrame(frame);
         }
 
@@ -100,7 +119,7 @@
                     console.log(this.val);
                 }
             }
-            createValue_UI("val",obj,"test");
+            createValue_UI("val", obj, "test");
         }
 
         window.onload = main;

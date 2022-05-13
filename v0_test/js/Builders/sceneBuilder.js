@@ -1,3 +1,5 @@
+let scenes;
+
 function testScene() {
     scene = new Scene("webglcanvas");
 
@@ -178,14 +180,15 @@ function reflexion() {
     return scene;
 }
 
+function buildScenes() {
+    scenes = new Array();
 
-function shadow() {
-    scene = new Scene("webglcanvas");
+    let scene = new Scene();
 
     let m;
-
+    
     //Texture
-    m = new Model(cube(), "textureGBuffer");
+    m = new Model(cube());
     m.matrix.modelMatrix = mat4.clone(
         [1, 0, 0, 0,
         0, 1, 0, 0,
@@ -199,7 +202,7 @@ function shadow() {
 
 
     //YELLOW
-    m = new Model(uvSphere(), "textureGBuffer");
+    m = new Model(uvSphere());
     m.matrix.modelMatrix = mat4.clone(
         [1, 0, 0, 0,
         0, 1, 0, 0,
@@ -212,7 +215,7 @@ function shadow() {
     scene.addModel(m);
 
     //MAGENTA
-    m = new Model(uvTorus(), "textureGBuffer");
+    m = new Model(uvTorus());
     m.matrix.modelMatrix = mat4.clone(
         [1, 0, 0, 0,
         0, 1, 0, 0,
@@ -226,7 +229,7 @@ function shadow() {
 
 
     //SOL
-    m = new Model(cube(), "textureGBuffer");
+    m = new Model(cube());
     m.matrix.modelMatrix = mat4.clone(
         [100, 0, 0, 0,
         0, 0.01, 0, 0,
@@ -238,23 +241,13 @@ function shadow() {
     m.specularTexture = getTextureImage("data/img/white.png");
     scene.addModel(m);
 
-    m = new Model(quad(), "PointLightDepth");
-    m.depthMapFramebuffer = Framebuffer.createCubemapDepth(1024, 1024);
-    scene.addModel(m);
-    scene.addModel(new Model(quad(), "BlinnPhongShadow"));
 
-    m = new Model(quad(), "postEffectGammaCorrection");
-    m.gamma = 2.2;
-    scene.addModel(m);
-
-    scene.addModel(new Model(quad(), "end"));
     
-    scene.initModels();
-
-
-
     scene.addLight(new Light());
     scene.addLight(new Light(vec3.clone([-5.0, 5.0, -5.0]), vec3.clone([0.9, 0.7, 0.3]), 0.4, 0.1));
 
-    return scene;
+    scenes.push(scene);
+    
+
+    return scenes;
 }
