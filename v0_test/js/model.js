@@ -1,99 +1,93 @@
 /*Classe modélisant un modèle*/
-
-
 class Model {
-    /**Constructeur d'un model
-    * @param modelData : ObjetModel renseignant les sommets, la géométrie et les normales d'un objet 3D représentant notre modèle
-    * @param shaderKey : Key cle key c'est clef en françait pour le shader ("programme sur GPU ("carte graphique")")**/
-    constructor(modelData, shaderKey) {
-        this.shader = shaders.get(shaderKey);
 
+    /**Constructeur d'un model
+    * @param modelData ObjetModel renseignant les sommets, la géométrie et les normales d'un objet 3D représentant notre modèle
+    **/
+    constructor(modelData) {
         this.modelData = modelData;
 
         this.matrix = {
-            modelMatrix      : mat4.create(),
+            modelMatrix  : mat4.create(),
+            normalMatrix : mat4.create()
         }
-        this.programInfo = {
-            attribLocations : {
-                vertexPosition : 0,
-                vertexNormal   : 1,
-                vertexUV       : 2,
-            },
-        };
 
         this.init();
     }
 
+    /**
+     * Fonction d'initialisation
+     */
     init(){
         this.createModel();
     }
 
+    /**
+     * Génère et attribue les buffers du modèle.
+     */
     createModel(){
-        this.shader.use();
         this.model = {};
+        this.model.vao = gl.createVertexArray();
         this.model.coordsBuffer = gl.createBuffer();
         this.model.normalBuffer = gl.createBuffer();
         this.model.texCoordsBuffer = gl.createBuffer();
         this.model.indexBuffer = gl.createBuffer();
         this.model.count = this.modelData.indices.length;
-        //TODO VBO
-        //gl.initVBO
+
+        gl.bindVertexArray(this.model.vao);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.model.coordsBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.modelData.vertexPositions, gl.STATIC_DRAW);
+        //                    (index, size, type    , normalized, stride, offset)
+        gl.vertexAttribPointer(0    , 3   , gl.FLOAT, false     , 0     , 0);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.model.normalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.modelData.vertexNormals, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.model.texCoordsBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.modelData.vertexTextureCoords, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 0, 0);
+
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.model.indexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.modelData.indices, gl.STATIC_DRAW);
-        //gl.atribPointer
-        //gl.endVBO
-        let obj = this;
-        this.model.render = function() {
-            //TODO Bind VBO
-            //delete 
-            gl.bindBuffer(gl.ARRAY_BUFFER, obj.model.coordsBuffer);
-            gl.vertexAttribPointer(obj.programInfo.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
-            gl.bindBuffer(gl.ARRAY_BUFFER, obj.model.normalBuffer);
-            gl.vertexAttribPointer(obj.programInfo.attribLocations.vertexNormal, 3, gl.FLOAT, false, 0, 0);
-            gl.bindBuffer(gl.ARRAY_BUFFER, obj.model.texCoordsBuffer);
-            gl.vertexAttribPointer(obj.programInfo.attribLocations.vertexUV, 2, gl.FLOAT, false, 0, 0);
-            //fin delete
 
-            //mat3.normalFromMat4(obj.normalMatrix, obj.matrix.modelMatrix);
-            //gl.uniformMatrix3fv(obj.u_transformation, false, obj.transformation);
-            //gl.uniform3f(obj.u_translation, obj.translation[0],obj.translation[1],obj.translation[2]);
-            //gl.uniformMatrix3fv(obj.u_normalMatrix, false, obj.normalMatrix);
+        if (!gl.isVertexArray(this.model.vao)) {
+            message.error("CREATE MODEL BUFFERS", "Failed to create vertex atribute array.");
+        }
 
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obj.model.indexBuffer);
-            gl.drawElements(gl.TRIANGLES, obj.model.count, gl.UNSIGNED_SHORT, 0);
-        };
+        gl.bindVertexArray(null);
     }
 
-    render(previousModelToRender){
-        //On rend d'abord la texture asoociée à l'objet
-        //gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+    /**
+     * Fait un rendu du modèle
+     */
+    render(){        
+        gl.bindVertexArray(this.model.vao);
 
-        this.shader.use();
-        this.shader.beforeRenderFunction(previousModelToRender, this, scene);
+        gl.enableVertexAttribArray(0);
+        gl.enableVertexAttribArray(1);
+        gl.enableVertexAttribArray(2);
 
-        //gl.clearColor(0,0,0,1);
-        //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        //             (mode        , count           , type             , offset)
+        gl.drawElements(gl.TRIANGLES, this.model.count, gl.UNSIGNED_SHORT, 0);
 
-        //gl.enable(gl.DEPTH_TEST);
-        //gl.viewport(0,0,this.largeur,this.hauteur);
+        gl.disableVertexAttribArray(0);
+        gl.disableVertexAttribArray(1);
+        gl.disableVertexAttribArray(2);
+    }
 
-        //TODO VBO
-        gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexPosition);
-        gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexNormal);
-        gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexUV);
+    /**
+     * Met à jour le modèle
+     */
+    update() {
+        this.updateNormalMatrix();
+    }
 
-        this.model.render();
-
-        gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexPosition);
-        gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexNormal);
-        gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexUV);
-
-        this.shader.afterRenderFunction(previousModelToRender, this, scene);
+    /**
+     * Met à jour la matrice de normales.
+     */
+    updateNormalMatrix() {
+        this.matrix.normalMatrix = mat4.transpose([], mat4.invert([], this.matrix.modelMatrix));
     }
 }

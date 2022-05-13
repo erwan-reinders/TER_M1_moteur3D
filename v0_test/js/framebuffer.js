@@ -1,11 +1,20 @@
-
-
+/** Classe modélisant un framebuffer de webgl */
 class Framebuffer {
+
+    /**
+     * Permet de dessiner sur le canvas. 
+     */
     static clear() {
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
+    /**
+     * Construit le framebuffer.
+     * @param {number} SCR_WIDTH  La largeur de la zone de rendu.
+     * @param {number} SCR_HEIGHT la hauteur de la zone de rendu.
+     * @param {number} nbTextures le nombre de textures du framebuffer. 
+     */
     constructor(SCR_WIDTH, SCR_HEIGHT, nbTextures) {
         this.framebuffer = null;
         this.textures = new Array(nbTextures);
@@ -15,6 +24,11 @@ class Framebuffer {
         this.init();
     }
 
+    /**
+     * Met à jour la zone de rendu.
+     * @param {number} SCR_WIDTH  la nouvelle largeur de la zone de rendu.
+     * @param {number} SCR_HEIGHT la nouvelle hauteur de la zone de rendu.
+     */
     update(SCR_WIDTH, SCR_HEIGHT) {
         for (let i = 0; i < this.textures.length; i++) {
             gl.deleteTexture(this.textures[i]);
@@ -23,6 +37,9 @@ class Framebuffer {
         this.init(SCR_WIDTH, SCR_HEIGHT);
     }
 
+    /**
+     * Initialise le framebuffer.
+     */
     init() {
         this.framebuffer = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
@@ -62,15 +79,48 @@ class Framebuffer {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
+    /**
+     * Permet de dessiner sur le framebuffer.
+     */
     use() {
         gl.viewport(0, 0, this.width, this.height);
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
     }
 
-    copyBitsOf(otherFramebuffer, bit) {
+    /**
+     * Supprime les données du framebuffer.
+     * @param {GLbitfield} mask Le masque permettant de spécifier la donnée à copier (gl.COLOR_BUFFER_BIT, gl.DEPTH_BUFFER_BIT, gl.STENCIL_BUFFER_BIT). Peut être combiné avec un ou binaire ("|").
+     */
+    clear(mask) {
+        gl.clear(mask);
+    }
+
+    /**
+     * SUpprime les données de couleur et de profondeur.
+     */
+    clearColorAndDepth() {
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    }
+
+    /**
+     * Copie les données d'un autre framebuffer.
+     * @param {Framebuffer} otherFramebuffer Le framebuffer auquel on veux copier la donnée.
+     * @param {GLbitfield} mask Le masque permettant de spécifier la donnée à copier (gl.COLOR_BUFFER_BIT, gl.DEPTH_BUFFER_BIT, gl.STENCIL_BUFFER_BIT). Peut être combiné avec un ou binaire ("|").
+     */
+    copyBitsOf(otherFramebuffer, mask) {
         gl.bindFramebuffer(gl.READ_FRAMEBUFFER, otherFramebuffer.framebuffer);
         gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this.framebuffer);
-        gl.blitFramebuffer(0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height, bit, gl.NEAREST);
+        gl.blitFramebuffer(0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height, mask, gl.NEAREST);
+    }
+
+    /**
+     * Active et met à jour une texture.
+     * @param {number} textureNumber L'identifiant de la texture.
+     * @param {WebGLTexture} textureBuffer La texture à mettre.
+     */
+    setTexture(textureNumber, textureBuffer) {
+        gl.activeTexture(gl.TEXTURE0 + textureNumber);
+        gl.bindTexture(gl.TEXTURE_2D, textureBuffer);
     }
 
 };

@@ -16,10 +16,12 @@ struct Light {
     float Linear;
     float Quadratic;
 };
-const int NR_LIGHTS = 2;
+const int NR_LIGHTS = 16;
 uniform Light uLights[NR_LIGHTS];
 
+uniform int uNLights;
 uniform vec3 uViewPos;
+uniform float uAmbiant;
 
 void main()
 {
@@ -28,9 +30,10 @@ void main()
     vec3 Diffuse = texture(gAlbedoSpec, TexCoords).rgb;
     float Specular = texture(gAlbedoSpec, TexCoords).a;
     
-    vec3 lighting  = Diffuse * 0.1; // hard-coded ambient component
+    vec3 lighting = Diffuse * uAmbiant;
     vec3 viewDir  = normalize(uViewPos - FragPos);
-    for(int i = 0; i < NR_LIGHTS; ++i)
+    int loop = min(uNLights, NR_LIGHTS);
+    for(int i = 0; i < loop; ++i)
     {
         // diffuse
         vec3 lightDir = normalize(uLights[i].Position - FragPos);

@@ -1,6 +1,6 @@
 /*Classe modélisant une lumière*/
-
 class Light {
+    
     /**Constructeur d'une lumière
      * @param pos : vec3 position de la lumière
      * @param color : vec3 couleur de la lumière (RGB) **/

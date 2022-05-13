@@ -1,8 +1,8 @@
 #version 300 es
 precision highp float;
 
-layout (location = 0) out vec3 gPosition;
-layout (location = 1) out vec3 gNormal;
+layout (location = 0) out vec4 gPosition;
+layout (location = 1) out vec4 gNormal;
 layout (location = 2) out vec4 gAlbedoSpec;
 
 in vec3 vNormal;
@@ -16,8 +16,8 @@ uniform float uSpecularFactor;
 
 void main()
 {    
-    gPosition = vFragPos;
-    gNormal = normalize(vNormal);
+    gPosition = vec4(vFragPos, 1.0);
+    gNormal = vec4(normalize(vNormal), 1.0);
     gAlbedoSpec.rgb = texture(uDiffuseTexture, vFragUV).rgb * pow(uDiffuseFactor, vec3(2.2));
     gAlbedoSpec.a = texture(uSpecularTexture, vFragUV).r * uSpecularFactor;
 }

@@ -1,22 +1,34 @@
 /*Classes modélisants des textures particulières*/
-/*Classe modélisant une texture*/
+/**
+ * Classe modélisant une texture
+ */
 class Texture {
-    /**Constructeur d'une texture
-     * @param prog : programId renseignant le programme à passer à la texture**/
+    /**
+     * Constructeur d'une texture
+     * @param {WebGLProgram} prog Le programme à passer à la texture
+     */
     constructor(prog) {
         this.program = prog;
     }
 
-    /*Méthode permettant d'initialiser la texture*/
+    /**
+     * Méthode permettant d'initialiser la texture
+     */
     init(){};
 
-    /*Méthode permettant de MAJ la texture*/
+    /**
+     * Méthode permettant de mettre à jour la texture
+     */
     update(){};
 
-    /*Méthode permettant d'initialiser la data de la texture*/
+    /**
+     * Méthode permettant d'initialiser les données de la texture
+     */
     init_data(){};
 
-    /*Méthode permettant de rendre la texture (utile pour les textures en plusieurs passes)*/
+    /**
+     * Méthode permettant de rendre la texture (utile pour les textures en plusieurs passes)
+     */
     render(){};
 }
 
