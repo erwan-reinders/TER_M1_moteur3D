@@ -175,12 +175,28 @@ function getCubeMap(width, height) {
     return texture;
 }
 
-
-//TODO
-//https://webglfundamentals.org/webgl/lessons/webgl-cube-maps.html 
-function getCubeMapImage(srcs) {
+function getDepthCubeMap(width, height) {
     let texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE); 
+
+    for (let i = 0; i < 6; i++) {
+        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.DEPTH_COMPONENT, width, height, 0, gl.DEPTH_COMPONENT, gl.FLOAT, null);
+    }
+
+    return texture;
+}
+
+
+//https://webglfundamentals.org/webgl/lessons/webgl-cube-maps.html 
+function getCubeMapImage(srcs) {
+    let textureObject = {ready : false, texture : gl.createTexture()};
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, textureObject.texture);
 
     for (let i = 0; i < 6; i++) {
         let img = new Image();
@@ -191,7 +207,7 @@ function getCubeMapImage(srcs) {
 
             message.informative("IMG LOADER", "I've got the cubemap image "+i+" : " + this.src);
 
-            gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+            gl.bindTexture(gl.TEXTURE_CUBE_MAP, textureObject.texture);
             gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.SRGB8, gl.RGB, gl.UNSIGNED_BYTE, this);
 
             if (isPower2 && isPowerOf2(this.width) && isPowerOf2(this.height)) {
@@ -203,6 +219,7 @@ function getCubeMapImage(srcs) {
 
             nbImgDone++;
             if (nbImgDone == 5) {
+                textureObject.ready = true;
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -214,6 +231,6 @@ function getCubeMapImage(srcs) {
         img.src = srcs[i];
     }
 
-    return texture;
+    return textureObject;
 }
 

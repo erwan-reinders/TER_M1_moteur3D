@@ -11,6 +11,7 @@ class Model {
         this.modelData = modelData;
 
         this.matrix = {
+            normalMatrix     : mat4.create(),
             modelMatrix      : mat4.create(),
         }
         this.programInfo = {
@@ -75,25 +76,25 @@ class Model {
         //gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 
         this.shader.use();
-        this.shader.beforeRenderFunction(previousModelToRender, this, scene);
+        let beforeValue = this.shader.beforeRenderFunction(previousModelToRender, this, scene);
 
-        //gl.clearColor(0,0,0,1);
-        //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        if (beforeValue != false) {
+            //TODO VBO
+            gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexPosition);
+            gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexNormal);
+            gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexUV);
 
-        //gl.enable(gl.DEPTH_TEST);
-        //gl.viewport(0,0,this.largeur,this.hauteur);
+            this.model.render();
 
-        //TODO VBO
-        gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexPosition);
-        gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexNormal);
-        gl.enableVertexAttribArray(this.programInfo.attribLocations.vertexUV);
-
-        this.model.render();
-
-        gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexPosition);
-        gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexNormal);
-        gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexUV);
+            gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexPosition);
+            gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexNormal);
+            gl.disableVertexAttribArray(this.programInfo.attribLocations.vertexUV);
+        }
 
         this.shader.afterRenderFunction(previousModelToRender, this, scene);
+    }
+
+    updateNormalMatrix() {
+        this.matrix.normalMatrix = mat4.transpose([], mat4.invert([], this.matrix.normalMatrix));
     }
 }

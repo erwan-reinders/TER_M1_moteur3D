@@ -180,16 +180,7 @@ function initEnd() {
     shaders.set("end", s);
 }
 
-function initShaders() {
-    shaders = new Map();
-    
-    initGBuffer();
-
-    initLight();
-
-    initPostEffect();
-
-    initEnd();
+function initTestCubemap() {
 
     s = new ShaderProgram("ScreenPosVertexShader.glsl", "fusionColorFragmentShader.glsl");
     s.use();
@@ -279,6 +270,10 @@ function initShaders() {
 
         gl.depthFunc(gl.LEQUAL);
 
+        if (!model.cubemap.ready) {
+            return false;
+        }
+
         this.framebuffer.copyBitsOf(previousModelToRender.shader.framebuffer, gl.DEPTH_BUFFER_BIT);
         //this.framebuffer.copyBitsOf(scene.models[0].shader.framebuffer, gl.COLOR_BUFFER_BIT);
         this.framebuffer.use();
@@ -288,7 +283,7 @@ function initShaders() {
 
         this.setUniformValueByName("skybox", 0);
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.cubemap);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.cubemap.texture);
     });
     s.setAfterRenderFunction(function (previousModelToRender, model, scene) {
         Framebuffer.clear();
@@ -326,9 +321,13 @@ function initShaders() {
 
         this.framebuffer.use();
 
+        if (!model.cubemap.ready) {
+            return false;
+        }
+
         //let shader = shaders.get("textureGBuffer");
-        let shader = scene.models[0].shader;
-        //let shader = previousModelToRender.shader;
+        //let shader = scene.models[0].shader;
+        let shader = previousModelToRender.shader;
 
         this.setUniformValueByName("gPosition", 0);
         gl.activeTexture(gl.TEXTURE0);
@@ -344,9 +343,9 @@ function initShaders() {
         
         this.setUniformValueByName("uViewPos", scene.current_camera.position);
 
-        this.setUniformValueByName("skybox", 0);
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.cubemap);
+        this.setUniformValueByName("skybox", 3);
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.cubemap.texture);
     });
     s.setAfterRenderFunction(function (previousModelToRender, model, scene) {
         Framebuffer.clear();
@@ -387,6 +386,9 @@ function initShaders() {
         this.use();
 
         this.framebuffer.use();
+        if (!model.cubemap.ready) {
+            return false;
+        }
 
         //Pour le vertex shader
         this.setUniformValueByName("uProjectionMatrix", scene.matrix.projectionMatrix);
@@ -398,7 +400,7 @@ function initShaders() {
 
         this.setUniformValueByName("skybox", 0);
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.cubemap);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.cubemap.texture);
     });
     s.setAfterRenderFunction(function (previousModelToRender, model, scene) {
         Framebuffer.clear();
@@ -433,6 +435,10 @@ function initShaders() {
 
         this.framebuffer.use();
 
+        if (!model.cubemap.ready) {
+            return false;
+        }
+
         this.framebuffer.copyBitsOf(previousModelToRender.shader.framebuffer, gl.DEPTH_BUFFER_BIT);
 
         //Pour le vertex shader
@@ -445,7 +451,7 @@ function initShaders() {
 
         this.setUniformValueByName("skybox", 0);
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.cubemap);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.cubemap.texture);
 
         let ratio = model.ratio ?? 0.75;
         this.setUniformValueByName("uRatio", ratio);
@@ -455,4 +461,194 @@ function initShaders() {
     });
 
     shaders.set("cubeMapRefractionSOLO", s);
+}
+
+function initShaders() {
+    shaders = new Map();
+    
+    initGBuffer();
+
+    initLight();
+
+    initPostEffect();
+
+    initEnd();
+
+    initTestCubemap();
+
+    
+
+
+
+
+
+    s = new ShaderProgram("ScreenPosVertexShader.glsl", "LightShadowBlinnPhongFragmentShader.glsl");
+    s.use();
+
+    // uniform for fragment shader
+    s.setUniform("gPosition",   valType.i1);
+    s.setUniform("gNormal",     valType.i1);
+    s.setUniform("gAlbedoSpec", valType.i1);
+
+    s.setUniform("uViewPos",    valType.f3v);
+    s.setUniform("uFarPlane",   valType.f1);
+    
+    let NR_LIGHTS = 2;
+    for (let i = 0; i < NR_LIGHTS; i++) {
+        s.setUniform("uLights["+i+"].Position"  , valType.f3v);
+        s.setUniform("uLights["+i+"].Color"     , valType.f3v);
+        s.setUniform("uLights["+i+"].Linear"    , valType.f1);
+        s.setUniform("uLights["+i+"].Quadratic" , valType.f1);
+    }
+    s.setUniform("DepthMap",   valType.i1);
+
+    s.setAllPos();
+
+    s.framebuffer = new Framebuffer(canvas.width, canvas.height, 1);
+    s.setBeforeAnyRendering(function () {
+        this.framebuffer.use();
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        Framebuffer.clear();
+    });
+    s.setBeforeRenderFunction(function (previousModelToRender, model, scene) {
+        this.use();
+
+        this.framebuffer.use();
+
+        //let shader = shaders.get("textureGBuffer");
+        let shader = scene.models[0].shader;
+        //let shader = previousModelToRender.shader;
+
+        this.setUniformValueByName("gPosition", 0);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, shader.framebuffer.textures[0]);
+
+        this.setUniformValueByName("gNormal", 1);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, shader.framebuffer.textures[1]);
+
+        this.setUniformValueByName("gAlbedoSpec", 2);
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, shader.framebuffer.textures[2]);
+        
+        this.setUniformValueByName("uViewPos",  scene.current_camera.position);
+        let far_plane  = model.far_plane  ?? 25.0;
+        this.setUniformValueByName("uFarPlane", far_plane);
+
+        for (let i = 0; i < scene.lights.length; i++) {
+            this.setUniformValueByName("uLights["+i+"].Position"  , scene.lights[i].position);
+            this.setUniformValueByName("uLights["+i+"].Color"     , scene.lights[i].color);
+            this.setUniformValueByName("uLights["+i+"].Linear"    , scene.lights[i].linear);
+            this.setUniformValueByName("uLights["+i+"].Quadratic" , scene.lights[i].quadratic);
+            
+        }
+        this.setUniformValueByName("DepthMap", 3);
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, previousModelToRender.depthMapFramebuffer.cubemap);
+    });
+    s.setAfterRenderFunction(function (previousModelToRender, model, scene) {
+        Framebuffer.clear();
+    });
+
+    shaders.set("BlinnPhongShadow", s);
+
+
+
+
+
+    s = new ShaderProgram("MVPVertexShader.glsl", "PointLightDepthFragmentShader.glsl");
+    s.use();
+
+    // uniform for vertex shader
+    s.setUniform("uModelMatrix",      valType.Mat4fv);
+    s.setUniform("uViewMatrix",       valType.Mat4fv);
+    s.setUniform("uProjectionMatrix", valType.Mat4fv);
+    s.setUniform("uNormalMatrix",     valType.Mat4fv);
+
+    // uniform for fragment shader
+    s.setUniform("uLightPos", valType.f3v);
+    s.setUniform("uFarPlane", valType.f1);
+
+    s.setAllPos();
+
+    s.framebuffer = new Framebuffer(canvas.width, canvas.height, 1);
+    s.setBeforeAnyRendering(function () {
+        this.framebuffer.use();
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        Framebuffer.clear();
+    });
+    s.setBeforeRenderFunction(function (previousModelToRender, model, scene) {
+        this.use();
+
+        this.framebuffer.use();
+
+        
+        let near_plane = model.near_plane ?? 1.0;
+        let far_plane  = model.far_plane  ?? 25.0;
+        let shadowWidth  = model.shadowWidth;
+        let shadowHeight = model.shadowHeight;
+        
+        let shadowProj = mat4.create();
+        mat4.perspective(shadowProj, 90.0, shadowWidth / shadowHeight, near_plane, far_plane);
+        this.setUniformValueByName("uProjectionMatrix", scene.matrix.projectionMatrix);
+        
+        
+        this.setUniformValueByName("uFarPlane",    far_plane);
+
+        //scene.lights.length
+        for (let i = 0; i < 1; i++) {
+            let shadowTransforms = new Array();
+
+            let viewM = mat4.create();
+            mat4.lookAt(viewM, scene.lights[i].position, vec3.add([], scene.lights[i].position, [ 1.0,  0.0,  0.0]), [ 0.0, -1.0,  0.0]);
+            shadowTransforms.push(viewM);
+            viewM = mat4.create();
+            mat4.lookAt(viewM, scene.lights[i].position, vec3.add([], scene.lights[i].position, [-1.0,  0.0,  0.0]), [ 0.0, -1.0,  0.0]);
+            shadowTransforms.push(viewM);
+            viewM = mat4.create();
+            mat4.lookAt(viewM, scene.lights[i].position, vec3.add([], scene.lights[i].position, [ 0.0,  1.0,  0.0]), [ 0.0,  0.0,  1.0]);
+            shadowTransforms.push(viewM);
+            viewM = mat4.create();
+            mat4.lookAt(viewM, scene.lights[i].position, vec3.add([], scene.lights[i].position, [ 0.0, -1.0,  0.0]), [ 0.0,  0.0, -1.0]);
+            shadowTransforms.push(viewM);
+            viewM = mat4.create();
+            mat4.lookAt(viewM, scene.lights[i].position, vec3.add([], scene.lights[i].position, [ 0.0,  0.0,  1.0]), [ 0.0, -1.0,  0.0]);
+            shadowTransforms.push(viewM);
+            viewM = mat4.create();
+            mat4.lookAt(viewM, scene.lights[i].position, vec3.add([], scene.lights[i].position, [ 0.0,  0.0, -1.0]), [ 0.0, -1.0,  0.0]);
+            shadowTransforms.push(viewM);
+
+            model.depthMapFramebuffer.use();
+            gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.depthMapFramebuffer.cubemap);
+
+            this.setUniformValueByName("uLightPos", scene.lights[i].position);
+
+            for (let j = 0; j < 6; j++) {
+                model.depthMapFramebuffer.use();
+                gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.depthMapFramebuffer.cubemap);
+
+                this.setUniformValueByName("uViewMatrix", shadowTransforms[i]);
+                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X+i, model.depthMapFramebuffer.cubemap, 0);
+
+                for (let m of scene.models) {
+                    if (m == model) {
+                        break;
+                    }
+                    this.setUniformValueByName("uNormalMatrix",     m.matrix.normalMatrix);
+                    this.setUniformValueByName("uModelMatrix",      m.matrix.modelMatrix);
+                    m.model.render();
+                }
+                
+                gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.depthMapFramebuffer.cubemap);
+                gl.generateMipmap( gl.TEXTURE_CUBE_MAP );
+            }
+
+        }
+        
+    });
+    s.setAfterRenderFunction(function (previousModelToRender, model, scene) {
+        Framebuffer.clear();
+    });
+
+    shaders.set("PointLightDepth", s);
 }
