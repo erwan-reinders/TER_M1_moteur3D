@@ -16,7 +16,7 @@ out vec2 vFragUV;
 
 void main(void) {
     vFragPos = vec3(uModelMatrix * vec4(aVertexPosition, 1.0));
-    vNormal = vec3(uNormalMatrix * vec4(aVertexNormal, 1.0));
+    vNormal = vec3(uNormalMatrix * vec4(aVertexNormal, 0.0));
     vFragUV = aVertexUV;
 
     gl_Position = uProjectionMatrix * uViewMatrix * vec4(vFragPos, 1.0);

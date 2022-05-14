@@ -123,11 +123,12 @@ function createVecN_UI(elem, obj, name, vecN, step = default_step, color = false
  * @param {number} val_max La valeur maximum du slider.
  * @param {number} step Le pas du slider.
  */
-function createValueSlider_UI(elem, obj, name,val_min = default_val_min,val_max = default_val_max,step = default_step){
+function createValueSlider_UI(elem, obj, name, val_min = default_val_min, val_max = default_val_max, step = default_step){
     let wrapper = create_wrapper_UI(name,CSS_TAG.number);
 
     let span = document.createElement("span");
     span.classList.add(CSS_TAG.sliderdescription);
+    span.innerHTML = obj[elem];
 
     let input = document.createElement("input");
     input.type = "range";

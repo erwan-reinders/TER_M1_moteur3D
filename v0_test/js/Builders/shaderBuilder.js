@@ -5,7 +5,8 @@ function buildShaders() {
     shaders = new Map();
 
     shaders.set("textureGBuffer"  , new ShaderProgram("MVPVertexShader.glsl"      , "GBufferTextureFragmentShader.glsl"));
-    shaders.set("applyToScreen"   , new ShaderProgram("ScreenPosVertexShader.glsl", "EndFragmentShader.glsl"));
+    shaders.set("applyToScreen"   , new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyRGB.glsl"));
+    shaders.set("applyToScreenA"  , new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyAlpha.glsl"));
     shaders.set("blinnPhong"      , new ShaderProgram("ScreenPosVertexShader.glsl", "LightBlinnPhongFragmentShader.glsl"));
     shaders.set("gammaCorrection" , new ShaderProgram("ScreenPosVertexShader.glsl", "PostEffectGammaCorrection.glsl"));
 
@@ -98,8 +99,8 @@ function buildShaders() {
         
         this.setUniformValueByName("uViewPos", scene.current_camera.position);
 
-        this.setUniformValueByName("skybox", 0);
-        gl.activeTexture(gl.TEXTURE0);
+        this.setUniformValueByName("skybox", 3);
+        gl.activeTexture(gl.TEXTURE3);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.cubemap);
     });
     s.setAfterRenderFunction(function (previousModelToRender, model, scene) {

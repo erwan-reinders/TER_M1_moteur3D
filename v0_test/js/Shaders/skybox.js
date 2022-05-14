@@ -1,13 +1,13 @@
-/** GammaCorrection Classe shader permettant de générer une texture corrigé
+/** Skybox Classe shader permettant de une skybox
  * @extends ShaderRenderer
  * Rendu sur : 
- *  Quad
+ *  Cube
  * Utilise :
- *  Texture passée en parametre.
+ *  Rien
  * Permet d'obtenir :
- *  Texture passée en parametre.
+ *  Skybox
  */
-class GammaCorrection extends ShaderRenderer {
+ class Skybox extends ShaderRenderer {
     
     /**
      * Construit le faiseur de rendu permettant de dessiner un éclairage BlinnPhong.

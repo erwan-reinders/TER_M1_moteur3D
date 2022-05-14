@@ -90,8 +90,4 @@ class Model {
     updateNormalMatrix() {
         this.matrix.normalMatrix = mat4.transpose([], mat4.invert([], this.matrix.modelMatrix));
     }
-
-    updateNormalMatrix() {
-        this.matrix.normalMatrix = mat4.transpose([], mat4.invert([], this.matrix.normalMatrix));
-    }
 }

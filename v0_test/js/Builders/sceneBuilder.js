@@ -212,6 +212,7 @@ function buildScenes() {
     m.diffuseTexture = getTextureImage("data/img/white.png");
     m.diffuseFactor = vec3.clone([0.76, 0.69, 0.48]);
     m.specularTexture = getTextureImage("data/img/white.png");
+    m.specularFactor = 8.0;
     scene.addModel(m);
 
     //MAGENTA
@@ -225,6 +226,18 @@ function buildScenes() {
     m.diffuseTexture = getTextureImage("data/img/white.png");
     m.diffuseFactor = vec3.clone([0.76, 0.48, 0.69]);
     m.specularTexture = getTextureImage("data/img/white.png");
+    
+    m.rotationAzimuth = 0.0;
+    m.rotationZenith = 0.0;
+    m.update = function() {
+        this.rotationAzimuth += 0.01;
+        this.rotationZenith  += 0.01;
+        let x = Math.cos(this.rotationAzimuth) * Math.cos(this.rotationZenith);
+        let y = Math.sin(this.rotationZenith );
+        let z = Math.sin(this.rotationAzimuth) * Math.cos(this.rotationZenith);
+        mat4.rotate(this.matrix.modelMatrix, this.matrix.modelMatrix, 0.02, [x, y, z]);
+        this.updateNormalMatrix();
+    }
     scene.addModel(m);
 
 
@@ -239,12 +252,14 @@ function buildScenes() {
     m.diffuseTexture = getTextureImage("data/img/white.png");
     m.diffuseFactor = vec3.clone([0.48, 0.76, 0.76]);
     m.specularTexture = getTextureImage("data/img/white.png");
+    m.specularFactor = 0.5;
     scene.addModel(m);
 
 
     
-    scene.addLight(new Light());
-    scene.addLight(new Light(vec3.clone([-5.0, 5.0, -5.0]), vec3.clone([0.9, 0.7, 0.3]), 0.4, 0.1));
+    scene.addLight(new Light(undefined, [0.3, 0.7, 0.9]));
+    scene.addLight(new Light([-5.0, 5.0, -5.0], [0.9, 0.7, 0.3], 0.4, 0.1));
+    scene.addLight(new Light([0.0, 50.0, 50.0], [1.0, 1.0, 1.0], 0.01, 0.001));
 
     scenes.push(scene);
     

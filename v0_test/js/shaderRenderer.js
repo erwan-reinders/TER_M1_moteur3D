@@ -1,3 +1,24 @@
+/**
+ * Enumération des modes de rendu.
+ * On affecte directement le comportement à appliquer.
+ */
+const RenderingMode = {
+    scene : function(scene) {
+        scene.models.forEach(model => {
+            if (this.shouldRenderOnModel(model)) {
+                this.setModelData(model);
+                model.render();
+            }
+        });
+    },
+    quad : function(scene) {
+        scene.quad.render();
+    },
+    cube : function(scene) {
+        scene.cube.render();
+    },
+};
+
 /** Classe modélisant un comportement effectué par un shader. */
 class ShaderRenderer {
 
@@ -8,7 +29,15 @@ class ShaderRenderer {
     constructor(shaderProgram) {
         this.shaderProgram = shaderProgram;
 
-        this.camera = undefined;    // La caméra utilisé pour le rendu
+        this.camera = undefined;    // La caméra utilisé pour le rendu.
+
+        this.renderingMode = undefined // Le mode de rendu.
+
+
+        // Comportement de classe abstraite :
+        if (this.constructor === ShaderRenderer) {
+            message.error("SHADER_RENDERER", "ShaderRenderer est abstraite, elle ne doit pas être instanciée.");
+        }
     }
 
     /**
@@ -48,16 +77,6 @@ class ShaderRenderer {
     }
 
     /**
-     * Permet de determiner si l'on souhaite rendre les modèles de la scène
-     * @abstract
-     * @param {Scene} scene La scene que l'on vas rendre.
-     * @returns {boolean} Vrai ssi on doit rendre la scene.
-     */
-    shouldRenderScene(scene) {
-
-    }
-
-    /**
      * Permet de determiner si l'on souhaite rendre le model ou non.
      * @abstract
      * @param {Model} model Le model que l'on vas rendre.
@@ -74,19 +93,7 @@ class ShaderRenderer {
      */
     render(scene) {
         this.initFromScene(scene);
-
-        if (this.shouldRenderScene(scene)) {
-            scene.models.forEach(model => {
-                if (this.shouldRenderOnModel(model)) {
-                    this.setModelData(model);
-                    model.render();
-                }
-            });
-        }
-        else {
-            scene.quad.render();
-        }
-
+        this.renderingMode(scene);
         return this.getRenderResults();
     }
 }

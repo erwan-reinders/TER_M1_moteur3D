@@ -48,7 +48,7 @@
 <body>
     <div id="canvas-holder">
         <!--<canvas width=1200 height=600 id="webglcanvas"></canvas>-->
-        <canvas id="webglcanvas"></canvas>
+        <canvas id="webglcanvas" oncontextmenu="return false"></canvas>
     </div>
 
     <div id="options">
@@ -79,6 +79,7 @@
             document.addEventListener('keydown', onKeyDown);
             document.addEventListener('keyup', onKeyUp);
             document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('wheel', onWheel);
             document.addEventListener('mousedown', onMouseDown);
             document.addEventListener('mouseup', onMouseUp);
 
@@ -93,6 +94,9 @@
         }
         function onMouseMove(event) {
             controler.onMouseMove(event);
+        }
+        function onWheel(event) {
+            controler.onWheel(event);
         }
         function onMouseDown(event) {
             controler.onMouseDown(event);

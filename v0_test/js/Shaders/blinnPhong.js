@@ -20,6 +20,8 @@ class BlinnPhong extends ShaderRenderer {
     constructor(shaderProgram, width, height) {
         super(shaderProgram);
 
+        this.renderingMode = RenderingMode.quad;
+
         this.nLights = 0;
         this.ambiant = 0.1;
         
@@ -109,11 +111,6 @@ class BlinnPhong extends ShaderRenderer {
     /** @inheritdoc*/
     setModelData(model) {
         // On ne fait pas de rendu sur les modèles
-    }
-
-    /** @inheritdoc*/
-    shouldRenderScene(scene) {
-        return false;
     }
 
     /** @inheritdoc*/

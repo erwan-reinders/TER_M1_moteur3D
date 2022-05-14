@@ -22,6 +22,8 @@ class ApplyToScreen extends ShaderRenderer {
     constructor(shaderProgram, textureToApplyName = "Position", x = 0, y = 0, width = canvas.width, height = canvas.height) {
         super(shaderProgram);
 
+        this.renderingMode = RenderingMode.quad;
+
         this.textureToApplyName = textureToApplyName;
         this.x = x;
         this.y = y;
@@ -57,11 +59,6 @@ class ApplyToScreen extends ShaderRenderer {
     /** @inheritdoc*/
     setModelData(model) {
         // On ne fait pas de rendu sur les modèles
-    }
-
-    /** @inheritdoc*/
-    shouldRenderScene(scene) {
-        return false;
     }
 
     /** @inheritdoc*/

@@ -19,6 +19,8 @@ class TextureGBuffer extends ShaderRenderer {
     constructor(shaderProgram, width, height) {
         super(shaderProgram);
 
+        this.renderingMode = RenderingMode.scene;
+
         this.shaderProgram.setUniform("uModelMatrix",      valType.Mat4fv);
         this.shaderProgram.setUniform("uViewMatrix",       valType.Mat4fv);
         this.shaderProgram.setUniform("uProjectionMatrix", valType.Mat4fv);
@@ -76,11 +78,6 @@ class TextureGBuffer extends ShaderRenderer {
         let specularFactor = (model.specularFactor) ? model.specularFactor : 1.0;
         this.shaderProgram.setUniformValueByName("uDiffuseFactor",  diffuseFactor);
         this.shaderProgram.setUniformValueByName("uSpecularFactor", specularFactor);
-    }
-
-    /** @inheritdoc*/
-    shouldRenderScene(scene) {
-        return true;
     }
 
     /** @inheritdoc*/
