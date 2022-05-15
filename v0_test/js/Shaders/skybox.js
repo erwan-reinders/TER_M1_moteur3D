@@ -29,7 +29,7 @@
         this.shaderProgram.setUniform("uProjectionMatrix", valType.Mat4fv);
         this.shaderProgram.setUniform("uViewMatrix",       valType.Mat4fv);
 
-        //this.shaderProgram.setUniform("skybox", valType.textureCubeMap);
+        this.shaderProgram.setUniform("skybox", valType.textureCubeMap);
 
         this.shaderProgram.setAllPos();
 
@@ -68,7 +68,10 @@
         this.shaderProgram.setUniformValueByName("uViewMatrix",       this.camera.getViewMatrix());
 
         if (this.cubemap.ready) {
-            //this.shaderProgram.setUniformValueByName("skybox", 0, this.cubemap.texture);
+            this.shaderProgram.setUniformValueByName("skybox", 0, this.cubemap.texture);
+        }
+        else {
+            this.shaderProgram.setUniformValueByName("skybox", 0, loadingCubemap.texture);
         }
     }
 

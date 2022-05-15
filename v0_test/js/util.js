@@ -1,6 +1,10 @@
 let gl; // Le WebGL2RenderingContext attaché au canvas.
 let canvas; // Le HTMLCanvasElement de la page.
 
+
+let loadingTexture; // Texture à afficher si le chargement d'une texture est toujours en cours.
+let loadingCubemap; // Texture à afficher si le chargement d'une texture est toujours en cours.
+
 /**
  * Récupère et initialise le contexte webgl2 du canvas.
  * @param {string} canvasId L'id du canvas.
@@ -20,10 +24,23 @@ function initGl(canvasId) {
         console.log("Sorry, could not get a WebGL graphics context.");
         return;
     }
+
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
+
+    loadingTexture = getTextureImage("data/img/loading.png");
+    loadingCubemap = getCubeMapImage([
+        "data/img/loading.png",
+        "data/img/loading.png",
+        "data/img/loading.png",
+        "data/img/loading.png",
+        "data/img/loading.png",
+        "data/img/loading.png"
+        ]);
+
+    return gl;
 }
 
 // https://stackoverflow.com/questions/36921947/read-a-server-side-file-using-javascript

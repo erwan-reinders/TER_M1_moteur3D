@@ -34,7 +34,7 @@ class Controller {
 
         this.scrollingAmount = 0.2;
 
-        this.azimuth = 0.0;
+        this.azimuth = 1.5;
         this.zenith  = 0.0;
         this.radius  = 5.0;
     }
