@@ -4,11 +4,16 @@ let shaders;
 function buildShaders() {
     shaders = new Map();
 
-    shaders.set("textureGBuffer"  , new ShaderProgram("MVPVertexShader.glsl"      , "GBufferTextureFragmentShader.glsl"));
-    shaders.set("applyToScreen"   , new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyRGB.glsl"));
-    shaders.set("applyToScreenA"  , new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyAlpha.glsl"));
-    shaders.set("blinnPhong"      , new ShaderProgram("ScreenPosVertexShader.glsl", "LightBlinnPhongFragmentShader.glsl"));
-    shaders.set("gammaCorrection" , new ShaderProgram("ScreenPosVertexShader.glsl", "PostEffectGammaCorrection.glsl"));
+    shaders.set("textureGBuffer" , new ShaderProgram("MVPVertexShader.glsl"      , "GBufferTextureFragmentShader.glsl"));
+
+    shaders.set("applyToScreenRaw" , new ShaderProgram("ScreenPosVertexShader.glsl", "EndFragmentShader.glsl"));
+    shaders.set("applyToScreen"    , new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyRGB.glsl"));
+    shaders.set("applyToScreenA"   , new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyAlpha.glsl"));
+    shaders.set("fusion"           , new ShaderProgram("ScreenPosVertexShader.glsl", "fusion.glsl"));
+    shaders.set("blinnPhong"       , new ShaderProgram("ScreenPosVertexShader.glsl", "LightBlinnPhongFragmentShader.glsl"));
+    shaders.set("gammaCorrection"  , new ShaderProgram("ScreenPosVertexShader.glsl", "PostEffectGammaCorrection.glsl"));
+    
+    shaders.set("skybox", new ShaderProgram("VPFragCoordVertexShader.glsl", "skybox.glsl"));
 
     return shaders;
     

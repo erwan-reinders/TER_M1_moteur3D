@@ -27,9 +27,9 @@ class BlinnPhong extends ShaderRenderer {
         
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniform("gPosition",   valType.i1);
-        this.shaderProgram.setUniform("gNormal",     valType.i1);
-        this.shaderProgram.setUniform("gAlbedoSpec", valType.i1);
+        this.shaderProgram.setUniform("gPosition",   valType.texture2D);
+        this.shaderProgram.setUniform("gNormal",     valType.texture2D);
+        this.shaderProgram.setUniform("gAlbedoSpec", valType.texture2D);
 
         this.shaderProgram.setUniform("uNLights",    valType.i1);
         this.shaderProgram.setUniform("uViewPos",    valType.f3v);
@@ -52,23 +52,15 @@ class BlinnPhong extends ShaderRenderer {
     usePreviousResult(shaderResults) {
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniformValueByName("gPosition", 0);
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, shaderResults.get("Position").getTexture());
-
-        this.shaderProgram.setUniformValueByName("gNormal", 1);
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, shaderResults.get("Normal").getTexture());
-
-        this.shaderProgram.setUniformValueByName("gAlbedoSpec", 2);
-        gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, shaderResults.get("ColorSpecular").getTexture());
+        this.shaderProgram.setUniformValueByName("gPosition",   0, shaderResults.get("Position").getTexture());
+        this.shaderProgram.setUniformValueByName("gNormal",     1, shaderResults.get("Normal").getTexture());
+        this.shaderProgram.setUniformValueByName("gAlbedoSpec", 2, shaderResults.get("ColorSpecular").getTexture());
     }
 
     /** @inheritdoc*/
     getRenderResults() {
         let renderResults = new Array();
-        renderResults.push(new ShaderRendererResult("BlinnPhong" , this.framebuffer.textures[0], this.camera));
+        renderResults.push(new ShaderRendererResult("BlinnPhong" , this.framebuffer.textures[0], this));
         return renderResults;
     }
 

@@ -30,7 +30,7 @@ class ApplyToScreen extends ShaderRenderer {
         this.width = width;
         this.height = height;
         
-        this.shaderProgram.setUniform("inputColor", valType.i1);
+        this.shaderProgram.setUniform("inputColor", valType.texture2D);
 
         this.shaderProgram.setAllPos();
     }
@@ -39,9 +39,7 @@ class ApplyToScreen extends ShaderRenderer {
     usePreviousResult(shaderResults) {
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniformValueByName("inputColor", 0);
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, shaderResults.get(this.textureToApplyName).getTexture());
+        this.shaderProgram.setUniformValueByName("inputColor", 0, shaderResults.get(this.textureToApplyName).getTexture());
     }
 
     /** @inheritdoc*/

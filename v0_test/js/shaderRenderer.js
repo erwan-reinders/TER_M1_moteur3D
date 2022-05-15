@@ -29,9 +29,9 @@ class ShaderRenderer {
     constructor(shaderProgram) {
         this.shaderProgram = shaderProgram;
 
-        this.camera = undefined;    // La caméra utilisé pour le rendu.
-
-        this.renderingMode = undefined // Le mode de rendu.
+        this.camera = undefined;        // La caméra utilisé pour le rendu.
+        this.framebuffer = undefined;   // Le framebuffer du rendu.
+        this.renderingMode = undefined; // Le mode de rendu.
 
 
         // Comportement de classe abstraite :

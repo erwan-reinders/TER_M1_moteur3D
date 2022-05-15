@@ -8,8 +8,8 @@ class Camera {
     constructor(pos, up, target) {
         this.fieldOfView = 90 * Math.PI / 180;   // in radians
         this.aspect = gl.canvas.width / gl.canvas.height;
-        this.zNear = 0.1;
-        this.zFar = 100.0;
+        this.zNear = .1;
+        this.zFar = 500.0;
 
         this.position = pos ?? vec3.clone([0, 0, 5]);
         this.up = up ?? vec3.clone([0, 1, 0]);

@@ -210,7 +210,8 @@ function buildScenes() {
         -2, 0, 0, 1]
     )
     m.diffuseTexture = getTextureImage("data/img/white.png");
-    m.diffuseFactor = vec3.clone([0.76, 0.69, 0.48]);
+    let factor = 2.0;
+    m.diffuseFactor = vec3.multiply([], [0.76, 0.69, 0.48], [factor, factor, factor]);
     m.specularTexture = getTextureImage("data/img/white.png");
     m.specularFactor = 8.0;
     scene.addModel(m);
@@ -244,9 +245,9 @@ function buildScenes() {
     //SOL
     m = new Model(cube());
     m.matrix.modelMatrix = mat4.clone(
-        [100, 0, 0, 0,
+        [50, 0, 0, 0,
         0, 0.01, 0, 0,
-        0, 0, 100, 0,
+        0, 0, 50, 0,
         0, -1, 0, 1]
     )
     m.diffuseTexture = getTextureImage("data/img/white.png");
@@ -259,7 +260,7 @@ function buildScenes() {
     
     scene.addLight(new Light(undefined, [0.3, 0.7, 0.9]));
     scene.addLight(new Light([-5.0, 5.0, -5.0], [0.9, 0.7, 0.3], 0.4, 0.1));
-    scene.addLight(new Light([0.0, 50.0, 50.0], [1.0, 1.0, 1.0], 0.01, 0.001));
+    scene.addLight(new Light([0.0, 50.0, 20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
 
     scenes.push(scene);
     

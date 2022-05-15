@@ -1,36 +1,37 @@
-/** GammaCorrection Classe shader permettant de générer une texture corrigé
+/** Fusion Classe shader permettant de générer une texture en additionnant plusieurs textures.
  * @extends ShaderRenderer
  * Rendu sur : 
  *  Quad
  * Utilise :
- *  Texture passée en parametre.
+ *  Liste de textures passée en parametre.
  * Permet d'obtenir :
  *  Texture passée en parametre.
  */
-class GammaCorrection extends ShaderRenderer {
+ class Fusion extends ShaderRenderer {
     
     /**
      * Construit le faiseur de rendu permettant de dessiner un éclairage BlinnPhong.
      * @inheritdoc
-     * @param {string} textureReadName Le nom de la texture d'entrée.
+     * @param {string[]} textureReadNames Les noms des textures d'entrée.
      * @param {string} textureWriteName Le nom de la texture de sortie.
      * @param {number} width  la résolution horizontale du rendu en nombre de pixel.
      * @param {number} height la résolution verticale du rendu en nombre de pixel.
      */
-    constructor(shaderProgram, textureReadName, textureWriteName, width, height) {
+    constructor(shaderProgram, textureReadNames, textureWriteName, width, height) {
         super(shaderProgram);
 
         this.renderingMode = RenderingMode.quad;
 
-        this.textureReadName = textureReadName;
+        this.textureReadNames = textureReadNames;
         this.textureWriteName = textureWriteName;
-
-        this.gamma = 2.2;
         
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniform("inputColor", valType.texture2D);
-        this.shaderProgram.setUniform("gamma", valType.f1);
+        this.shaderProgram.setUniform("uNbTextures", valType.i1);
+
+        for (let i = 0; i < 16; i++) {
+            this.shaderProgram.setUniform("inputColor"+i, valType.texture2D);
+        }
 
         this.shaderProgram.setAllPos();
 
@@ -41,7 +42,11 @@ class GammaCorrection extends ShaderRenderer {
     usePreviousResult(shaderResults) {
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniformValueByName("inputColor", 0, shaderResults.get(this.textureReadName).getTexture());
+        this.shaderProgram.setUniformValueByName("uNbTextures", this.textureReadNames.length);
+        for (let i = 0; i < this.textureReadNames.length; i++) {
+            const textureName = this.textureReadNames[i];
+            this.shaderProgram.setUniformValueByName("inputColor"+i, i, shaderResults.get(textureName).getTexture())
+        }
     }
 
     /** @inheritdoc*/
@@ -61,8 +66,6 @@ class GammaCorrection extends ShaderRenderer {
         this.framebuffer.clearColorAndDepth();
 
         this.shaderProgram.use();
-
-        this.shaderProgram.setUniformValueByName("gamma", this.gamma);
     }
 
     /** @inheritdoc*/

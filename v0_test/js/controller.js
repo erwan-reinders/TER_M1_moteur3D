@@ -135,11 +135,6 @@ class Controller {
         if (this.mouseControls.get("drag").value) {
             this.azimuth += Math.floor(this.mouseDiffX) * mouseSpeed;
             this.zenith += Math.floor(this.mouseDiffY) * mouseSpeed;
-
-            if (this.zenith > 1.57)
-                this.zenith = 1.57;
-            if (this.zenith < -1.57)
-                this.zenith = -1.57;
         }
 
         let keyboardSpeed = 0.05;
@@ -163,6 +158,10 @@ class Controller {
             this.radius += keyboardSpeed * this.radius * 0.5;
         }
         
+        if (this.zenith > 1.57)
+            this.zenith = 1.57;
+        if (this.zenith < -1.57)
+            this.zenith = -1.57;
         if (this.radius < 0.1)
             this.radius = 0.1;
             

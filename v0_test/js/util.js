@@ -239,7 +239,7 @@ function getDepthCubeMap(width, height) {
 /**
  * Génère une cubemap à partir de 6 images.
  * @param {string[6]} srcs Les 6 chemins vers les 6 fichiers images.
- * @returns {WebGLTexture} La cubemap générée.
+ * @returns {Cubemap} La cubemap générée.
  */
 function getCubeMapImage(srcs) {
     let textureObject = {ready : false, texture : gl.createTexture()};

@@ -128,6 +128,16 @@ const valType = {
     i1 : function (emplacement, v){
         gl.uniform1i(emplacement, v);
     },
+    texture2D : function (emplacement, v, texture){
+        gl.uniform1i(emplacement, v);
+        gl.activeTexture(gl.TEXTURE0 + v);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+    },
+    textureCubeMap : function (emplacement, v, texture){
+        gl.uniform1i(emplacement, v);
+        gl.activeTexture(gl.TEXTURE0 + v);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    },
     i1v : function (emplacement, v){
         gl.uniform1iv(emplacement, v);
     },
@@ -230,13 +240,14 @@ class ShaderProgram {
     /**
      * Affecte une valeur dans l'uniform à partir de son nom.
      * @param {string} name Nom de l'uniform.
-     * @param {Float32Array}val Valeur de l'uniform.
+     * @param {Float32Array} val Valeur de l'uniform.
+     * @param {*} param1 Paramètre supplémentaire.
      */
-    setUniformValueByName(name, val){
+    setUniformValueByName(name, val, param1){
         let elem = this.uniforms.get(name);
         if(elem !== undefined){
             elem.val = val;
-            elem.type(elem.pos, val);
+            elem.type(elem.pos, val, param1);
         }else{
             message.error("SHADER", "set uniform value undefined " + name, Error().lineNumbe);
         }

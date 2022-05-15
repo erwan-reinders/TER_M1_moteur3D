@@ -148,14 +148,4 @@ class Framebuffer {
         gl.blitFramebuffer(0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height, mask, gl.NEAREST);
     }
 
-    /**
-     * Active et met à jour une texture.
-     * @param {number} textureNumber L'identifiant de la texture.
-     * @param {WebGLTexture} textureBuffer La texture à mettre.
-     */
-    setTexture(textureNumber, textureBuffer) {
-        gl.activeTexture(gl.TEXTURE0 + textureNumber);
-        gl.bindTexture(gl.TEXTURE_2D, textureBuffer);
-    }
-
 };
