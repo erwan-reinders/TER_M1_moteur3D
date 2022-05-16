@@ -1,6 +1,10 @@
 let gl; // Le WebGL2RenderingContext attaché au canvas.
 let canvas; // Le HTMLCanvasElement de la page.
 
+
+let loadingTexture; // Texture à afficher si le chargement d'une texture est toujours en cours.
+let loadingCubemap; // Texture à afficher si le chargement d'une texture est toujours en cours.
+
 /**
  * Récupère et initialise le contexte webgl2 du canvas.
  * @param {string} canvasId L'id du canvas.
@@ -20,10 +24,23 @@ function initGl(canvasId) {
         console.log("Sorry, could not get a WebGL graphics context.");
         return;
     }
+
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
+
+    loadingTexture = getTextureImage("data/img/loading.png");
+    loadingCubemap = getCubeMapImage([
+        "data/img/loading.png",
+        "data/img/loading.png",
+        "data/img/loading.png",
+        "data/img/loading.png",
+        "data/img/loading.png",
+        "data/img/loading.png"
+        ]);
+
+    return gl;
 }
 
 // https://stackoverflow.com/questions/36921947/read-a-server-side-file-using-javascript
@@ -217,16 +234,33 @@ function getCubeMap(width, height) {
     return texture;
 }
 
+function getDepthCubeMap(width, height) {
+    let texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE); 
+
+    for (let i = 0; i < 6; i++) {
+        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.DEPTH_COMPONENT, width, height, 0, gl.DEPTH_COMPONENT, gl.FLOAT, null);
+    }
+
+    return texture;
+}
+
 
 //https://webglfundamentals.org/webgl/lessons/webgl-cube-maps.html
 /**
  * Génère une cubemap à partir de 6 images.
  * @param {string[6]} srcs Les 6 chemins vers les 6 fichiers images.
- * @returns {WebGLTexture} La cubemap générée.
+ * @returns {Cubemap} La cubemap générée.
  */
 function getCubeMapImage(srcs) {
-    let texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    let textureObject = {ready : false, texture : gl.createTexture()};
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, textureObject.texture);
 
     for (let i = 0; i < 6; i++) {
         let img = new Image();
@@ -237,7 +271,7 @@ function getCubeMapImage(srcs) {
 
             message.informative("IMG LOADER", "I've got the cubemap image "+i+" : " + this.src);
 
-            gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+            gl.bindTexture(gl.TEXTURE_CUBE_MAP, textureObject.texture);
             gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.SRGB8, gl.RGB, gl.UNSIGNED_BYTE, this);
 
             if (isPower2 && isPowerOf2(this.width) && isPowerOf2(this.height)) {
@@ -249,6 +283,7 @@ function getCubeMapImage(srcs) {
 
             nbImgDone++;
             if (nbImgDone == 5) {
+                textureObject.ready = true;
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -260,5 +295,6 @@ function getCubeMapImage(srcs) {
         img.src = srcs[i];
     }
 
-    return texture;
+    return textureObject;
 }
+

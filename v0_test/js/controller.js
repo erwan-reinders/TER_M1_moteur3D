@@ -26,6 +26,17 @@ class Controller {
         this.mouseControls = new Map();
         this.scene = scene;
         this.initControls();
+
+        this.previousMouseX = 0.0;
+        this.previousMouseY = 0.0;
+        this.mouseDiffX = 0.0;
+        this.mouseDiffY = 0.0;
+
+        this.scrollingAmount = 0.2;
+
+        this.azimuth = 1.5;
+        this.zenith  = 0.0;
+        this.radius  = 5.0;
     }
 
     /**
@@ -39,7 +50,7 @@ class Controller {
         this.keyControls.set("forward",  new Input("z"));
         this.keyControls.set("backward", new Input("s"));
 
-        this.mouseControls.set("drag", new Input(1));
+        this.mouseControls.set("drag", new Input(2));
     }
 
     /**
@@ -56,7 +67,7 @@ class Controller {
         if (event.key == "p") {
             updateRender = !updateRender;
         }
-        if (event.key == "+") {
+        if (event.key == "Enter") {
             currentPipeline++;
             if (currentPipeline >= pipelines.length) {
                 currentPipeline = 0;
@@ -83,10 +94,14 @@ class Controller {
      * @param {MouseEvent} event L'evenement souris reçut par callback.
      */
     onMouseMove(event) {
-        //console.log(event);
-        // if (this.mouseControls.get("drag").value) {
-        //     console.log(event.clientX + " " + event.clientY);
-        // }
+        this.mouseDiffX = event.clientX - this.previousMouseX;
+        this.mouseDiffY = event.clientY - this.previousMouseY;
+        this.previousMouseX = event.clientX;
+        this.previousMouseY = event.clientY;
+    }
+
+    onWheel(event) {
+        this.radius += Math.sign(event.deltaY) * this.scrollingAmount * this.radius;
     }
 
     /**
@@ -115,36 +130,49 @@ class Controller {
      * Modifie la scene en fonction de l'état des entrées.
      */
     processInput() {
-        let move = vec3.create();
+        let mouseSpeed = 0.005;
+        
+        if (this.mouseControls.get("drag").value) {
+            this.azimuth += Math.floor(this.mouseDiffX) * mouseSpeed;
+            this.zenith += Math.floor(this.mouseDiffY) * mouseSpeed;
+        }
 
-        let cameraForward = this.scene.camera.getForward();
-        let cameraUp = this.scene.camera.up;
-        let cameraRight = vec3.normalize([], vec3.cross([], cameraUp, cameraForward));
-        cameraUp = vec3.normalize([], vec3.cross([], cameraForward, cameraRight));
-
-        let speed = 0.1;
-        let speedVec = vec3.fromValues(speed, speed, speed);
-        let speedVecInv = vec3.fromValues(-speed, -speed, -speed);
+        let keyboardSpeed = 0.05;
         
         if (this.keyControls.get("right").value) {
-            vec3.add(move, move, vec3.multiply([], cameraRight, speedVec));
+            this.azimuth += keyboardSpeed;
         }
         if (this.keyControls.get("left").value) {
-            vec3.add(move, move, vec3.multiply([], cameraRight, speedVecInv));
+            this.azimuth -= keyboardSpeed;
         }
         if (this.keyControls.get("up").value) {
-            vec3.add(move, move, vec3.multiply([], cameraUp, speedVec));
+            this.zenith += keyboardSpeed;
         }
         if (this.keyControls.get("down").value) {
-            vec3.add(move, move, vec3.multiply([], cameraUp, speedVecInv));
+            this.zenith -= keyboardSpeed;
         }
         if (this.keyControls.get("forward").value) {
-            vec3.add(move, move, vec3.multiply([], cameraForward, speedVec));
+            this.radius -= keyboardSpeed * this.radius * 0.5;
         }
         if (this.keyControls.get("backward").value) {
-            vec3.add(move, move, vec3.multiply([], cameraForward, speedVecInv));
+            this.radius += keyboardSpeed * this.radius * 0.5;
         }
-        vec3.add(this.scene.camera.position, this.scene.camera.position, move);
-        //vec3.add(scene.current_light.position, scene.current_light.position, move);
+        
+        if (this.zenith > 1.57)
+            this.zenith = 1.57;
+        if (this.zenith < -1.57)
+            this.zenith = -1.57;
+        if (this.radius < 0.1)
+            this.radius = 0.1;
+            
+        let x = this.radius * Math.cos(this.azimuth) * Math.cos(this.zenith);
+        let y = this.radius * Math.sin(this.zenith);
+        let z = this.radius * Math.sin(this.azimuth) * Math.cos(this.zenith);
+        
+        this.scene.camera.position = vec3.fromValues(x, y, z);
+
+        
+        this.mouseDiffX = 0.0;
+        this.mouseDiffY = 0.0;
     }
 }

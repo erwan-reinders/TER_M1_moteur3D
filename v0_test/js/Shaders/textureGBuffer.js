@@ -19,13 +19,15 @@ class TextureGBuffer extends ShaderRenderer {
     constructor(shaderProgram, width, height) {
         super(shaderProgram);
 
+        this.renderingMode = RenderingMode.scene;
+
         this.shaderProgram.setUniform("uModelMatrix",      valType.Mat4fv);
         this.shaderProgram.setUniform("uViewMatrix",       valType.Mat4fv);
         this.shaderProgram.setUniform("uProjectionMatrix", valType.Mat4fv);
         this.shaderProgram.setUniform("uNormalMatrix",     valType.Mat4fv);
 
-        this.shaderProgram.setUniform("uDiffuseTexture",  valType.i1);
-        this.shaderProgram.setUniform("uSpecularTexture", valType.i1);
+        this.shaderProgram.setUniform("uDiffuseTexture",  valType.texture2D);
+        this.shaderProgram.setUniform("uSpecularTexture", valType.texture2D);
         this.shaderProgram.setUniform("uDiffuseFactor",   valType.f3v);
         this.shaderProgram.setUniform("uSpecularFactor",  valType.f1);
 
@@ -42,9 +44,9 @@ class TextureGBuffer extends ShaderRenderer {
     /** @inheritdoc*/
     getRenderResults() {
         let renderResults = new Array();
-        renderResults.push(new ShaderRendererResult("Position"     , this.framebuffer.textures[0], this.camera));
-        renderResults.push(new ShaderRendererResult("Normal"       , this.framebuffer.textures[1], this.camera));
-        renderResults.push(new ShaderRendererResult("ColorSpecular", this.framebuffer.textures[2], this.camera));
+        renderResults.push(new ShaderRendererResult("Position"     , this.framebuffer.textures[0], this));
+        renderResults.push(new ShaderRendererResult("Normal"       , this.framebuffer.textures[1], this));
+        renderResults.push(new ShaderRendererResult("ColorSpecular", this.framebuffer.textures[2], this));
         return renderResults;
     }
 
@@ -66,21 +68,13 @@ class TextureGBuffer extends ShaderRenderer {
         this.shaderProgram.setUniformValueByName("uModelMatrix",  model.matrix.modelMatrix);
         this.shaderProgram.setUniformValueByName("uNormalMatrix", model.matrix.normalMatrix);
 
-        this.framebuffer.setTexture(0, model.diffuseTexture);
-        this.shaderProgram.setUniformValueByName("uDiffuseTexture", 0);
-
-        this.framebuffer.setTexture(1, model.specularTexture);
-        this.shaderProgram.setUniformValueByName("uSpecularTexture", 1);
+        this.shaderProgram.setUniformValueByName("uDiffuseTexture", 0, model.diffuseTexture);
+        this.shaderProgram.setUniformValueByName("uSpecularTexture", 1, model.specularTexture);
 
         let diffuseFactor  = (model.diffuseFactor)  ? model.diffuseFactor  : vec3.clone([1.0, 1.0, 1.0]);
         let specularFactor = (model.specularFactor) ? model.specularFactor : 1.0;
         this.shaderProgram.setUniformValueByName("uDiffuseFactor",  diffuseFactor);
         this.shaderProgram.setUniformValueByName("uSpecularFactor", specularFactor);
-    }
-
-    /** @inheritdoc*/
-    shouldRenderScene(scene) {
-        return true;
     }
 
     /** @inheritdoc*/

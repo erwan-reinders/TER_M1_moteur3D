@@ -9,19 +9,55 @@ class Framebuffer {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
+    static createCubemapDepth(width, height) {
+        let framebuffer = new Framebuffer(width, height, 0, false);
+        framebuffer.cubemap = getCubeMap(width, height);
+
+        framebuffer.framebuffer = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer.framebuffer);    
+
+
+        // for (let i = 0; i < 6; i++) {
+        //     gl.bindTexture(gl.TEXTURE_CUBE_MAP, framebuffer.cubemap);
+
+        //     gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.R16F, width, height, 0, gl.RED, gl.FLOAT, null);
+        //     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        //     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        //     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, framebuffer.cubemap, 0);
+
+        // }
+
+        gl.drawBuffers([gl.COLOR_ATTACHMENT0]);
+
+        framebuffer.rboDepth = gl.createRenderbuffer();
+        gl.bindRenderbuffer(gl.RENDERBUFFER, framebuffer.rboDepth);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, framebuffer.rboDepth);
+
+        if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE)
+            message.error("FRAMEBUFFER INIT", "Framebuffer not complete!");
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        return framebuffer;
+    }
+
     /**
      * Construit le framebuffer.
      * @param {number} SCR_WIDTH  La largeur de la zone de rendu.
      * @param {number} SCR_HEIGHT la hauteur de la zone de rendu.
      * @param {number} nbTextures le nombre de textures du framebuffer. 
      */
-    constructor(SCR_WIDTH, SCR_HEIGHT, nbTextures) {
+    constructor(SCR_WIDTH, SCR_HEIGHT, nbTextures, init = true) {
         this.framebuffer = null;
         this.textures = new Array(nbTextures);
         this.rboDepth = null;
         this.width = SCR_WIDTH;
         this.height = SCR_HEIGHT;
-        this.init();
+        
+        if (init) {
+            this.init();
+        }
     }
 
     /**
@@ -64,8 +100,7 @@ class Framebuffer {
         if (this.textures.length > 0) {
             gl.drawBuffers(attachements);
         } else {
-            gl.drawBuffers(gl.NONE);
-            gl.readBuffers(gl.NONE);
+            gl.drawBuffers([]);
         }
         
         this.rboDepth = gl.createRenderbuffer();
@@ -111,16 +146,6 @@ class Framebuffer {
         gl.bindFramebuffer(gl.READ_FRAMEBUFFER, otherFramebuffer.framebuffer);
         gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this.framebuffer);
         gl.blitFramebuffer(0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height, mask, gl.NEAREST);
-    }
-
-    /**
-     * Active et met à jour une texture.
-     * @param {number} textureNumber L'identifiant de la texture.
-     * @param {WebGLTexture} textureBuffer La texture à mettre.
-     */
-    setTexture(textureNumber, textureBuffer) {
-        gl.activeTexture(gl.TEXTURE0 + textureNumber);
-        gl.bindTexture(gl.TEXTURE_2D, textureBuffer);
     }
 
 };

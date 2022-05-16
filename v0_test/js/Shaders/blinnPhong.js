@@ -20,14 +20,21 @@ class BlinnPhong extends ShaderRenderer {
     constructor(shaderProgram, width, height) {
         super(shaderProgram);
 
+        this.renderingMode = RenderingMode.quad;
+
         this.nLights = 0;
         this.ambiant = 0.1;
         
         this.shaderProgram.use();
 
         this.shaderProgram.setUniform("gPosition",   valType.texture2D);
+<<<<<<< HEAD
         this.shaderProgram.setUniform("gNormal",     valType.i1);
         this.shaderProgram.setUniform("gAlbedoSpec", valType.i1);
+=======
+        this.shaderProgram.setUniform("gNormal",     valType.texture2D);
+        this.shaderProgram.setUniform("gAlbedoSpec", valType.texture2D);
+>>>>>>> c26008c5878a6a28468950308dbe1831f0d36c7b
 
         this.shaderProgram.setUniform("uNLights",    valType.i1);
         this.shaderProgram.setUniform("uViewPos",    valType.f3v);
@@ -50,6 +57,7 @@ class BlinnPhong extends ShaderRenderer {
     usePreviousResult(shaderResults) {
         this.shaderProgram.use();
 
+<<<<<<< HEAD
         this.shaderProgram.setUniformValueByName("gPosition", 0, shaderResults.get("Position").getTexture());
 
         this.shaderProgram.setUniformValueByName("gNormal", 1);
@@ -59,12 +67,17 @@ class BlinnPhong extends ShaderRenderer {
         this.shaderProgram.setUniformValueByName("gAlbedoSpec", 2);
         gl.activeTexture(gl.TEXTURE2);
         gl.bindTexture(gl.TEXTURE_2D, shaderResults.get("ColorSpecular").getTexture());
+=======
+        this.shaderProgram.setUniformValueByName("gPosition",   0, shaderResults.get("Position").getTexture());
+        this.shaderProgram.setUniformValueByName("gNormal",     1, shaderResults.get("Normal").getTexture());
+        this.shaderProgram.setUniformValueByName("gAlbedoSpec", 2, shaderResults.get("ColorSpecular").getTexture());
+>>>>>>> c26008c5878a6a28468950308dbe1831f0d36c7b
     }
 
     /** @inheritdoc*/
     getRenderResults() {
         let renderResults = new Array();
-        renderResults.push(new ShaderRendererResult("BlinnPhong" , this.framebuffer.textures[0], this.camera));
+        renderResults.push(new ShaderRendererResult("BlinnPhong" , this.framebuffer.textures[0], this));
         return renderResults;
     }
 
@@ -107,11 +120,6 @@ class BlinnPhong extends ShaderRenderer {
     /** @inheritdoc*/
     setModelData(model) {
         // On ne fait pas de rendu sur les modèles
-    }
-
-    /** @inheritdoc*/
-    shouldRenderScene(scene) {
-        return false;
     }
 
     /** @inheritdoc*/

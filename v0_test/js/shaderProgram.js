@@ -133,6 +133,14 @@ const valType = {
         gl.activeTexture(gl.TEXTURE0 + v);
         gl.bindTexture(gl.TEXTURE_2D, texture);
     },
+<<<<<<< HEAD
+=======
+    textureCubeMap : function (emplacement, v, texture){
+        gl.uniform1i(emplacement, v);
+        gl.activeTexture(gl.TEXTURE0 + v);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    },
+>>>>>>> c26008c5878a6a28468950308dbe1831f0d36c7b
     i1v : function (emplacement, v){
         gl.uniform1iv(emplacement, v);
     },

@@ -6,6 +6,7 @@ class Scene {
         
         this.models = [];
         this.quad = new Model(quad());
+        this.cube = new Model(cube());
         this.lights = [];
 
         this.init();
