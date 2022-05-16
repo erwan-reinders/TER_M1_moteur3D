@@ -25,7 +25,7 @@ class BlinnPhong extends ShaderRenderer {
         
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniform("gPosition",   valType.i1);
+        this.shaderProgram.setUniform("gPosition",   valType.texture2D);
         this.shaderProgram.setUniform("gNormal",     valType.i1);
         this.shaderProgram.setUniform("gAlbedoSpec", valType.i1);
 
@@ -50,9 +50,7 @@ class BlinnPhong extends ShaderRenderer {
     usePreviousResult(shaderResults) {
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniformValueByName("gPosition", 0);
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, shaderResults.get("Position").getTexture());
+        this.shaderProgram.setUniformValueByName("gPosition", 0, shaderResults.get("Position").getTexture());
 
         this.shaderProgram.setUniformValueByName("gNormal", 1);
         gl.activeTexture(gl.TEXTURE1);
