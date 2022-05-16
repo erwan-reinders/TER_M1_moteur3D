@@ -79,8 +79,6 @@ class Framebuffer {
     init() {
         this.framebuffer = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
-
-        gl.activeTexture(gl.TEXTURE0);
         
         if (!gl.getExtension("EXT_color_buffer_float")) {
             message.error("FRAMEBUFFER INIT", "FLOAT color buffer not available : EXT_color_buffer_float is unavailable on this system.");

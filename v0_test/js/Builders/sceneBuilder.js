@@ -260,7 +260,7 @@ function buildScenes() {
     
     scene.addLight(new Light(undefined, [0.3, 0.7, 0.9]));
     scene.addLight(new Light([-5.0, 5.0, -5.0], [0.9, 0.7, 0.3], 0.4, 0.1));
-    scene.addLight(new Light([0.0, 50.0, 20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
+    scene.addLight(new Light([-10.0, 50.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
 
     scenes.push(scene);
     

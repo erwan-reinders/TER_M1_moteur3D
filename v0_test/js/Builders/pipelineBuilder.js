@@ -1,7 +1,12 @@
 let pipelines;
 
-
 function buildPipelines() {
+    buildDefaultPipelines();
+    buildTestPipelines();
+}
+
+
+function buildDefaultPipelines() {
     pipelines = new Array();
 
     let p;
@@ -46,7 +51,8 @@ function buildPipelines() {
     let nb = 7.0;
     let w = canvas.width  / nb;
     let h = canvas.height / nb;
-    let startH = canvas.height * (nb-1.0) / nb;
+    //let startH = canvas.height * (nb-1.0) / nb;
+    let startH = 0.0;
     p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),    "Position",            w * 0.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),    "Normal",              w * 1.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),    "ColorSpecular",       w * 2.0, startH, w, h));
@@ -58,4 +64,16 @@ function buildPipelines() {
     pipelines.push(p);
 
     return pipelines;
+}
+
+function buildTestPipelines() {
+    p = new ShaderPipeline();
+
+    //let depthCamera = new Camera(vec3.clone([-10.0, 50.0, -20.0]), vec3.clone([0.0, 1.0, 0.0]), vec3.clone([0.0, 0.0, 0.0]));
+    let depthCamera = new Camera();
+    depthCamera.setOrthographic();
+    depthCamera.setOrthographicSize(10.0);
+    p.addShader(new DepthMap(shaders.get("depthMap"), depthCamera, 1024, 1024));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "DepthMap"));
+    pipelines.push(p);
 }

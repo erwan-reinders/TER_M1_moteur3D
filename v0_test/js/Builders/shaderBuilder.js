@@ -6,62 +6,25 @@ function buildShaders() {
 
     shaders.set("textureGBuffer" , new ShaderProgram("MVPVertexShader.glsl"      , "GBufferTextureFragmentShader.glsl"));
 
-    shaders.set("applyToScreenRaw" , new ShaderProgram("ScreenPosVertexShader.glsl", "EndFragmentShader.glsl"));
-    shaders.set("applyToScreen"    , new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyRGB.glsl"));
-    shaders.set("applyToScreenA"   , new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyAlpha.glsl"));
-    shaders.set("fusion"           , new ShaderProgram("ScreenPosVertexShader.glsl", "fusion.glsl"));
-    shaders.set("blinnPhong"       , new ShaderProgram("ScreenPosVertexShader.glsl", "LightBlinnPhongFragmentShader.glsl"));
-    shaders.set("gammaCorrection"  , new ShaderProgram("ScreenPosVertexShader.glsl", "PostEffectGammaCorrection.glsl"));
+    shaders.set("applyToScreenRaw"  , new ShaderProgram("ScreenPosVertexShader.glsl", "EndFragmentShader.glsl"));
+    shaders.set("applyToScreenRawR" , new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyRawR.glsl"));
+    shaders.set("applyToScreen"     , new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyRGB.glsl"));
+    shaders.set("applyToScreenA"    , new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyAlpha.glsl"));
+    shaders.set("fusion"            , new ShaderProgram("ScreenPosVertexShader.glsl", "fusion.glsl"));
+    shaders.set("blinnPhong"        , new ShaderProgram("ScreenPosVertexShader.glsl", "LightBlinnPhongFragmentShader.glsl"));
+    shaders.set("gammaCorrection"   , new ShaderProgram("ScreenPosVertexShader.glsl", "PostEffectGammaCorrection.glsl"));
     
     shaders.set("skybox", new ShaderProgram("VPFragCoordVertexShader.glsl", "skybox.glsl"));
 
+    shaders.set("depthMap", new ShaderProgram("MVPDepthVertexShader.glsl", "Depth.glsl"));
+
     return shaders;
-    
+
+
+
+
+
     /*
-
-    s = new ShaderProgram("VPFragCoordVertexShader.glsl", "testSkyboxFragmentShader.glsl");
-    s.use();
-
-    s.setUniform("uProjectionMatrix", valType.Mat4fv);
-    s.setUniform("uViewMatrix",       valType.Mat4fv);
-
-    s.setUniform("skybox", valType.i1);
-
-    s.setAllPos();
-    s.framebuffer = new Framebuffer(canvas.width, canvas.height, 1);
-    s.setBeforeAnyRendering(function () {
-        this.framebuffer.use();
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        Framebuffer.clear();
-    });
-    s.setBeforeRenderFunction(function (previousModelToRender, model, scene) {
-        this.use();
-
-        gl.depthFunc(gl.LEQUAL);
-
-        this.framebuffer.copyBitsOf(previousModelToRender.shader.framebuffer, gl.DEPTH_BUFFER_BIT);
-        //this.framebuffer.copyBitsOf(scene.models[0].shader.framebuffer, gl.COLOR_BUFFER_BIT);
-        this.framebuffer.use();
-
-        this.setUniformValueByName("uProjectionMatrix", scene.matrix.projectionMatrix);
-        this.setUniformValueByName("uViewMatrix",       scene.matrix.viewMatrix);
-
-        this.setUniformValueByName("skybox", 0);
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, model.cubemap);
-    });
-    s.setAfterRenderFunction(function (previousModelToRender, model, scene) {
-        Framebuffer.clear();
-        gl.depthFunc(gl.LESS);
-    });
-
-    shaders.set("skybox", s);
-
-
-
-
-
-
     s = new ShaderProgram("ScreenPosVertexShader.glsl", "cubeMapReflexionFragmentShader.glsl");
     s.use();
 

@@ -30,7 +30,7 @@ function initGl(canvasId) {
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
 
-    loadingTexture = getTextureImage("data/img/loading.png");
+    loadingTexture = getTextureImage("data/img/loading.png", true);
     loadingCubemap = getCubeMapImage([
         "data/img/loading.png",
         "data/img/loading.png",
@@ -38,7 +38,7 @@ function initGl(canvasId) {
         "data/img/loading.png",
         "data/img/loading.png",
         "data/img/loading.png"
-        ]);
+        ], true);
 
     return gl;
 }
@@ -149,16 +149,19 @@ let message = {
 /**
  * Génère une texture à partir du chemin vers une image.
  * @param {string} src Chemin vers l'image.
+ * @param {boolean} silence Doit-on afficher un message dans la console lors de la fin du chargement de l'image?
  * @return {WebGLTexture} Texture générée.
  */
-function getTextureImage(src){
+function getTextureImage(src, silence = false){
     let img = new Image();
 
     let texture = initTexture( 3);
 
     img.addEventListener('load', function() {
 
-        message.informative("IMG LOADER", "I've got the image : " + this.src);
+        if (!silence) {
+            message.informative("IMG LOADER", "I've got the image : " + this.src);
+        }
 
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.SRGB8, gl.RGB, gl.UNSIGNED_BYTE, this);
@@ -256,9 +259,10 @@ function getDepthCubeMap(width, height) {
 /**
  * Génère une cubemap à partir de 6 images.
  * @param {string[6]} srcs Les 6 chemins vers les 6 fichiers images.
+ * @param {boolean} silence Doit-on afficher un message dans la console lors de la fin du chargement de l'image?
  * @returns {Cubemap} La cubemap générée.
  */
-function getCubeMapImage(srcs) {
+function getCubeMapImage(srcs, silence = false) {
     let textureObject = {ready : false, texture : gl.createTexture()};
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, textureObject.texture);
 
@@ -269,7 +273,9 @@ function getCubeMapImage(srcs) {
 
         img.addEventListener('load', function() {
 
-            message.informative("IMG LOADER", "I've got the cubemap image "+i+" : " + this.src);
+            if (!silence) {
+                message.informative("IMG LOADER", "I've got the cubemap image "+i+" : " + this.src);
+            }
 
             gl.bindTexture(gl.TEXTURE_CUBE_MAP, textureObject.texture);
             gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.SRGB8, gl.RGB, gl.UNSIGNED_BYTE, this);

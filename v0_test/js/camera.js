@@ -1,3 +1,12 @@
+const Projection = {
+    perspective : function() {
+        mat4.perspective(this.matrix.projectionMatrix, this.fieldOfView, this.aspect, this.zNear, this.zFar);
+    },
+    orthographic : function() {
+        mat4.ortho(this.matrix.projectionMatrix, this.left, this.right, this.bottom, this.top, this.zNear, this.zFar);
+    }
+};
+
 /*Classe modélisant une camera*/
 class Camera {
 
@@ -6,7 +15,14 @@ class Camera {
      * @param {vec3} up     vecteur up de la camera
      * @param {vec3} target cible de la camera **/
     constructor(pos, up, target) {
+        //Perpective
         this.fieldOfView = 90 * Math.PI / 180;   // in radians
+        //Orthographic
+        this.left   = -10.0;
+        this.right  =  10.0;
+        this.bottom = -10.0;
+        this.top    =  10.0;
+
         this.aspect = gl.canvas.width / gl.canvas.height;
         this.zNear = .1;
         this.zFar = 500.0;
@@ -15,10 +31,38 @@ class Camera {
         this.up = up ?? vec3.clone([0, 1, 0]);
         this.target = target ?? vec3.clone([0, 0, 0]);
 
+        this.projection = Projection.perspective;
+
         this.matrix = {
             projectionMatrix : mat4.create(),
             viewMatrix       : mat4.create(),
         }
+
+    }
+
+    /**
+     * Permet de définir la caméra comme ayant une projection par perspective.
+     */
+    setPerspective() {
+        this.projection = Projection.perspective;
+    }
+    /**
+     * Permet de définir la caméra comme ayant une projection orthographique.
+     */
+    setOrthographic() {
+        this.projection = Projection.orthographic;
+    }
+    /**
+     * Modifie la taille et le centre de la projection orthographique.
+     * @param {number} size La taille de la projection orthographique (met en place left, right, bottom et up par rapport au centre).
+     * @param {number} centerX Le centre sur l'axe X de la caméra.
+     * @param {number} centerY Le centre sur l'axe Y de la caméra.
+     */
+    setOrthographicSize(size, centerX = 0.0, centerY = 0.0) {
+        this.left   = centerX-size;
+        this.right  = centerX+size;
+        this.bottom = centerY-size;
+        this.top    = centerY+size;
     }
 
     /**
@@ -34,7 +78,7 @@ class Camera {
      */
     updateMatrix() {
         mat4.lookAt(this.matrix.viewMatrix, this.position, this.target, this.up);
-        mat4.perspective(this.matrix.projectionMatrix, this.fieldOfView, this.aspect, this.zNear, this.zFar);
+        this.projection();
     }
 
     /**
