@@ -14,22 +14,27 @@ class BlinnPhong extends ShaderRenderer {
     /**
      * Construit le faiseur de rendu permettant de dessiner un éclairage BlinnPhong.
      * @inheritdoc
-     * @param {number} width  la résolution horizontale du rendu en nombre de pixel.
-     * @param {number} height la résolution verticale du rendu en nombre de pixel.
+     * @param {number}  width  La résolution horizontale du rendu en nombre de pixel.
+     * @param {number}  height La résolution verticale du rendu en nombre de pixel.
+     * @param {boolean} withShadows Doit-on utiliser les ombres?
      */
-    constructor(shaderProgram, width, height) {
+    constructor(shaderProgram, width, height, withShadows = true) {
         super(shaderProgram);
 
         this.renderingMode = RenderingMode.quad;
 
         this.nLights = 0;
         this.ambiant = 0.1;
+        this.withShadows = withShadows;
         
         this.shaderProgram.use();
 
         this.shaderProgram.setUniform("gPosition",   valType.texture2D);
         this.shaderProgram.setUniform("gNormal",     valType.texture2D);
         this.shaderProgram.setUniform("gAlbedoSpec", valType.texture2D);
+        if (withShadows) {
+            this.shaderProgram.setUniform("shadowMap", valType.texture2D);
+        }
 
         this.shaderProgram.setUniform("uNLights",    valType.i1);
         this.shaderProgram.setUniform("uViewPos",    valType.f3v);
@@ -55,6 +60,9 @@ class BlinnPhong extends ShaderRenderer {
         this.shaderProgram.setUniformValueByName("gPosition",   0, shaderResults.get("Position").getTexture());
         this.shaderProgram.setUniformValueByName("gNormal",     1, shaderResults.get("Normal").getTexture());
         this.shaderProgram.setUniformValueByName("gAlbedoSpec", 2, shaderResults.get("ColorSpecular").getTexture());
+        if (this.withShadows) {
+            this.shaderProgram.setUniformValueByName("shadowMap", 3, shaderResults.get("Shadow").getTexture());
+        }
     }
 
     /** @inheritdoc*/

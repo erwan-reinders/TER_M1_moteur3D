@@ -5,7 +5,7 @@
  * Utilise :
  *  Rien
  * Permet d'obtenir :
- *  {R} {cameraSpace} DepthMap : La carte de profondeur.
+ *  {R} {CameraSpace} DepthMap : La carte de profondeur.
  */
 class DepthMap extends ShaderRenderer {
     /** 
@@ -64,8 +64,9 @@ class DepthMap extends ShaderRenderer {
 
     /** @inheritdoc*/
     initFromScene(scene) {
-        //this.camera.updateMatrix();
-        this.camera = scene.camera;
+        this.camera.zFar = 2.0 * vec3.dist(this.camera.position, this.camera.target);
+        this.camera.updateMatrix();
+        //this.camera = scene.camera;
 
         this.framebuffer.use();
         this.framebuffer.clear(gl.DEPTH_BUFFER_BIT);

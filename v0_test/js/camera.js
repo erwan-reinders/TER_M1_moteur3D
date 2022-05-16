@@ -67,7 +67,7 @@ class Camera {
 
     /**
      * Permet d'obtenir le vecteur frontal.
-     * @returns Le vecteur correspondant à la direction où regarde la camera.
+     * @returns {Float32Array} Le vecteur correspondant à la direction où regarde la camera.
      */
     getForward() {
         return vec3.normalize([], vec3.subtract([], this.target, this.position));
@@ -83,7 +83,7 @@ class Camera {
 
     /**
      * Permet d'obtenir la matrice vue de la camera.
-     * @returns la matrice vue de la caméra.
+     * @returns {Float32Array} La matrice vue de la caméra.
      */
     getViewMatrix(){
         return this.matrix.viewMatrix;
@@ -91,7 +91,7 @@ class Camera {
 
     /**
      * Permet d'obtenir la matrice de projection de la camera.
-     * @returns la matrice de projection de la caméra.
+     * @returns {Float32Array} La matrice de projection de la caméra.
      */
     getProjectionMatrix(){
         return this.matrix.projectionMatrix;
