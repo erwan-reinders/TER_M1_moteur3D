@@ -10,7 +10,7 @@
  class Skybox extends ShaderRenderer {
     
     /**
-     * Construit le faiseur de rendu permettant de dessiner un éclairage BlinnPhong.
+     * Construit le faiseur de rendu permettant de dessiner la texture de skybox.
      * @inheritdoc
      * @param {string} textureReadName Le nom de la texture d'entrée.
      * @param {Cubemap} cubemapObject La cubemap à afficher.

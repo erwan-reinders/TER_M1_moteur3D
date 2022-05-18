@@ -10,7 +10,7 @@
  class Fusion extends ShaderRenderer {
     
     /**
-     * Construit le faiseur de rendu permettant de dessiner un éclairage BlinnPhong.
+     * Construit le faiseur de rendu permettant de fusionner par addition plusieurs images (max 16).
      * @inheritdoc
      * @param {string[]} textureReadNames Les noms des textures d'entrée.
      * @param {string} textureWriteName Le nom de la texture de sortie.

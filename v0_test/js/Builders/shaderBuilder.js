@@ -14,6 +14,7 @@ function buildShaders() {
     shaders.set("fusion",            new ShaderProgram("ScreenPosVertexShader.glsl", "fusion.glsl"));
     shaders.set("blinnPhong",        new ShaderProgram("ScreenPosVertexShader.glsl", "LightBlinnPhongFragmentShader.glsl"));
     shaders.set("blinnPhongShadow",  new ShaderProgram("ScreenPosVertexShader.glsl", "BlinnPhongShadow.glsl"));
+    shaders.set("exposure",          new ShaderProgram("ScreenPosVertexShader.glsl", "exposure.glsl"));
     shaders.set("gammaCorrection",   new ShaderProgram("ScreenPosVertexShader.glsl", "PostEffectGammaCorrection.glsl"));
     shaders.set("shadow",            new ShaderProgram("ScreenPosVertexShader.glsl", "shadow.glsl"));
     shaders.set("shadowPCF",         new ShaderProgram("ScreenPosVertexShader.glsl", "shadowPCF.glsl"));

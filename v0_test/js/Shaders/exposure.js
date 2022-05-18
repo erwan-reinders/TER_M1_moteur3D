@@ -1,4 +1,4 @@
-/** Kernel Classe shader permettant de générer l'image résultante à la convolution entre l'image d'origine et le kernel passé en paramettre.
+/** Exposure Classe shader permettant de générer une texture prenant en compte la mappage de couleur (tone mappin) de l'exposition (lié à l'hdr).
  * @extends ShaderRenderer
  * Rendu sur : 
  *  Quad
@@ -7,32 +7,30 @@
  * Permet d'obtenir :
  *  Texture passée en parametre.
  */
-class Kernel extends ShaderRenderer {
+class Exposure extends ShaderRenderer {
     
     /**
-     * Construit le faiseur de rendu permettant de faire la convolution avec le kernel.
+     * Construit le faiseur de rendu permettant d'éffectuer le traitement de l'exposition lumineuse.
      * @inheritdoc
-     * @param {Float32Array} kernel Le noyau de convolution. La taille doit correspondre à celle du shader utilisé.
      * @param {string} textureReadName Le nom de la texture d'entrée.
      * @param {string} textureWriteName Le nom de la texture de sortie.
      * @param {number} width  la résolution horizontale du rendu en nombre de pixel.
      * @param {number} height la résolution verticale du rendu en nombre de pixel.
      */
-    constructor(shaderProgram, kernel, textureReadName, textureWriteName, width, height) {
+    constructor(shaderProgram, textureReadName, textureWriteName, width, height) {
         super(shaderProgram);
 
         this.renderingMode = RenderingMode.quad;
 
-        this.kernel = kernel;
         this.textureReadName = textureReadName;
         this.textureWriteName = textureWriteName;
+
+        this.exposure = 1.0;
         
         this.shaderProgram.use();
 
         this.shaderProgram.setUniform("inputColor", valType.texture2D);
-        for (let i = 0; i < kernel.length; i++) {
-            this.shaderProgram.setUniform("uKernel["+i+"]", valType.f1);
-        }
+        this.shaderProgram.setUniform("exposure", valType.f1);
 
         this.shaderProgram.setAllPos();
 
@@ -64,10 +62,7 @@ class Kernel extends ShaderRenderer {
 
         this.shaderProgram.use();
 
-        for (let i = 0; i < this.kernel.length; i++) {
-            const k = this.kernel[i];
-            this.shaderProgram.setUniformValueByName("uKernel["+i+"]", k);
-        }
+        this.shaderProgram.setUniformValueByName("exposure", this.exposure);
     }
 
     /** @inheritdoc*/

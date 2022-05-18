@@ -12,10 +12,14 @@ function buildDefaultPipelines() {
     let p;
 
     let blinnPhongRenderer = new BlinnPhong(shaders.get("blinnPhongShadow"), canvas.width, canvas.height);
-    createValueSlider_UI("ambiant", blinnPhongRenderer, "ambiant", 0.0, 1.0, 0.05);
+    createValueSlider_UI("ambiant", blinnPhongRenderer, "ambiant", 0.0, .5, 0.01);
 
-    let gammaCorrectionRenderer = new GammaCorrection(shaders.get("gammaCorrection"), "BlinnPhongAndSkybox", "Final", canvas.width, canvas.height);
+    let exposureRenderer = new Exposure(shaders.get("exposure"), "BlinnPhongAndSkybox", "ExposedImage", canvas.width, canvas.height);
+    createValueSlider_UI("exposure", exposureRenderer, "exposition", 0.0, 10.0, 0.1);
+
+    let gammaCorrectionRenderer = new GammaCorrection(shaders.get("gammaCorrection"), "ExposedImage", "Final", canvas.width, canvas.height);
     createValueSlider_UI("gamma", gammaCorrectionRenderer, "gamma", 0.5, 5.0, 0.1);
+
 
     
     //For the skybox
@@ -50,6 +54,7 @@ function buildDefaultPipelines() {
     //Fusion
     p.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Skybox"], "BlinnPhongAndSkybox", canvas.width, canvas.height));
     //Render
+    p.addShader(exposureRenderer);
     p.addShader(gammaCorrectionRenderer);
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
     pipelines.push(p);
@@ -72,13 +77,26 @@ function buildDefaultPipelines() {
     p.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Skybox"], "BlinnPhongAndSkybox", canvas.width, canvas.height));
 
     //Render
+    p.addShader(exposureRenderer);
     p.addShader(gammaCorrectionRenderer);
     
-    let nb = 3.0;
+    let nb = 5.0;
     let w = canvas.width  / nb;
     let h = canvas.height / nb;
     //let startH = canvas.height * (nb-1.0) / nb;
     let startH = 0.0;
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Position",            w * 0.0, startH+h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Normal",              w * 1.0, startH+h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "ColorSpecular",       w * 2.0, startH+h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenA"),    "ColorSpecular",       w * 3.0, startH+h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Skybox",              w * 4.0, startH+h, w, h));
+
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "DepthMap",            w * 0.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "Shadow",              w * 1.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong",          w * 2.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhongAndSkybox", w * 3.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "ExposedImage",        w * 4.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
     /*
     p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Position",            w * 0.0, startH+h, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Normal",              w * 1.0, startH+h, w, h));
@@ -93,17 +111,17 @@ function buildDefaultPipelines() {
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final",               w * 4.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final"));
     */
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Position",            w * 0.0, startH+2*h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Normal",              w * 1.0, startH+2*h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "ColorSpecular",       w * 2.0, startH+2*h, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Position",            w * 0.0, startH+2*h, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Normal",              w * 1.0, startH+2*h, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "ColorSpecular",       w * 2.0, startH+2*h, w, h));
 
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenA"),    "ColorSpecular",       w * 0.0, startH+h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Skybox",              w * 1.0, startH+h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "DepthMap",            w * 2.0, startH+h, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenA"),    "ColorSpecular",       w * 0.0, startH+h, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Skybox",              w * 1.0, startH+h, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "DepthMap",            w * 2.0, startH+h, w, h));
 
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "Shadow",              w * 0.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong",          w * 1.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhongAndSkybox", w * 2.0, startH, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "Shadow",              w * 0.0, startH, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong",          w * 1.0, startH, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhongAndSkybox", w * 2.0, startH, w, h));
 
     pipelines.push(p);
 
