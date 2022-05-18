@@ -19,6 +19,9 @@ function buildShaders() {
     shaders.set("shadow",            new ShaderProgram("ScreenPosVertexShader.glsl", "shadow.glsl"));
     shaders.set("shadowPCF",         new ShaderProgram("ScreenPosVertexShader.glsl", "shadowPCF.glsl"));
     shaders.set("kernelR",           new ShaderProgram("ScreenPosVertexShader.glsl", "kernelR.glsl"));
+    shaders.set("gaussianBlur",      new ShaderProgram("ScreenPosVertexShader.glsl", "gaussianBlur.glsl"));
+
+    shaders.set("extractColorByBrigthness", new ShaderProgram("ScreenPosVertexShader.glsl", "extractColorByBrigthness.glsl"));
     
     shaders.set("skybox", new ShaderProgram("VPFragCoordVertexShader.glsl", "skybox.glsl"));
 

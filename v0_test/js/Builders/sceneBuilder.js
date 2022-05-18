@@ -210,7 +210,7 @@ function buildScenes() {
         -2, 0, 0, 1]
     )
     m.diffuseTexture = getTextureImage("data/img/white.png");
-    let factor = 2.0;
+    let factor = 3.0;
     m.diffuseFactor = vec3.multiply([], [0.76, 0.69, 0.48], [factor, factor, factor]);
     m.specularTexture = getTextureImage("data/img/white.png");
     m.specularFactor = 8.0;
