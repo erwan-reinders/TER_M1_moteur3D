@@ -33,6 +33,9 @@ function buildDefaultPipelines() {
     depthCamera.setOrthographic();
     depthCamera.setOrthographicSize(5.0);
 
+    let shadowRenderer = new Shadow(shaders.get("shadowPCF"), canvas.width, canvas.height);
+    createValueSlider_UI("bias", shadowRenderer, "shadow bias", 0.0, 0.02, 0.001);
+
     p = new ShaderPipeline();
 
     //GPass
@@ -41,7 +44,7 @@ function buildDefaultPipelines() {
     p.addShader(new Skybox(shaders.get("skybox"), skybox, canvas.width, canvas.height));
     //Shadow
     p.addShader(new DepthMap(shaders.get("depthMap"), depthCamera, 1024, 1024));
-    p.addShader(new Shadow(shaders.get("shadow"), canvas.width, canvas.height));
+    p.addShader(shadowRenderer);
     //Light : blinnPhongWithShadows
     p.addShader(blinnPhongRenderer);
     //Fusion
@@ -62,7 +65,7 @@ function buildDefaultPipelines() {
     p.addShader(new Skybox(shaders.get("skybox"), skybox, canvas.width, canvas.height));
     //Shadow
     p.addShader(new DepthMap(shaders.get("depthMap"), depthCamera, 1024, 1024));
-    p.addShader(new Shadow(shaders.get("shadow"), canvas.width, canvas.height));
+    p.addShader(shadowRenderer);
     //Light : blinnPhongWithShadows
     p.addShader(blinnPhongRenderer);
     //Fusion

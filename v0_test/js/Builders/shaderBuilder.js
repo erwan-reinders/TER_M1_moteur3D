@@ -5,6 +5,7 @@ function buildShaders() {
     shaders = new Map();
 
     shaders.set("textureGBuffer" , new ShaderProgram("MVPVertexShader.glsl"      , "GBufferTextureFragmentShader.glsl"));
+    shaders.set("depthMap",        new ShaderProgram("MVPDepthVertexShader.glsl",  "Depth.glsl"));
 
     shaders.set("applyToScreenRaw",  new ShaderProgram("ScreenPosVertexShader.glsl", "EndFragmentShader.glsl"));
     shaders.set("applyToScreenRawR", new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyRawR.glsl"));
@@ -15,10 +16,11 @@ function buildShaders() {
     shaders.set("blinnPhongShadow",  new ShaderProgram("ScreenPosVertexShader.glsl", "BlinnPhongShadow.glsl"));
     shaders.set("gammaCorrection",   new ShaderProgram("ScreenPosVertexShader.glsl", "PostEffectGammaCorrection.glsl"));
     shaders.set("shadow",            new ShaderProgram("ScreenPosVertexShader.glsl", "shadow.glsl"));
+    shaders.set("shadowPCF",         new ShaderProgram("ScreenPosVertexShader.glsl", "shadowPCF.glsl"));
+    shaders.set("kernelR",           new ShaderProgram("ScreenPosVertexShader.glsl", "kernelR.glsl"));
     
     shaders.set("skybox", new ShaderProgram("VPFragCoordVertexShader.glsl", "skybox.glsl"));
 
-    shaders.set("depthMap", new ShaderProgram("MVPDepthVertexShader.glsl", "Depth.glsl"));
 
     return shaders;
 

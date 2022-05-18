@@ -222,7 +222,7 @@ function buildScenes() {
         [1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
-        2, 0, 0, 1]
+        2, -0.4, 0, 1]
     )
     m.diffuseTexture = getTextureImage("data/img/white.png");
     m.diffuseFactor = vec3.clone([0.76, 0.48, 0.69]);

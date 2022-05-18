@@ -288,7 +288,7 @@ function getCubeMapImage(srcs, silence = false) {
             }
 
             nbImgDone++;
-            if (nbImgDone == 5) {
+            if (nbImgDone == 6) {
                 textureObject.ready = true;
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);

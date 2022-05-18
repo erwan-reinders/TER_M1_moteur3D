@@ -20,14 +20,18 @@ class Shadow extends ShaderRenderer {
         super(shaderProgram);
 
         this.renderingMode = RenderingMode.quad;
+
+        this.bias = 0.005;
         
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniform("gPosition",   valType.texture2D);
-        this.shaderProgram.setUniform("depthMap",   valType.texture2D);
+        this.shaderProgram.setUniform("gPosition", valType.texture2D);
+        this.shaderProgram.setUniform("depthMap",  valType.texture2D);
 
         this.shaderProgram.setUniform("uDepthViewMatrix",       valType.Mat4fv);
         this.shaderProgram.setUniform("uDepthProjectionMatrix", valType.Mat4fv);
+
+        this.shaderProgram.setUniform("uBias", valType.f1);
 
         this.shaderProgram.setAllPos();
 
@@ -63,6 +67,8 @@ class Shadow extends ShaderRenderer {
         this.framebuffer.clearColorAndDepth();
 
         this.shaderProgram.use();
+        
+        this.shaderProgram.setUniformValueByName("uBias", this.bias);
     }
 
     /** @inheritdoc*/

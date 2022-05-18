@@ -56,18 +56,17 @@ function createValue_UI(elem, obj, name, step = default_step) {
     input.step = step;
     input.value = obj[elem];
 
-    input.addEventListener("input", function (event) {
-        obj[elem] = this.value;
-        obj.test();
-    });
+    // input.addEventListener("input", function (event) {
+    //     obj[elem] = this.value;
+    //     obj.test();
+    // });
     input.addEventListener("change", function (event) {
         obj[elem] = this.value;
-        obj.test();
     });
-    input.addEventListener("valuechange", function (event) {
-        obj[elem] = this.value;
-        obj.test();
-    });
+    // input.addEventListener("valuechange", function (event) {
+    //     obj[elem] = this.value;
+    //     obj.test();
+    // });
     wrapper.appendChild(input);
     rendering_options.appendChild(wrapper);
 }

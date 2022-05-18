@@ -37,8 +37,8 @@ class DepthMap extends ShaderRenderer {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT24, width, height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_INT, null);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this.framebuffer.textures[0], 0);
 
         gl.drawBuffers([gl.NONE]);
@@ -57,6 +57,7 @@ class DepthMap extends ShaderRenderer {
 
     /** @inheritdoc*/
     getRenderResults() {
+        gl.cullFace(gl.BACK);
         let renderResults = new Array();
         renderResults.push(new ShaderRendererResult("DepthMap", this.framebuffer.textures[0], this));
         return renderResults;
@@ -64,7 +65,7 @@ class DepthMap extends ShaderRenderer {
 
     /** @inheritdoc*/
     initFromScene(scene) {
-        this.camera.zFar = 2.0 * vec3.dist(this.camera.position, this.camera.target);
+        this.camera.zFar = 1.5 * vec3.dist(this.camera.position, this.camera.target);
         this.camera.updateMatrix();
         //this.camera = scene.camera;
 
@@ -75,6 +76,8 @@ class DepthMap extends ShaderRenderer {
 
         this.shaderProgram.setUniformValueByName("uProjectionMatrix", this.camera.getProjectionMatrix());
         this.shaderProgram.setUniformValueByName("uViewMatrix",       this.camera.getViewMatrix());
+
+        gl.cullFace(gl.FRONT);
     }
 
     /** @inheritdoc*/
