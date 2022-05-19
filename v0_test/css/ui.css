@@ -20,6 +20,10 @@
     color: var(--option_text_title_color);
 }
 
+#options .option_separator {
+    font-weight: bolder;
+}
+
 
 #options div.vec2,#options div.vec3,#options div.vec4 {
 

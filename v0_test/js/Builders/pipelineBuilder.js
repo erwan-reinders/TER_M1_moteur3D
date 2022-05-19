@@ -143,31 +143,6 @@ function buildDefaultPipelines() {
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final",               w * 6.0, startH, w, h));
     
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final"));
-    /*
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Position",            w * 0.0, startH+h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Normal",              w * 1.0, startH+h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "ColorSpecular",       w * 2.0, startH+h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenA"),    "ColorSpecular",       w * 3.0, startH+h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Skybox",              w * 4.0, startH+h, w, h));
-
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "DepthMap",            w * 0.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "Shadow",              w * 1.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong",          w * 2.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhongAndSkybox", w * 3.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final",               w * 4.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final"));
-    */
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Position",            w * 0.0, startH+2*h, w, h));
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Normal",              w * 1.0, startH+2*h, w, h));
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "ColorSpecular",       w * 2.0, startH+2*h, w, h));
-
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenA"),    "ColorSpecular",       w * 0.0, startH+h, w, h));
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Skybox",              w * 1.0, startH+h, w, h));
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "DepthMap",            w * 2.0, startH+h, w, h));
-
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "Shadow",              w * 0.0, startH, w, h));
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong",          w * 1.0, startH, w, h));
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhongAndSkybox", w * 2.0, startH, w, h));
 
     pipelines.push(p);
 
@@ -175,35 +150,35 @@ function buildDefaultPipelines() {
 }
 
 function buildTestPipelines() {
-    // let p = new ShaderPipeline();
+    let canvasScale = 0.5;
 
-    // //GPass
-    // p.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height));
+    let p = new ShaderPipeline();
 
-    // let canvasScale = 0.5;
-    // let ssao = new SSAO(shaders.get("ssao"), 32, 4, 4, canvas.width, canvas.height);
-    // ssao.noiseScale = 0.25;
-    // createValueSlider_UI("kernelSize", ssao, "ssao kernel size", 1.0, 128.0, 1.0);
-    // createValueSlider_UI("radius", ssao, "ssao radius", 0.0, 1.0, 0.05);
-    // createValueSlider_UI("depthBias", ssao, "ssao depth bias", 0.0, .5, 0.001);
-    // createValueSlider_UI("angleBias", ssao, "ssao angle bias", 0.0, .5, 0.001);
-    // createValueSlider_UI("noiseScale", ssao, "ssao noise scale", 0.0, 1.0, 0.01);
-    // createValueSlider_UI("occlusionPower", ssao, "ssao power", 0.0, 5.0, 0.01);
-    // p.addShader(ssao);
+    p.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height));
+    p.addShader(new SSAO(shaders.get("ssao"), 8, 4, 4, canvas.width, canvas.height));
 
-    // let blurVal = 1.0 / 16.0;
-    // let blur = new Float32Array([
-    //     blurVal, blurVal, blurVal, blurVal,
-    //     blurVal, blurVal, blurVal, blurVal,
-    //     blurVal, blurVal, blurVal, blurVal,
-    //     blurVal, blurVal, blurVal, blurVal
-    // ]);
-    // let blurRenderer = new Kernel(shaders.get("kernel4R"), blur, "SSAO", "SSAOBlur", canvas.width * canvasScale, canvas.height * canvasScale);
-    // p.addShader(blurRenderer);
+    let depthCamera = new Camera(vec3.clone([-1.0, 5.0, -2.0]), vec3.clone([0.0, 1.0, 0.0]), vec3.clone([0.0, 0.0, 0.0]));
+    depthCamera.setOrthographic();
+    depthCamera.setOrthographicSize(5.0);
+    let depthRenderer = new DepthMap(shaders.get("depthMap"), depthCamera, 1024, 1024);
 
-    // //Render
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "SSAOBlur"));
+    let shadowRenderer = new Shadow(shaders.get("shadowPCF"), canvas.width, canvas.height);
+    
+    let chainRenderer = new ChainRenderer([depthRenderer, shadowRenderer]);
 
-    // pipelines.push(p);
+    chainRenderer.setRenderingFrom = function(position) {
+        const distanceFactor = 1.5;
+        let newCamPos = vec3.multiply([], position, [distanceFactor, distanceFactor, distanceFactor]);
+        this.pipeline.shaderRenderers[0].camera.position = newCamPos;
+    }
+
+
+    let blinnPhong = new BlinnPhongAllLight(shaders.get("blinnPhongShadowSSAOOneLight"), chainRenderer, canvas.width, canvas.height);
+    p.addShader(blinnPhong);
+
+    //Render
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong"));
+
+    pipelines.push(p);
 
 }

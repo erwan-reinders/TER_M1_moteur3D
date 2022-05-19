@@ -181,8 +181,9 @@ function addTextureParameter(name) {
 }
 
 function createSeparateur(name) {
-    let elem = document.createElement("div");
+    let elem = document.createElement("h3");
     let repeatNumber = 3;
     elem.innerHTML = "-".repeat(repeatNumber) + name + "-".repeat(repeatNumber);
+    elem.classList.add("option_separator");
     rendering_options.appendChild(elem);
 }

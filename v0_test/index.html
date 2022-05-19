@@ -35,9 +35,11 @@
     <script type="text/javascript" src="js/shaderPipeline.js"></script>
     <script type="text/javascript" src="js/controller.js"></script>
     
+    <script type="text/javascript" src="js/Shaders/chainRenderer.js"></script>
     <script type="text/javascript" src="js/Shaders/textureGBuffer.js"></script>
     <script type="text/javascript" src="js/Shaders/applyToScreen.js"></script>
     <script type="text/javascript" src="js/Shaders/blinnPhong.js"></script>
+    <script type="text/javascript" src="js/Shaders/blinnPhongAllLight.js"></script>
     <script type="text/javascript" src="js/Shaders/fusion.js"></script>
     <script type="text/javascript" src="js/Shaders/gammaCorrection.js"></script>
     <script type="text/javascript" src="js/Shaders/exposure.js"></script>
@@ -72,6 +74,9 @@
 
         let controler;
 
+        let previousTime = 0;
+        let deltaTime = 0.01;
+
         function init(){
             message.informative("INITIALISATION", "initialisation of the scene");
             initGl("webglcanvas");
@@ -92,7 +97,7 @@
             document.addEventListener('mousedown', onMouseDown);
             document.addEventListener('mouseup', onMouseUp);
 
-            frame();
+            requestAnimationFrame(frame);
         }
 
         function onKeyDown(event) {
@@ -114,12 +119,16 @@
             controler.onMouseUp(event);
         }
 
-        function frame() {
+        function frame(time) {
+            deltaTime = time - previousTime;
+            previousTime = time;
+
             controler.processInput();
             if (updateRender) {
                 scenes[currentScene].update();
                 pipelines[currentPipeline].render(scenes[currentScene]);
             }
+            
             requestAnimationFrame(frame);
         }
 
