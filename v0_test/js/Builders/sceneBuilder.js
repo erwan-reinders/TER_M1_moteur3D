@@ -210,7 +210,7 @@ function buildScenes() {
         -2, 0, 0, 1]
     )
     m.diffuseTexture = getTextureImage("data/img/white.png");
-    let factor = 3.0;
+    let factor = 2.3;
     m.diffuseFactor = vec3.multiply([], [0.76, 0.69, 0.48], [factor, factor, factor]);
     m.specularTexture = getTextureImage("data/img/white.png");
     m.specularFactor = 8.0;
@@ -242,13 +242,29 @@ function buildScenes() {
     scene.addModel(m);
 
 
+    //TEA POT
+    m = new Model(teapotModel);
+    let scale = 0.05;
+    m.matrix.modelMatrix = mat4.clone(
+        [scale, 0, 0, 0,
+        0, scale, 0, 0,
+        0, 0, scale, 0,
+        0, -0.6, 0, 1]
+    )
+    m.diffuseTexture = getTextureImage("data/img/white.png");
+    m.diffuseFactor = vec3.clone([1.0, 1.0, 1.0]);
+    m.specularTexture = getTextureImage("data/img/white.png");
+    m.specularFactor = 3.0;
+    scene.addModel(m);
+
+
     //SOL
     m = new Model(cube());
     m.matrix.modelMatrix = mat4.clone(
         [50, 0, 0, 0,
-        0, 0.1, 0, 0,
+        0, 1.0, 0, 0,
         0, 0, 50, 0,
-        0, -1, 0, 1]
+        0, -1.5, 0, 1]
     )
     m.diffuseTexture = getTextureImage("data/img/white.png");
     m.diffuseFactor = vec3.clone([0.48, 0.76, 0.76]);

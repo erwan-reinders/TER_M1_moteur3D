@@ -179,3 +179,10 @@ function addTextureParameter(name) {
     wrapper.appendChild(input);
     rendering_options.appendChild(wrapper);
 }
+
+function createSeparateur(name) {
+    let elem = document.createElement("div");
+    let repeatNumber = 3;
+    elem.innerHTML = "-".repeat(repeatNumber) + name + "-".repeat(repeatNumber);
+    rendering_options.appendChild(elem);
+}

@@ -6,6 +6,8 @@
  *  {RGB}  {ScreenSpace} Position      : les coordonées mondes
  *  {RGB}  {ScreenSpace} Normal        : les normales
  *  {RGBA} {ScreenSpace} ColorSpecular : la couleur et la valeur spéculaire
+ *  {RGBA} {ScreenSpace} Shadow        : la valeur d'ombrage
+ *  {RGBA} {ScreenSpace} SSAO          : l'occlusion ambiante
  * Permet d'obtenir :
  *  {RGB}  {ScreenSpace} BlinnPhong    : la couleur BlinnPhong.
  */
@@ -17,15 +19,17 @@ class BlinnPhong extends ShaderRenderer {
      * @param {number}  width  La résolution horizontale du rendu en nombre de pixel.
      * @param {number}  height La résolution verticale du rendu en nombre de pixel.
      * @param {boolean} withShadows Doit-on utiliser les ombres?
+     * @param {boolean} withSSAO Doit-on utiliser l'ambiante occlusion?
      */
-    constructor(shaderProgram, width, height, withShadows = true) {
+    constructor(shaderProgram, width, height, withShadows = true, withSSAO = true) {
         super(shaderProgram);
 
         this.renderingMode = RenderingMode.quad;
 
         this.nLights = 0;
-        this.ambiant = 0.1;
+        this.ambiant = 0.3;
         this.withShadows = withShadows;
+        this.withSSAO = withSSAO;
         
         this.shaderProgram.use();
 
@@ -34,6 +38,9 @@ class BlinnPhong extends ShaderRenderer {
         this.shaderProgram.setUniform("gAlbedoSpec", valType.texture2D);
         if (withShadows) {
             this.shaderProgram.setUniform("shadowMap", valType.texture2D);
+        }
+        if (withSSAO) {
+            this.shaderProgram.setUniform("SSAOMap", valType.texture2D);
         }
 
         this.shaderProgram.setUniform("uNLights",    valType.i1);
@@ -62,6 +69,9 @@ class BlinnPhong extends ShaderRenderer {
         this.shaderProgram.setUniformValueByName("gAlbedoSpec", 2, shaderResults.get("ColorSpecular").getTexture());
         if (this.withShadows) {
             this.shaderProgram.setUniformValueByName("shadowMap", 3, shaderResults.get("Shadow").getTexture());
+        }
+        if (this.withSSAO) {
+            this.shaderProgram.setUniformValueByName("SSAOMap", 4, shaderResults.get("SSAO").getTexture());
         }
     }
 

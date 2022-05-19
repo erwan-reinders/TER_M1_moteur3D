@@ -33,7 +33,8 @@ class TextureGBuffer extends ShaderRenderer {
 
         this.shaderProgram.setAllPos();
 
-        this.framebuffer = new Framebuffer(width, height, 3);
+        this.framebuffer = new Framebuffer(width, height, 3, false);
+        this.framebuffer.init(gl.NEAREST, gl.MIRRORED_REPEAT);
     }
 
     /** @inheritdoc*/

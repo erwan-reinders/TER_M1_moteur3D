@@ -9,8 +9,9 @@ function buildPipelines() {
 
 function buildDefaultPipelines() {
 
-    let blinnPhongRenderer = new BlinnPhong(shaders.get("blinnPhongShadow"), canvas.width, canvas.height);
-    createValueSlider_UI("ambiant", blinnPhongRenderer, "ambiant", 0.0, .5, 0.01);
+    createSeparateur("Rendering");
+    let blinnPhongRenderer = new BlinnPhong(shaders.get("blinnPhongShadowSSAO"), canvas.width, canvas.height);
+    createValueSlider_UI("ambiant", blinnPhongRenderer, "ambiant", 0.0, 1.0, 0.05);
 
     let exposureRenderer = new Exposure(shaders.get("exposure"), "AllinOne", "ExposedImage", canvas.width, canvas.height);
     createValueSlider_UI("exposure", exposureRenderer, "exposition", 0.0, 10.0, 0.1);
@@ -19,11 +20,13 @@ function buildDefaultPipelines() {
     createValueSlider_UI("gamma", gammaCorrectionRenderer, "gamma", 0.5, 5.0, 0.1);
 
 
-    let extractRenderer = new ExtractColorByBrigthness(shaders.get("extractColorByBrigthness"), 1.0, vec4.clone([0.0, 0.0, 0.0, 1.0]), "BlinnPhong", "Extract", canvas.width, canvas.height);
+    createSeparateur("Bloom");
+    let canvasScale = 0.3;
+    let extractRenderer = new ExtractColorByBrigthness(shaders.get("extractColorByBrigthness"), 0.95, vec4.clone([0.0, 0.0, 0.0, 1.0]), "BlinnPhongAndSkybox", "Extract", canvas.width * canvasScale, canvas.height * canvasScale);
     createValueSlider_UI("seuil", extractRenderer, "seuil", 0.0, 2.0, 0.05);
 
-    let gaussianRenderer = new GaussianBlur(shaders.get("gaussianBlur"), 10.0, "Extract", "Bloom", canvas.width*0.3, canvas.height*0.3);
-    createValueSlider_UI("nbPasses", gaussianRenderer, "nb passes", 0.0, 100.0, 2.0);
+    let gaussianRenderer = new GaussianBlur(shaders.get("gaussianBlur"), 20.0, "Extract", "Bloom", canvas.width * canvasScale, canvas.height * canvasScale);
+    createValueSlider_UI("nbPasses", gaussianRenderer, "passes", 0.0, 100.0, 2.0);
 
 
     
@@ -42,8 +45,26 @@ function buildDefaultPipelines() {
     depthCamera.setOrthographic();
     depthCamera.setOrthographicSize(5.0);
 
+    createSeparateur("Shadow");
     let shadowRenderer = new Shadow(shaders.get("shadowPCF"), canvas.width, canvas.height);
-    createValueSlider_UI("bias", shadowRenderer, "shadow bias", 0.0, 0.02, 0.001);
+    createValueSlider_UI("bias", shadowRenderer, "bias", 0.0, 0.02, 0.001);
+
+    //For the SSAO
+    createSeparateur("SSAO");
+    let ssao = new SSAO(shaders.get("ssao"), 32, 4, 4, canvas.width, canvas.height);
+    createValueSlider_UI("kernelSize",     ssao, "number of samples", 1.0, 128.0, 1.0);
+    createValueSlider_UI("radius",         ssao, "radius",            0.0, 1.0, 0.05);
+    createValueSlider_UI("depthBias",      ssao, "depth bias",        0.0, .5, 0.001);
+    createValueSlider_UI("angleBias",      ssao, "angle bias",        0.0, .5, 0.001);
+    createValueSlider_UI("occlusionPower", ssao, "power",             0.0, 10.0, 0.01);
+
+    let blurVal = 1.0 / 16.0;
+    let blurKernel4 = new Float32Array([
+        blurVal, blurVal, blurVal, blurVal,
+        blurVal, blurVal, blurVal, blurVal,
+        blurVal, blurVal, blurVal, blurVal,
+        blurVal, blurVal, blurVal, blurVal
+    ]);
 
 
 
@@ -58,13 +79,18 @@ function buildDefaultPipelines() {
     //Shadow
     defalutPipeline.addShader(new DepthMap(shaders.get("depthMap"), depthCamera, 1024, 1024));
     defalutPipeline.addShader(shadowRenderer);
+    //SSAO
+    defalutPipeline.addShader(ssao);
+    defalutPipeline.addShader(new Kernel(shaders.get("kernel4R"), blurKernel4, "SSAO", "SSAO", canvas.width, canvas.height));
     //Light : blinnPhongWithShadows
     defalutPipeline.addShader(blinnPhongRenderer);
+    //Fusion 1 : BlinnPhong avec la skybox
+    defalutPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Skybox"], "BlinnPhongAndSkybox", canvas.width, canvas.height));
     //Bloom
     defalutPipeline.addShader(extractRenderer);
     defalutPipeline.addShader(gaussianRenderer);
-    //Fusion
-    defalutPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Skybox", "Bloom"], "AllinOne", canvas.width, canvas.height));
+    //Fusion 2
+    defalutPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhongAndSkybox", "Bloom"], "AllinOne", canvas.width, canvas.height));
     //Post effects
     defalutPipeline.addShader(exposureRenderer);
     defalutPipeline.addShader(gammaCorrectionRenderer);
@@ -95,7 +121,7 @@ function buildDefaultPipelines() {
     });
     
     //Render
-    let nb = 6.0;
+    let nb = 7.0;
     let w = canvas.width  / nb;
     let h = canvas.height / nb;
     //let startH = canvas.height * (nb-1.0) / nb;
@@ -106,13 +132,15 @@ function buildDefaultPipelines() {
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenA"),    "ColorSpecular",       w * 3.0, startH+h, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Skybox",              w * 4.0, startH+h, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "DepthMap",            w * 5.0, startH+h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "Shadow",              w * 6.0, startH+h, w, h));
 
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "Shadow",              w * 0.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "SSAO",                w * 0.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong",          w * 1.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Extract",             w * 2.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Bloom",               w * 3.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "AllinOne",            w * 4.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "ExposedImage",        w * 5.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final",               w * 6.0, startH, w, h));
     
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final"));
     /*
@@ -151,20 +179,30 @@ function buildTestPipelines() {
 
     // //GPass
     // p.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height));
-    // //Light : blinnPhong
-    // p.addShader(new BlinnPhong(shaders.get("blinnPhong"), canvas.width, canvas.height, false));
 
-    // //TEST
-    // let extract = new ExtractColorByBrigthness(shaders.get("extractColorByBrigthness"), 1.0, vec4.clone([0.0, 0.0, 0.0, 1.0]), "BlinnPhong", "Extract", canvas.width, canvas.height);
-    // createValueSlider_UI("seuil", extract, "seuil", 0.0, 2.0, 0.05);
-    // p.addShader(extract);
+    // let canvasScale = 0.5;
+    // let ssao = new SSAO(shaders.get("ssao"), 32, 4, 4, canvas.width, canvas.height);
+    // ssao.noiseScale = 0.25;
+    // createValueSlider_UI("kernelSize", ssao, "ssao kernel size", 1.0, 128.0, 1.0);
+    // createValueSlider_UI("radius", ssao, "ssao radius", 0.0, 1.0, 0.05);
+    // createValueSlider_UI("depthBias", ssao, "ssao depth bias", 0.0, .5, 0.001);
+    // createValueSlider_UI("angleBias", ssao, "ssao angle bias", 0.0, .5, 0.001);
+    // createValueSlider_UI("noiseScale", ssao, "ssao noise scale", 0.0, 1.0, 0.01);
+    // createValueSlider_UI("occlusionPower", ssao, "ssao power", 0.0, 5.0, 0.01);
+    // p.addShader(ssao);
 
-    // let gaussian = new GaussianBlur(shaders.get("gaussianBlur"), 2.0, "Extract", "Bloom", canvas.width*0.1, canvas.height*0.1);
-    // createValueSlider_UI("nbPasses", gaussian, "nb passes", 2.0, 100.0, 2.0);
-    // p.addShader(gaussian);
+    // let blurVal = 1.0 / 16.0;
+    // let blur = new Float32Array([
+    //     blurVal, blurVal, blurVal, blurVal,
+    //     blurVal, blurVal, blurVal, blurVal,
+    //     blurVal, blurVal, blurVal, blurVal,
+    //     blurVal, blurVal, blurVal, blurVal
+    // ]);
+    // let blurRenderer = new Kernel(shaders.get("kernel4R"), blur, "SSAO", "SSAOBlur", canvas.width * canvasScale, canvas.height * canvasScale);
+    // p.addShader(blurRenderer);
 
     // //Render
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Bloom"));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "SSAOBlur"));
 
     // pipelines.push(p);
 

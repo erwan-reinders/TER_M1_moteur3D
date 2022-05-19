@@ -21,7 +21,7 @@ class Shadow extends ShaderRenderer {
 
         this.renderingMode = RenderingMode.quad;
 
-        this.bias = 0.005;
+        this.bias = 0.002;
         
         this.shaderProgram.use();
 
