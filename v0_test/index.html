@@ -67,6 +67,10 @@
         <div id="options_list"></div>
     </div>
 
+    <div id="stats">
+        <div class="stat_element">fps : <span id="fps">0</span></div>
+    </div>
+
     <script type="text/javascript" defer>
 
         let updateRender = true;
@@ -80,6 +84,7 @@
 
         function init(){
             message.informative("INITIALISATION", "initialisation of the scene");
+            initUi();
             initGl("webglcanvas");
 
             buildScenes();
@@ -97,6 +102,9 @@
             document.addEventListener('wheel', onWheel);
             document.addEventListener('mousedown', onMouseDown);
             document.addEventListener('mouseup', onMouseUp);
+
+            fetchStat("fps");
+            console.log(stats["fps"]);
 
             requestAnimationFrame(frame);
         }
@@ -122,10 +130,15 @@
 
         function frame(time) {
             deltaTime = time - previousTime;
+            deltaTime *= 0.001;
             previousTime = time;
-
+            
             controler.processInput();
             if (updateRender) {
+                const newDeltaTime = parseInt(1.0 / deltaTime);
+                if (Math.abs(newDeltaTime - stats["fps"].innerHTML) > 2) {
+                    stats["fps"].innerHTML = newDeltaTime;
+                }
                 scenes[currentScene].update();
                 pipelines[currentPipeline].render(scenes[currentScene]);
             }

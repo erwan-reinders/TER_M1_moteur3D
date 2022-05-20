@@ -46,6 +46,7 @@ function buildDefaultPipelines() {
 
     let gaussianRenderer = new GaussianBlur(shaders.get("gaussianBlur"), 20.0, "Extract", "Bloom", canvas.width * canvasScale, canvas.height * canvasScale);
     createValueSlider_UI("nbPasses", gaussianRenderer, "passes", 0.0, 100.0, 2.0);
+    createValue_UI("nbPasses", gaussianRenderer, "passes", 1.0);
 
 
     

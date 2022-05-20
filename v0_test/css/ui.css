@@ -15,6 +15,18 @@
     border-radius: 0 0 var(--option_border_radius) 0;
 }
 
+#stats {
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    padding: 20px;
+
+    background-color: var(--option_bg_color);
+    color: var(--main_text_color);
+    font-family: var(--text_font);
+}
+
 #options #options_title{
     text-align: center;
     color: var(--option_text_title_color);
