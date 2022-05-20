@@ -1,6 +1,5 @@
 /** Classe modélisant un framebuffer de webgl */
 class Framebuffer {
-
     /**
      * Permet de dessiner sur le canvas. 
      */
@@ -129,7 +128,7 @@ class Framebuffer {
     }
 
     /**
-     * SUpprime les données de couleur et de profondeur.
+     * Supprime les données de couleur et de profondeur.
      */
     clearColorAndDepth() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -145,5 +144,4 @@ class Framebuffer {
         gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this.framebuffer);
         gl.blitFramebuffer(0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height, mask, gl.NEAREST);
     }
-
-};
+}

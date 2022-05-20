@@ -22,8 +22,8 @@ class Controller {
      * @param {Scene} scene La scene que l'on vas modifier.
      */
     constructor(scene) {
-        this.keyControls = new Map();
-        this.mouseControls = new Map();
+        this.keyControls    = new Map();
+        this.mouseControls  = new Map();
         this.scene = scene;
         this.initControls();
 
@@ -49,7 +49,6 @@ class Controller {
         this.keyControls.set("right",    new Input("ArrowLeft"));
         this.keyControls.set("forward",  new Input("z"));
         this.keyControls.set("backward", new Input("s"));
-
         this.mouseControls.set("drag", new Input(2));
     }
 
@@ -133,8 +132,8 @@ class Controller {
         let mouseSpeed = 0.005;
         
         if (this.mouseControls.get("drag").value) {
-            this.azimuth += Math.floor(this.mouseDiffX) * mouseSpeed;
-            this.zenith += Math.floor(this.mouseDiffY) * mouseSpeed;
+            this.azimuth    += Math.floor(this.mouseDiffX) * mouseSpeed;
+            this.zenith     += Math.floor(this.mouseDiffY) * mouseSpeed;
         }
 
         let keyboardSpeed = 0.05;
@@ -168,10 +167,8 @@ class Controller {
         let x = this.radius * Math.cos(this.azimuth) * Math.cos(this.zenith);
         let y = this.radius * Math.sin(this.zenith);
         let z = this.radius * Math.sin(this.azimuth) * Math.cos(this.zenith);
-        
         this.scene.camera.position = vec3.fromValues(x, y, z);
 
-        
         this.mouseDiffX = 0.0;
         this.mouseDiffY = 0.0;
     }
