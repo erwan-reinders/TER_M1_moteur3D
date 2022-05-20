@@ -18,33 +18,39 @@
 #options #options_title{
     text-align: center;
     color: var(--option_text_title_color);
+    cursor: pointer;
 }
 
 #options .option_separator {
     font-weight: bolder;
+    cursor: pointer;
+}
+
+#options #options_list, #options .options_container {
+    display: none;
 }
 
 
-#options div.vec2,#options div.vec3,#options div.vec4 {
+#options_list div.vec2,#options_list div.vec3,#options_list div.vec4 {
 
 }
 
-#options div span.description{
+#options_list div span.description{
 
 }
 
-#options div input{
+#options_list div input{
 
 }
 
-#options div input.sliderdescription{
+#options_list div input.sliderdescription{
 
 }
 
-#options div input.number{
+#options_list div input.number{
 
 }
 
-#options div input.texture{
+#options_list div input.texture{
 
 }

@@ -8,10 +8,29 @@ function buildPipelines() {
 
 
 function buildDefaultPipelines() {
+    //For blinn phong all lights
+    let depthCameraAllLights = new Camera(vec3.clone([-1.0, 5.0, -2.0]), vec3.clone([0.0, 1.0, 0.0]), vec3.clone([0.0, 0.0, 0.0]));
+    depthCameraAllLights.setOrthographic();
+    depthCameraAllLights.setOrthographicSize(5.0);
+    let depthMapResolution = 1024;
+    let depthRendererAllLights = new DepthMap(shaders.get("depthMap"), depthCameraAllLights, depthMapResolution, depthMapResolution);
+
+    let shadowRendererAllLights = new Shadow(shaders.get("shadowPCFautoBias"), canvas.width, canvas.height, true);
+    shadowRendererAllLights.bias = 0.0;//0.00005;
+    
+    let chainRendererAllLights = new ChainRenderer([depthRendererAllLights, shadowRendererAllLights]);
+    chainRendererAllLights.distanceFactor = 5.0;
+
+    chainRendererAllLights.setRenderingFrom = function(position) {
+        const distanceFactor = this.distanceFactor;
+        let newCamPos = vec3.multiply([], position, [distanceFactor, distanceFactor, distanceFactor]);
+        this.pipeline.shaderRenderers[0].camera.position = newCamPos;
+    }
 
     createSeparateur("Rendering");
     let blinnPhongRenderer = new BlinnPhong(shaders.get("blinnPhongShadowSSAO"), canvas.width, canvas.height);
-    createValueSlider_UI("ambiant", blinnPhongRenderer, "ambiant", 0.0, 1.0, 0.05);
+    let blinnPhongRendererAllLights = new BlinnPhongAllLight(shaders.get("blinnPhongShadowSSAOOneLight"), chainRendererAllLights, canvas.width, canvas.height);
+    createValueSlider_UI("ambiant", blinnPhongRendererAllLights, "ambiant", 0.0, 1.0, 0.05);
 
     let exposureRenderer = new Exposure(shaders.get("exposure"), "AllinOne", "ExposedImage", canvas.width, canvas.height);
     createValueSlider_UI("exposure", exposureRenderer, "exposition", 0.0, 10.0, 0.1);
@@ -47,7 +66,16 @@ function buildDefaultPipelines() {
 
     createSeparateur("Shadow");
     let shadowRenderer = new Shadow(shaders.get("shadowPCF"), canvas.width, canvas.height);
-    createValueSlider_UI("bias", shadowRenderer, "bias", 0.0, 0.02, 0.001);
+    let uiHandler = {
+        value : shadowRendererAllLights.bias,
+        onUiChange : function() {
+            shadowRenderer.bias = this.value;
+            shadowRendererAllLights.bias = this.value;
+        }
+    }
+    createValueSlider_UI("value", uiHandler, "bias", 0.0, 0.01, 0.00005);
+
+    createValueSlider_UI("distanceFactor", chainRendererAllLights, "distanceFactor", 0.0, 10.0, 0.1);
 
     //For the SSAO
     createSeparateur("SSAO");
@@ -65,6 +93,32 @@ function buildDefaultPipelines() {
         blurVal, blurVal, blurVal, blurVal,
         blurVal, blurVal, blurVal, blurVal
     ]);
+
+    let firstPipeline = new ShaderPipeline();
+
+    //GPass
+    firstPipeline.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height));
+    //Skybox
+    firstPipeline.addShader(new Skybox(shaders.get("skybox"), skybox, canvas.width, canvas.height));
+    //SSAO
+    firstPipeline.addShader(ssao);
+    firstPipeline.addShader(new Kernel(shaders.get("kernel4R"), blurKernel4, "SSAO", "SSAO", canvas.width, canvas.height));
+    //Light and shadows : blinnPhongWithShadowsAllLights
+    firstPipeline.addShader(blinnPhongRendererAllLights);
+    //Fusion 1 : BlinnPhong avec la skybox
+    firstPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Skybox"], "BlinnPhongAndSkybox", canvas.width, canvas.height));
+    //Bloom
+    firstPipeline.addShader(extractRenderer);
+    firstPipeline.addShader(gaussianRenderer);
+    //Fusion 2
+    firstPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhongAndSkybox", "Bloom"], "AllinOne", canvas.width, canvas.height));
+    //Post effects
+    firstPipeline.addShader(exposureRenderer);
+    firstPipeline.addShader(gammaCorrectionRenderer);
+    
+    //Render
+    firstPipeline.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
+    pipelines.push(firstPipeline);
 
 
 
@@ -121,6 +175,7 @@ function buildDefaultPipelines() {
     });
     
     //Render
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final"));
     let nb = 7.0;
     let w = canvas.width  / nb;
     let h = canvas.height / nb;
@@ -142,7 +197,6 @@ function buildDefaultPipelines() {
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "ExposedImage",        w * 5.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final",               w * 6.0, startH, w, h));
     
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final"));
 
     pipelines.push(p);
 
@@ -151,34 +205,37 @@ function buildDefaultPipelines() {
 
 function buildTestPipelines() {
     let canvasScale = 0.5;
+    let testCanvasScale = 1.0;
 
-    let p = new ShaderPipeline();
+    // let p = new ShaderPipeline();
 
-    p.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height));
-    p.addShader(new SSAO(shaders.get("ssao"), 8, 4, 4, canvas.width, canvas.height));
+    // p.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width * testCanvasScale, canvas.height * testCanvasScale));
+    // p.addShader(new SSAO(shaders.get("ssao"), 8, 4, 4, canvas.width * testCanvasScale, canvas.height * testCanvasScale));
 
-    let depthCamera = new Camera(vec3.clone([-1.0, 5.0, -2.0]), vec3.clone([0.0, 1.0, 0.0]), vec3.clone([0.0, 0.0, 0.0]));
-    depthCamera.setOrthographic();
-    depthCamera.setOrthographicSize(5.0);
-    let depthRenderer = new DepthMap(shaders.get("depthMap"), depthCamera, 1024, 1024);
+    // let depthCamera = new Camera(vec3.clone([-1.0, 5.0, -2.0]), vec3.clone([0.0, 1.0, 0.0]), vec3.clone([0.0, 0.0, 0.0]));
+    // depthCamera.setOrthographic();
+    // depthCamera.setOrthographicSize(5.0);
+    // let depthRenderer = new DepthMap(shaders.get("depthMap"), depthCamera, 512, 512);
 
-    let shadowRenderer = new Shadow(shaders.get("shadowPCF"), canvas.width, canvas.height);
+    // let shadowRenderer = new Shadow(shaders.get("shadowPCFautoBias"), canvas.width * testCanvasScale, canvas.height * testCanvasScale, true);
+    // shadowRenderer.bias = 0.00005;
+    // createValueSlider_UI("bias", shadowRenderer, "bias", 0.0, 0.001, 0.00005);
     
-    let chainRenderer = new ChainRenderer([depthRenderer, shadowRenderer]);
+    // let chainRenderer = new ChainRenderer([depthRenderer, shadowRenderer]);
 
-    chainRenderer.setRenderingFrom = function(position) {
-        const distanceFactor = 1.5;
-        let newCamPos = vec3.multiply([], position, [distanceFactor, distanceFactor, distanceFactor]);
-        this.pipeline.shaderRenderers[0].camera.position = newCamPos;
-    }
+    // chainRenderer.setRenderingFrom = function(position) {
+    //     const distanceFactor = 5.0;
+    //     let newCamPos = vec3.multiply([], position, [distanceFactor, distanceFactor, distanceFactor]);
+    //     this.pipeline.shaderRenderers[0].camera.position = newCamPos;
+    // }
 
 
-    let blinnPhong = new BlinnPhongAllLight(shaders.get("blinnPhongShadowSSAOOneLight"), chainRenderer, canvas.width, canvas.height);
-    p.addShader(blinnPhong);
+    // let blinnPhong = new BlinnPhongAllLight(shaders.get("blinnPhongShadowSSAOOneLight"), chainRenderer, canvas.width * testCanvasScale, canvas.height * testCanvasScale);
+    // p.addShader(blinnPhong);
 
-    //Render
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong"));
+    // //Render
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong"));
 
-    pipelines.push(p);
+    // pipelines.push(p);
 
 }

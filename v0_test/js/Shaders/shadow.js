@@ -5,6 +5,7 @@
  * Utilise :
  *  {RGB}  {ScreenSpace} Position      : Les coordonées mondes
  *  {R}    {CameraSpace} DepthMap      : La carte de profondeur.
+ *  {RGB}  {ScreenSpace} Normal ?      : Les normales
  * Permet d'obtenir :
  *  {R}    {ScreenSpace} Shadow        : Les valeurs d'ombrage.
  */
@@ -16,12 +17,13 @@ class Shadow extends ShaderRenderer {
      * @param {number} width  la résolution horizontale du rendu en nombre de pixel.
      * @param {number} height la résolution verticale du rendu en nombre de pixel.
      */
-    constructor(shaderProgram, width, height) {
+    constructor(shaderProgram, width, height, autoBias = false) {
         super(shaderProgram);
 
         this.renderingMode = RenderingMode.quad;
 
         this.bias = 0.002;
+        this.autoBias = autoBias;
         
         this.shaderProgram.use();
 
@@ -32,6 +34,11 @@ class Shadow extends ShaderRenderer {
         this.shaderProgram.setUniform("uDepthProjectionMatrix", valType.Mat4fv);
 
         this.shaderProgram.setUniform("uBias", valType.f1);
+        if (autoBias) {
+            this.shaderProgram.setUniform("gNormal",  valType.texture2D);
+            this.shaderProgram.setUniform("uLightDir", valType.f3v);
+            this.lightDir = undefined;
+        }
 
         this.shaderProgram.setAllPos();
 
@@ -43,11 +50,17 @@ class Shadow extends ShaderRenderer {
         this.shaderProgram.use();
 
         this.shaderProgram.setUniformValueByName("gPosition", 0, shaderResults.get("Position").getTexture());
+        if (this.autoBias) {
+            this.shaderProgram.setUniformValueByName("gNormal", 2, shaderResults.get("Normal").getTexture());
+        }
 
         let depthMapResult = shaderResults.get("DepthMap");
         this.shaderProgram.setUniformValueByName("depthMap",               1, depthMapResult.getTexture());
         this.shaderProgram.setUniformValueByName("uDepthViewMatrix",       depthMapResult.getCamera().getViewMatrix());
         this.shaderProgram.setUniformValueByName("uDepthProjectionMatrix", depthMapResult.getCamera().getProjectionMatrix());
+        if (this.autoBias) {
+            this.lightDir = depthMapResult.getCamera().getForward();
+        }
     }
 
     /** @inheritdoc*/
@@ -69,6 +82,9 @@ class Shadow extends ShaderRenderer {
         this.shaderProgram.use();
         
         this.shaderProgram.setUniformValueByName("uBias", this.bias);
+        if (this.autoBias) {
+            this.shaderProgram.setUniformValueByName("uLightDir", this.lightDir);
+        }
     }
 
     /** @inheritdoc*/

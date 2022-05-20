@@ -20,6 +20,7 @@ function buildShaders() {
     shaders.set("gammaCorrection",              new ShaderProgram("ScreenPosVertexShader.glsl", "PostEffectGammaCorrection.glsl"));
     shaders.set("shadow",                       new ShaderProgram("ScreenPosVertexShader.glsl", "shadow.glsl"));
     shaders.set("shadowPCF",                    new ShaderProgram("ScreenPosVertexShader.glsl", "shadowPCF.glsl"));
+    shaders.set("shadowPCFautoBias",            new ShaderProgram("ScreenPosVertexShader.glsl", "shadowPCFautoBias.glsl"));
     shaders.set("kernelR",                      new ShaderProgram("ScreenPosVertexShader.glsl", "kernelR.glsl"));
     shaders.set("kernel4R",                     new ShaderProgram("ScreenPosVertexShader.glsl", "kernel4R.glsl"));
     shaders.set("gaussianBlur",                 new ShaderProgram("ScreenPosVertexShader.glsl", "gaussianBlur.glsl"));

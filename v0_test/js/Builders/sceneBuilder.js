@@ -260,10 +260,11 @@ function buildScenes() {
 
     //SOL
     m = new Model(cube());
+    let solScale = 20;
     m.matrix.modelMatrix = mat4.clone(
-        [50, 0, 0, 0,
+        [solScale, 0, 0, 0,
         0, 1.0, 0, 0,
-        0, 0, 50, 0,
+        0, 0, solScale, 0,
         0, -1.5, 0, 1]
     )
     m.diffuseTexture = getTextureImage("data/img/white.png");
@@ -273,10 +274,36 @@ function buildScenes() {
     scene.addModel(m);
 
 
-    
-    scene.addLight(new Light(undefined, [0.3, 0.7, 0.9]));
-    scene.addLight(new Light([-5.0, 5.0, -5.0], [0.9, 0.7, 0.3], 0.4, 0.1));
-    scene.addLight(new Light([-10.0, 50.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
+    let lights = [
+        new Light([ 2.0,  3.0,   1.0],  [0.3, 0.7, 0.9]),
+        new Light([-5.0,  5.0,  -2.0],  [0.9, 0.7, 0.3], 0.4, 0.1),
+        new Light([-10.0, 50.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001)
+    ]
+    createSeparateur("Lights");
+    for (let i = 0; i < lights.length; i++) {
+        createSeparateurInside("Light number " + i, "h3");
+        let lightsUiHandler = {
+            index : i,
+
+            position :  lights[i].position,
+            color :     lights[i].color,
+            linear :    lights[i].linear,
+            quadratic : lights[i].quadratic,
+
+            onUiChange : function() {
+                lights[this.index].position  = this.position;
+                lights[this.index].color     = this.color;
+                lights[this.index].linear    = this.linear;
+                lights[this.index].quadratic = this.quadratic;
+            }
+        }
+        createVecN_UI("position",   lightsUiHandler, "Position ",              3);
+        createVecN_UI("color",      lightsUiHandler, "Color ",                 3, undefined, true);
+        createValue_UI("linear",    lightsUiHandler, "Linear attenuation ");
+        createValue_UI("quadratic", lightsUiHandler, "Quadratic attenuation ");
+        endSeparateur();
+    }
+    lights.forEach(l => scene.addLight(l));
 
     scenes.push(scene);
     
