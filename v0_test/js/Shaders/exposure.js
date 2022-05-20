@@ -1,37 +1,36 @@
-/** Fusion Classe shader permettant de générer une texture en additionnant plusieurs textures.
+/** Exposure Classe shader permettant de générer une texture prenant en compte la mappage de couleur (tone mappin) de l'exposition (lié à l'hdr).
  * @extends ShaderRenderer
  * Rendu sur : 
  *  Quad
  * Utilise :
- *  Liste de textures passée en parametre.
+ *  Texture passée en parametre.
  * Permet d'obtenir :
  *  Texture passée en parametre.
  */
- class Fusion extends ShaderRenderer {
+class Exposure extends ShaderRenderer {
     
     /**
-     * Construit le faiseur de rendu permettant de fusionner par addition plusieurs images (max 16).
+     * Construit le faiseur de rendu permettant d'éffectuer le traitement de l'exposition lumineuse.
      * @inheritdoc
-     * @param {string[]} textureReadNames Les noms des textures d'entrée.
+     * @param {string} textureReadName Le nom de la texture d'entrée.
      * @param {string} textureWriteName Le nom de la texture de sortie.
      * @param {number} width  la résolution horizontale du rendu en nombre de pixel.
      * @param {number} height la résolution verticale du rendu en nombre de pixel.
      */
-    constructor(shaderProgram, textureReadNames, textureWriteName, width, height) {
+    constructor(shaderProgram, textureReadName, textureWriteName, width, height) {
         super(shaderProgram);
 
         this.renderingMode = RenderingMode.quad;
 
-        this.textureReadNames = textureReadNames;
+        this.textureReadName = textureReadName;
         this.textureWriteName = textureWriteName;
+
+        this.exposure = 1.0;
         
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniform("uNbTextures", valType.i1);
-
-        for (let i = 0; i < 16; i++) {
-            this.shaderProgram.setUniform("inputColor"+i, valType.texture2D);
-        }
+        this.shaderProgram.setUniform("inputColor", valType.texture2D);
+        this.shaderProgram.setUniform("exposure", valType.f1);
 
         this.shaderProgram.setAllPos();
 
@@ -42,11 +41,7 @@
     usePreviousResult(shaderResults) {
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniformValueByName("uNbTextures", this.textureReadNames.length);
-        for (let i = 0; i < this.textureReadNames.length; i++) {
-            const textureName = this.textureReadNames[i];
-            this.shaderProgram.setUniformValueByName("inputColor"+i, i, shaderResults.get(textureName).getTexture())
-        }
+        this.shaderProgram.setUniformValueByName("inputColor", 0, shaderResults.get(this.textureReadName).getTexture());
     }
 
     /** @inheritdoc*/
@@ -66,6 +61,8 @@
         this.framebuffer.clearColorAndDepth();
 
         this.shaderProgram.use();
+
+        this.shaderProgram.setUniformValueByName("exposure", this.exposure);
     }
 
     /** @inheritdoc*/

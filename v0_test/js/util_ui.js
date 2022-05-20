@@ -2,7 +2,21 @@
 /**
  * Pour la création de l'interface.
  */
-let rendering_options = document.getElementById("options");
+let rendering_options = document.getElementById("options_list");
+let currentContainer = rendering_options;
+let options_title = document.getElementById("options_title");
+
+function toggleDisplayOnElement(el) {
+    if (el.style.display != "block") {
+        el.style.display = "block";
+    }
+    else {
+        el.style.display = "none";
+    }
+}
+options_title.onclick = function() {
+    toggleDisplayOnElement(rendering_options);
+};
 
 let CSS_TAG = {
     vec: ["vec2", "vec3", "vec4"],
@@ -56,20 +70,22 @@ function createValue_UI(elem, obj, name, step = default_step) {
     input.step = step;
     input.value = obj[elem];
 
-    input.addEventListener("input", function (event) {
-        obj[elem] = this.value;
-        obj.test();
-    });
+    // input.addEventListener("input", function (event) {
+    //     obj[elem] = this.value;
+    //     obj.test();
+    // });
     input.addEventListener("change", function (event) {
         obj[elem] = this.value;
-        obj.test();
+        if (obj.onUiChange != undefined) {
+            obj.onUiChange(this);
+        }
     });
-    input.addEventListener("valuechange", function (event) {
-        obj[elem] = this.value;
-        obj.test();
-    });
+    // input.addEventListener("valuechange", function (event) {
+    //     obj[elem] = this.value;
+    //     obj.test();
+    // });
     wrapper.appendChild(input);
-    rendering_options.appendChild(wrapper);
+    currentContainer.appendChild(wrapper);
 }
 
 /**
@@ -96,22 +112,31 @@ function createVecN_UI(elem, obj, name, vecN, step = default_step, color = false
         let input = document.createElement("input");
         input.type = "number";
         input.step = step;
-        input.value = elem;
+        input.value = parseInt(obj[elem][i] * 10.0) * 0.1;
         input._target = i;
 
 
         input.addEventListener("input", function (event) {
-            obj[elem[event.target._target]] = this.value;
+            obj[elem][event.target._target] = this.value;
+            if (obj.onUiChange != undefined) {
+                obj.onUiChange(this);
+            }
         });
         input.addEventListener("change", function (event) {
             obj[elem[event.target._target]] = this.value;
+            if (obj.onUiChange != undefined) {
+                obj.onUiChange(this);
+            }
         });
         input.addEventListener("valuechange", function (event) {
             obj[elem[event.target._target]] = this.value;
+            if (obj.onUiChange != undefined) {
+                obj.onUiChange(this);
+            }
         });
         wrapper.appendChild(input);
     }
-    rendering_options.appendChild(wrapper);
+    currentContainer.appendChild(wrapper);
 }
 
 /**
@@ -141,6 +166,9 @@ function createValueSlider_UI(elem, obj, name, val_min = default_val_min, val_ma
     input.addEventListener("input", function (event) {
         obj[elem] = this.value;
         span.innerHTML = this.value;
+        if (obj.onUiChange != undefined) {
+            obj.onUiChange(this);
+        }
     });
     input.onmouseup = function () {
         this.blur();
@@ -152,12 +180,15 @@ function createValueSlider_UI(elem, obj, name, val_min = default_val_min, val_ma
         obj[elem] = input.defaultValue;
         input.value = input.defaultValue;
         span.innerHTML = input.defaultValue;
+        if (obj.onUiChange != undefined) {
+            obj.onUiChange(this);
+        }
     }
 
     wrapper.appendChild(input);
     wrapper.appendChild(span);
     wrapper.appendChild(btn);
-    rendering_options.appendChild(wrapper);
+    currentContainer.appendChild(wrapper);
 }
 
 /**
@@ -178,5 +209,45 @@ function addTextureParameter(name) {
 
     });
     wrapper.appendChild(input);
-    rendering_options.appendChild(wrapper);
+    currentContainer.appendChild(wrapper);
+}
+
+/**
+ * Créée une nouvelle catégorie à la racine des catégories.
+ * @param {string} name Nom à afficher
+ */
+function createSeparateur(name) {
+    resetSeparateur();
+    createSeparateurInside(name);
+}
+
+/**
+ * Créée une nouvelle catégorie dans la catégorie courrante.
+ * @param {string} name Nom à afficher
+ * @param {string} elementType Le type de séparateur (h2, h3, ...)
+ */
+function createSeparateurInside(name, elementType = "h2") {
+    let elem = document.createElement(elementType);
+    let repeatNumber = 3;
+    elem.innerHTML = "-".repeat(repeatNumber) + name + "-".repeat(repeatNumber);
+    elem.classList.add("option_separator");
+
+    let newContainer = document.createElement("div");
+    newContainer.classList.add("options_container");
+
+    elem.onclick = function() {toggleDisplayOnElement(newContainer);};
+    currentContainer.appendChild(elem);
+    currentContainer.appendChild(newContainer);
+
+    currentContainer = newContainer;
+}
+
+function endSeparateur() {
+    if (currentContainer != rendering_options) {
+        currentContainer = currentContainer.parentElement;
+    }
+}
+
+function resetSeparateur() {
+    currentContainer = rendering_options;
 }

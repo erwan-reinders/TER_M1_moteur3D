@@ -1,37 +1,40 @@
-/** Fusion Classe shader permettant de générer une texture en additionnant plusieurs textures.
+/** ExtractColorByBrigthness Classe shader permettant d'extraire les couleurs si la luminace est au dessu du seuil.
  * @extends ShaderRenderer
  * Rendu sur : 
  *  Quad
  * Utilise :
- *  Liste de textures passée en parametre.
+ *  Texture passée en parametre.
  * Permet d'obtenir :
  *  Texture passée en parametre.
  */
- class Fusion extends ShaderRenderer {
+class ExtractColorByBrigthness extends ShaderRenderer {
     
     /**
-     * Construit le faiseur de rendu permettant de fusionner par addition plusieurs images (max 16).
+     * Construit le faiseur de rendu permettant d'effectuer le traitement de correction gamma.
      * @inheritdoc
-     * @param {string[]} textureReadNames Les noms des textures d'entrée.
+     * @param {number} seuil Le seuil minimum d'extraction.
+     * @param {Float32Array} defaultColor la couleur à mettre si on ne passe pas le test.
+     * @param {string} textureReadName Le nom de la texture d'entrée.
      * @param {string} textureWriteName Le nom de la texture de sortie.
      * @param {number} width  la résolution horizontale du rendu en nombre de pixel.
      * @param {number} height la résolution verticale du rendu en nombre de pixel.
      */
-    constructor(shaderProgram, textureReadNames, textureWriteName, width, height) {
+    constructor(shaderProgram, seuil, defaultColor, textureReadName, textureWriteName, width, height) {
         super(shaderProgram);
 
         this.renderingMode = RenderingMode.quad;
 
-        this.textureReadNames = textureReadNames;
+        this.textureReadName = textureReadName;
         this.textureWriteName = textureWriteName;
+
+        this.seuil = seuil;
+        this.defaultColor = defaultColor;
         
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniform("uNbTextures", valType.i1);
-
-        for (let i = 0; i < 16; i++) {
-            this.shaderProgram.setUniform("inputColor"+i, valType.texture2D);
-        }
+        this.shaderProgram.setUniform("inputColor",   valType.texture2D);
+        this.shaderProgram.setUniform("seuil",        valType.f1);
+        this.shaderProgram.setUniform("defaultColor", valType.f4v);
 
         this.shaderProgram.setAllPos();
 
@@ -42,11 +45,7 @@
     usePreviousResult(shaderResults) {
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniformValueByName("uNbTextures", this.textureReadNames.length);
-        for (let i = 0; i < this.textureReadNames.length; i++) {
-            const textureName = this.textureReadNames[i];
-            this.shaderProgram.setUniformValueByName("inputColor"+i, i, shaderResults.get(textureName).getTexture())
-        }
+        this.shaderProgram.setUniformValueByName("inputColor", 0, shaderResults.get(this.textureReadName).getTexture());
     }
 
     /** @inheritdoc*/
@@ -66,6 +65,9 @@
         this.framebuffer.clearColorAndDepth();
 
         this.shaderProgram.use();
+
+        this.shaderProgram.setUniformValueByName("seuil",        this.seuil);
+        this.shaderProgram.setUniformValueByName("defaultColor", this.defaultColor);
     }
 
     /** @inheritdoc*/

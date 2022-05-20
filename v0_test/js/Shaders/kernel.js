@@ -1,36 +1,37 @@
-/** Fusion Classe shader permettant de générer une texture en additionnant plusieurs textures.
+/** Kernel Classe shader permettant de générer l'image résultante à la convolution entre l'image d'origine et le kernel passé en paramettre.
  * @extends ShaderRenderer
  * Rendu sur : 
  *  Quad
  * Utilise :
- *  Liste de textures passée en parametre.
+ *  Texture passée en parametre.
  * Permet d'obtenir :
  *  Texture passée en parametre.
  */
- class Fusion extends ShaderRenderer {
+class Kernel extends ShaderRenderer {
     
     /**
-     * Construit le faiseur de rendu permettant de fusionner par addition plusieurs images (max 16).
+     * Construit le faiseur de rendu permettant de faire la convolution avec le kernel.
      * @inheritdoc
-     * @param {string[]} textureReadNames Les noms des textures d'entrée.
+     * @param {Float32Array} kernel Le noyau de convolution. La taille doit correspondre à celle du shader utilisé.
+     * @param {string} textureReadName Le nom de la texture d'entrée.
      * @param {string} textureWriteName Le nom de la texture de sortie.
      * @param {number} width  la résolution horizontale du rendu en nombre de pixel.
      * @param {number} height la résolution verticale du rendu en nombre de pixel.
      */
-    constructor(shaderProgram, textureReadNames, textureWriteName, width, height) {
+    constructor(shaderProgram, kernel, textureReadName, textureWriteName, width, height) {
         super(shaderProgram);
 
         this.renderingMode = RenderingMode.quad;
 
-        this.textureReadNames = textureReadNames;
+        this.kernel = kernel;
+        this.textureReadName = textureReadName;
         this.textureWriteName = textureWriteName;
         
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniform("uNbTextures", valType.i1);
-
-        for (let i = 0; i < 16; i++) {
-            this.shaderProgram.setUniform("inputColor"+i, valType.texture2D);
+        this.shaderProgram.setUniform("inputColor", valType.texture2D);
+        for (let i = 0; i < kernel.length; i++) {
+            this.shaderProgram.setUniform("uKernel["+i+"]", valType.f1);
         }
 
         this.shaderProgram.setAllPos();
@@ -42,11 +43,7 @@
     usePreviousResult(shaderResults) {
         this.shaderProgram.use();
 
-        this.shaderProgram.setUniformValueByName("uNbTextures", this.textureReadNames.length);
-        for (let i = 0; i < this.textureReadNames.length; i++) {
-            const textureName = this.textureReadNames[i];
-            this.shaderProgram.setUniformValueByName("inputColor"+i, i, shaderResults.get(textureName).getTexture())
-        }
+        this.shaderProgram.setUniformValueByName("inputColor", 0, shaderResults.get(this.textureReadName).getTexture());
     }
 
     /** @inheritdoc*/
@@ -66,6 +63,11 @@
         this.framebuffer.clearColorAndDepth();
 
         this.shaderProgram.use();
+
+        for (let i = 0; i < this.kernel.length; i++) {
+            const k = this.kernel[i];
+            this.shaderProgram.setUniformValueByName("uKernel["+i+"]", k);
+        }
     }
 
     /** @inheritdoc*/

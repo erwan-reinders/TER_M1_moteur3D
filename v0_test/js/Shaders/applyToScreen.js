@@ -44,6 +44,7 @@ class ApplyToScreen extends ShaderRenderer {
 
     /** @inheritdoc*/
     getRenderResults() {
+        gl.enable(gl.DEPTH_TEST);
         return new Array();
     }
 
@@ -52,6 +53,7 @@ class ApplyToScreen extends ShaderRenderer {
         Framebuffer.clear();
         this.shaderProgram.use();
         gl.viewport(this.x, this.y, this.width, this.height);
+        gl.disable(gl.DEPTH_TEST);
     }
 
     /** @inheritdoc*/

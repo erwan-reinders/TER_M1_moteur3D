@@ -5,12 +5,12 @@
  * Utilise :
  *  La profondeur du framebuffer de la passe géométrique (Position)
  * Permet d'obtenir :
- *  Skybox
+ *  {RGB} {ScreenSpace} Skybox : La couleur de la skybox (0 si il y a un objet devant).
  */
  class Skybox extends ShaderRenderer {
     
     /**
-     * Construit le faiseur de rendu permettant de dessiner un éclairage BlinnPhong.
+     * Construit le faiseur de rendu permettant de dessiner la texture de skybox.
      * @inheritdoc
      * @param {string} textureReadName Le nom de la texture d'entrée.
      * @param {Cubemap} cubemapObject La cubemap à afficher.

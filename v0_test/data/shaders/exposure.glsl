@@ -7,14 +7,15 @@ in vec2 TexCoords;
 
 uniform sampler2D inputColor;
 
-uniform float gamma;
+uniform float exposure;
 
+//https://learnopengl.com/Advanced-Lighting/HDR
 void main()
 {
-    //On sépare l'alpha car on ne lui applique pas le traitement
+    //On sépare l'alpha car on ne lui applique pas la correction
     
     vec3 color = texture(inputColor, TexCoords).rgb;
     float alpha = texture(inputColor, TexCoords).a;
 
-    FragColor = vec4(pow(color, vec3(1.0/gamma)), alpha);
+    FragColor = vec4(vec3(1.0) - exp(-color * exposure), alpha);
 }

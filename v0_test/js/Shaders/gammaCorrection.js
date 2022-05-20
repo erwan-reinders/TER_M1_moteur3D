@@ -10,7 +10,7 @@
 class GammaCorrection extends ShaderRenderer {
     
     /**
-     * Construit le faiseur de rendu permettant de dessiner un éclairage BlinnPhong.
+     * Construit le faiseur de rendu permettant d'effectuer le traitement de correction gamma.
      * @inheritdoc
      * @param {string} textureReadName Le nom de la texture d'entrée.
      * @param {string} textureWriteName Le nom de la texture de sortie.

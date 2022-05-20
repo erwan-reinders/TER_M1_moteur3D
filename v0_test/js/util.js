@@ -180,6 +180,17 @@ function getTextureImage(src, silence = false){
     return texture;
 }
 
+function getTextureFromFloats(floatArray, width, height, interpol = gl.NEAREST, wrapping = gl.REPEAT) {
+    let texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, width, height, 0, gl.RGBA, gl.FLOAT, floatArray);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, interpol);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, interpol);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapping);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapping);
+    return texture;
+}
+
 //https://webglfundamentals.org/webgl/lessons/webgl-cors-permission.html
 /**
  * Function for request an image if its not from local region
@@ -211,6 +222,17 @@ function initTexture( nbCanal){
  */
 function isPowerOf2(value) {
     return (value & (value - 1)) == 0;
+}
+
+/**
+ * Permet de calculer une interpolation linéaire entre a et b à la valeur x.
+ * @param {number} a La valeur de début.
+ * @param {number} b La valeur de fin.
+ * @param {number} x La valeur d'interpolation (entre 0.0 et 1.0).
+ * @returns a + x * (b - a).
+ */
+function lerp(a, b, x) {
+    return a + x * (b - a);
 }
 
 
@@ -288,7 +310,7 @@ function getCubeMapImage(srcs, silence = false) {
             }
 
             nbImgDone++;
-            if (nbImgDone == 5) {
+            if (nbImgDone == 6) {
                 textureObject.ready = true;
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);

@@ -7,7 +7,16 @@ uniform sampler2D inputColor;
 
 out vec4 FragColor;
 
+bool closeToZeroWithBias(float value) {
+    float bias = 0.0001;
+    return value < bias && value > -bias;
+}
+
 void main()
 {
-    FragColor = vec4(vec3(texture(inputColor, TexCoords).r), 1.0);
+    float color = texture(inputColor, TexCoords).r;
+    if (closeToZeroWithBias(color)) {
+        discard;
+    }
+    FragColor = vec4(vec3(color), 1.0);
 }
