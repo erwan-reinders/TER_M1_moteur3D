@@ -82,7 +82,6 @@ class Model {
      */
     update() {
         this.updateNormalMatrix();
-
         if(this.collider){
             this.collider.transform(this.matrix.modelMatrix);
         }

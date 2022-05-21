@@ -180,7 +180,6 @@ function reflexion() {
     return scene;
 }
 
-
 function picking_test(){
     let scene = new Scene();
     let m;
@@ -207,7 +206,6 @@ function picking_test(){
     scene.addLight(new Light([-10.0, 50.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
     scenes.push(scene);
 }
-
 
 function buildScenes() {
     scenes = new Array();
@@ -268,8 +266,13 @@ function buildScenes() {
         let y = Math.sin(this.rotationZenith );
         let z = Math.sin(this.rotationAzimuth) * Math.cos(this.rotationZenith);
         mat4.rotate(this.matrix.modelMatrix, this.matrix.modelMatrix, 0.02, [x, y, z]);
+
         this.updateNormalMatrix();
+        if(this.collider){
+            this.collider.transform(this.matrix.modelMatrix);
+        }
     }
+    m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
     scene.addModel(m);
 
 
@@ -286,6 +289,9 @@ function buildScenes() {
     m.diffuseFactor = vec3.clone([1.0, 1.0, 1.0]);
     m.specularTexture = getTextureImage("data/img/white.png");
     m.specularFactor = 3.0;
+
+    //m.collider = m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+    m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
 
     m.invisible = true;
     m.reflective = true;

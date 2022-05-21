@@ -107,6 +107,9 @@ class AABB extends Collider{
     }
 
     doesIntersectRayon(rayon) {
+        console.log("DOES INTERSECT AABB");
+        console.log(this);
+
         let dim = this.getAccurateMinMax();
 
         let min = vec3.add([], dim.min, this.position);
