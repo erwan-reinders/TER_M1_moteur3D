@@ -8,8 +8,6 @@ class PickingController {
      * @param {Scene} scene La scene que l'on vas modifier.
      */
     constructor(scene) {
-        this.scene = scene;
-
         this.lastElemCollid = undefined;
         this.moving = false;
     }
@@ -26,9 +24,9 @@ class PickingController {
             vec2.clone([coord.xcoord,coord.ycoord]),
             vec2.clone([0,0]),
             vec2.clone([w,h]),
-            this.scene.camera.getViewMatrix(),
-            this.scene.camera.getProjectionMatrix(),
-            this.scene.camera.position
+            scenes[currentScene].camera.getViewMatrix(),
+            scenes[currentScene].camera.getProjectionMatrix(),
+            scenes[currentScene].camera.position
         );
         raycastPoll.push(ray);
         t = Number.MAX_VALUE;
@@ -38,7 +36,7 @@ class PickingController {
         //On va d'abord tester si on est pas encore en train de clicker sur
 
         //On teste ensuite pour tous les éléments possédant un collider
-        for (let el of this.scene.models){
+        for (let el of scenes[currentScene].models){
             if(el.collider){
                 el.collider.resetRayIntersection();
                 //On peut donc lancer un rayon et déterminer le point d'impact
@@ -66,7 +64,7 @@ class PickingController {
             obj.collider.drawn = true;
 
             if(obj.collider.type == colliderType.SPHERE){
-                obj.collider.rayAnswer.normal = vec3.scale([], this.scene.camera.getForward(), -1.0);
+                obj.collider.rayAnswer.normal = vec3.scale([], scenes[currentScene].camera.getForward(), -1.0);
             }
 
             this.currentTranslationObj = vec3.clone([obj.matrix.modelMatrix[12],obj.matrix.modelMatrix[13],obj.matrix.modelMatrix[14]]);
@@ -98,9 +96,9 @@ class PickingController {
                 vec2.clone([coord.xcoord,coord.ycoord]),
                 vec2.clone([0,0]),
                 vec2.clone([w,h]),
-                this.scene.camera.getViewMatrix(),
-                this.scene.camera.getProjectionMatrix(),
-                this.scene.camera.position
+                scenes[currentScene].camera.getViewMatrix(),
+                scenes[currentScene].camera.getProjectionMatrix(),
+                scenes[currentScene].camera.position
             );
             let deno =      vec3.dot(this.lastElemCollid.collider.rayAnswer.normal, ray.direction);
             let d_nori =    vec3.dot(this.lastElemCollid.collider.rayAnswer.normal,ray.origine);
