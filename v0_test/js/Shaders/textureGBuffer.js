@@ -16,10 +16,11 @@ class TextureGBuffer extends ShaderRenderer {
      * @param {number} width  la résolution horizontale du rendu en nombre de pixel.
      * @param {number} height la résolution verticale du rendu en nombre de pixel.
      */
-    constructor(shaderProgram, width, height) {
+    constructor(shaderProgram, width, height, readDepthof) {
         super(shaderProgram);
 
         this.renderingMode = RenderingMode.scene;
+        this.readDepthof = readDepthof;
 
         this.shaderProgram.setUniform("uModelMatrix",      valType.Mat4fv);
         this.shaderProgram.setUniform("uViewMatrix",       valType.Mat4fv);
@@ -40,6 +41,13 @@ class TextureGBuffer extends ShaderRenderer {
     /** @inheritdoc*/
     usePreviousResult(shaderResults) {
         // On n'utilise pas de précédent résultat.
+
+        this.framebuffer.use();
+        this.framebuffer.clearColorAndDepth();
+        
+        if (this.readDepthof != undefined) {
+            this.framebuffer.copyBitsOf(shaderResults.get(this.readDepthof).getFramebuffer(), gl.DEPTH_BUFFER_BIT);
+        }
     }
 
     /** @inheritdoc*/
@@ -56,7 +64,6 @@ class TextureGBuffer extends ShaderRenderer {
         this.camera = scene.camera;
         
         this.framebuffer.use();
-        this.framebuffer.clearColorAndDepth();
 
         this.shaderProgram.use();
 

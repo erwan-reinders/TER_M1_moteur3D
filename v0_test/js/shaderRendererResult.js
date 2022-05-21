@@ -21,6 +21,14 @@ class ShaderRendererResult {
     }
 
     /**
+     * Permet d'obtenir la texture de profondeur du résultat.
+     * @returns {WebGLTexture} La texture du résultat.
+     */
+    getDepth() {
+        return this.shaderRenderer.framebuffer.rboDepth;
+    }
+
+    /**
      * Permet d'obtenir la caméra utilisé pour le rendu.
      * @returns {Camera} La caméra du rendu.
      */

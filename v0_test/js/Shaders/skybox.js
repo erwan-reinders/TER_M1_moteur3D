@@ -12,17 +12,18 @@
     /**
      * Construit le faiseur de rendu permettant de dessiner la texture de skybox.
      * @inheritdoc
-     * @param {string} textureReadName Le nom de la texture d'entrée.
      * @param {Cubemap} cubemapObject La cubemap à afficher.
      * @param {number} width  la résolution horizontale du rendu en nombre de pixel.
+     * @param {string} textureReadDepthName Le nom de la texture auquelle on vas lire les valeurs de profondeurs.
      * @param {number} height la résolution verticale du rendu en nombre de pixel.
      */
-    constructor(shaderProgram, cubemapObject, width, height) {
+    constructor(shaderProgram, cubemapObject, textureReadDepthName, width, height) {
         super(shaderProgram);
 
         this.renderingMode = RenderingMode.cube;
 
         this.cubemap = cubemapObject;
+        this.textureReadDepthName = textureReadDepthName;
         
         this.shaderProgram.use();
 
@@ -43,7 +44,9 @@
 
         this.framebuffer.use();
         this.framebuffer.clearColorAndDepth();
-        this.framebuffer.copyBitsOf(shaderResults.get("Position").getFramebuffer(), gl.DEPTH_BUFFER_BIT);
+        if (this.textureReadDepthName != undefined) {
+            this.framebuffer.copyBitsOf(shaderResults.get(this.textureReadDepthName).getFramebuffer(), gl.DEPTH_BUFFER_BIT);
+        }
     }
 
     /** @inheritdoc*/

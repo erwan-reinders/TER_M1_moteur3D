@@ -2,21 +2,10 @@
 /**
  * Pour la création de l'interface.
  */
-let rendering_options = document.getElementById("options_list");
-let currentContainer = rendering_options;
-let options_title = document.getElementById("options_title");
-
-function toggleDisplayOnElement(el) {
-    if (el.style.display != "block") {
-        el.style.display = "block";
-    }
-    else {
-        el.style.display = "none";
-    }
-}
-options_title.onclick = function() {
-    toggleDisplayOnElement(rendering_options);
-};
+let rendering_options;
+let currentContainer;
+let options_title;
+let stats = new Array();
 
 let CSS_TAG = {
     vec: ["vec2", "vec3", "vec4"],
@@ -32,6 +21,28 @@ let color_txt = ["r", "g", "b", "a"];
 let default_step = 0.1;
 let default_val_min = 0;
 let default_val_max = 1.0;
+
+function initUi() {
+    rendering_options = document.getElementById("options_list");
+    currentContainer = rendering_options;
+    options_title = document.getElementById("options_title");
+    options_title.onclick = function() {
+        toggleDisplayOnElement(rendering_options);
+    };
+}
+
+/**
+ * Modifie l'élement pour le cacher si il est visible ou le rendre visible si il est caché.
+ * @param {Element} el L'élement à modifier.
+ */
+function toggleDisplayOnElement(el) {
+    if (el.style.display != "block") {
+        el.style.display = "block";
+    }
+    else {
+        el.style.display = "none";
+    }
+}
 
 
 /**
@@ -149,7 +160,7 @@ function createVecN_UI(elem, obj, name, vecN, step = default_step, color = false
  * @param {number} step Le pas du slider.
  */
 function createValueSlider_UI(elem, obj, name, val_min = default_val_min, val_max = default_val_max, step = default_step){
-    let wrapper = create_wrapper_UI(name,CSS_TAG.number);
+    let wrapper = create_wrapper_UI(name, CSS_TAG.number);
 
     let span = document.createElement("span");
     span.classList.add(CSS_TAG.sliderdescription);
@@ -242,12 +253,23 @@ function createSeparateurInside(name, elementType = "h2") {
     currentContainer = newContainer;
 }
 
+/**
+ * Ferme le séparateur courrant. On se retrouve dans la balise du parent.
+ */
 function endSeparateur() {
     if (currentContainer != rendering_options) {
         currentContainer = currentContainer.parentElement;
     }
 }
 
+/**
+ * Remet le séparateur dans la balise racine.
+ */
 function resetSeparateur() {
     currentContainer = rendering_options;
+}
+
+
+function fetchStat(id) {
+    stats[id] = document.getElementById(id);
 }

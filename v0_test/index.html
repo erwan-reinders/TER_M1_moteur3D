@@ -44,11 +44,13 @@
     <script type="text/javascript" src="js/controller.js"></script>
     
     <script type="text/javascript" src="js/Shaders/chainRenderer.js"></script>
+    <script type="text/javascript" src="js/Shaders/GBuffer.js"></script>
     <script type="text/javascript" src="js/Shaders/textureGBuffer.js"></script>
     <script type="text/javascript" src="js/Shaders/applyToScreen.js"></script>
     <script type="text/javascript" src="js/Shaders/blinnPhong.js"></script>
     <script type="text/javascript" src="js/Shaders/blinnPhongAllLight.js"></script>
     <script type="text/javascript" src="js/Shaders/fusion.js"></script>
+    <script type="text/javascript" src="js/Shaders/fusionDepth.js"></script>
     <script type="text/javascript" src="js/Shaders/gammaCorrection.js"></script>
     <script type="text/javascript" src="js/Shaders/exposure.js"></script>
     <script type="text/javascript" src="js/Shaders/skybox.js"></script>
@@ -58,6 +60,7 @@
     <script type="text/javascript" src="js/Shaders/extractColorByBrigthness.js"></script>
     <script type="text/javascript" src="js/Shaders/gaussianBlur.js"></script>
     <script type="text/javascript" src="js/Shaders/ssao.js"></script>
+    <script type="text/javascript" src="js/Shaders/cubeMapReflexion.js"></script>
     <script type="text/javascript" src="js/Shaders/colliderShader.js"></script>
 
     <script type="text/javascript" src="js/Builders/sceneBuilder.js"></script>
@@ -76,6 +79,10 @@
         <div id="options_list"></div>
     </div>
 
+    <div id="stats">
+        <div class="stat_element">fps : <span id="fps">0</span></div>
+    </div>
+
     <script type="text/javascript" defer>
 
         let updateRender = true;
@@ -90,10 +97,10 @@
 
         function init(){
             message.informative("INITIALISATION", "initialisation of the scene");
+            initUi();
             initGl("webglcanvas");
 
-            //buildScenes();
-            picking_test();
+            buildScenes();
 
             buildShaders();
             buildPipelines();
@@ -102,8 +109,8 @@
         function main() {
             init();
 
-            controler = new Controller(scenes[currentScene]);
-            controler_ray = new PickingController(scenes[currentScene]);
+            controler = new Controller();
+            controler_ray = new PickingController();
 
             document.addEventListener('keydown', onKeyDown);
             document.addEventListener('keyup', onKeyUp);
@@ -111,6 +118,8 @@
             document.addEventListener('wheel', onWheel);
             document.addEventListener('mousedown', onMouseDown);
             document.addEventListener('mouseup', onMouseUp);
+
+            fetchStat("fps");
 
             requestAnimationFrame(frame);
         }
@@ -139,10 +148,15 @@
 
         function frame(time) {
             deltaTime = time - previousTime;
+            deltaTime *= 0.001;
             previousTime = time;
-
+            
             controler.processInput();
             if (updateRender) {
+                const newDeltaTime = parseInt(1.0 / deltaTime);
+                if (Math.abs(newDeltaTime - stats["fps"].innerHTML) > 2) {
+                    stats["fps"].innerHTML = newDeltaTime;
+                }
                 scenes[currentScene].update();
                 pipelines[currentPipeline].render(scenes[currentScene]);
             }

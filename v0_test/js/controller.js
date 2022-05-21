@@ -19,12 +19,10 @@ class Controller {
 
     /**
      * Construit le controleur.
-     * @param {Scene} scene La scene que l'on vas modifier.
      */
-    constructor(scene) {
+    constructor() {
         this.keyControls    = new Map();
         this.mouseControls  = new Map();
-        this.scene = scene;
         this.initControls();
 
         this.previousMouseX = 0.0;
@@ -72,8 +70,16 @@ class Controller {
                 currentPipeline = 0;
             }
         }
+        if (event.key == "Backspace") {
+            currentScene++;
+            if (currentScene >= scenes.length) {
+                currentScene = 0;
+            }
+        }
         if (event.key == "o") {
         }
+
+        //console.log(event.key);
     }
 
     /**
@@ -167,7 +173,7 @@ class Controller {
         let x = this.radius * Math.cos(this.azimuth) * Math.cos(this.zenith);
         let y = this.radius * Math.sin(this.zenith);
         let z = this.radius * Math.sin(this.azimuth) * Math.cos(this.zenith);
-        this.scene.camera.position = vec3.fromValues(x, y, z);
+        scenes[currentScene].camera.position = vec3.fromValues(x, y, z);
 
         this.mouseDiffX = 0.0;
         this.mouseDiffY = 0.0;
