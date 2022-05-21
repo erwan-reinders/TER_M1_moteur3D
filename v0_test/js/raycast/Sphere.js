@@ -8,14 +8,17 @@ class Sphere extends Collider{
         this.rayon  = rayon ;
 
         this.position   = vec3.create();
+        this.type = colliderType.SPHERE;
+
+        this.dimension = vec3.clone([rayon,rayon,rayon]);
     }
 
     static fromObject(t, in_vertices) {
-        let tmpPosition = vec3.create();
-        let tmpRadius = 0;
+        let tmpPosition = vec3.clone([0,0,0]);
+        let tmpVertexPos;
+        let vertexPos;
+        let tmpRadius   = 0;
 
-        let tmpVertexPos = vec3.create();
-        let vertexPos = vec3.create();
         for (let i = 0, size = in_vertices.length; i < size; i+=3) {
             tmpVertexPos = vec3.clone([
                 in_vertices[i],
@@ -23,11 +26,11 @@ class Sphere extends Collider{
                 in_vertices[i+2],
             ]);
 
-
-            vertexPos = multVec3Mat3(vec3.clone([
-                    tmpVertexPos[0] * t[0],
-                    tmpVertexPos[1] * t[5],
-                    tmpVertexPos[2] * t[10],
+            vertexPos = multVec3Mat3(
+                vec3.clone([
+                    tmpVertexPos[0],
+                    tmpVertexPos[1],
+                    tmpVertexPos[2],
                 ]),
                 mat3.clone([
                     t[0], t[1], t[2],
@@ -37,15 +40,20 @@ class Sphere extends Collider{
             );
             tmpPosition = vec3.add([], vertexPos, tmpPosition);
         }
-        tmpPosition = vec3.scale([], tmpPosition, in_vertices.length);
+        tmpPosition = vec3.scale([], tmpPosition, 1/in_vertices.length);
 
-        for (let i = 0, size = in_vertices.length; i < size; i++) {
-            tmpVertexPos = in_vertices[i];
+        for (let i = 0, size = in_vertices.length; i < size; i+=3) {
+            tmpVertexPos = vec3.clone([
+                in_vertices[i],
+                in_vertices[i+1],
+                in_vertices[i+2],
+            ]);
 
-            vertexPos = multVec3Mat3(vec3.clone([
-                    tmpVertexPos[0] * t[0],
-                    tmpVertexPos[1] * t[5],
-                    tmpVertexPos[2] * t[10],
+            vertexPos = multVec3Mat3(
+                vec3.clone([
+                    tmpVertexPos[0],
+                    tmpVertexPos[1],
+                    tmpVertexPos[2],
                 ]),
                 mat3.clone([
                     t[0], t[1], t[2],
@@ -53,16 +61,15 @@ class Sphere extends Collider{
                     t[8], t[9], t[10]]
                 )
             );
+
             tmpRadius = Math.max(tmpRadius, vec3.distance(tmpPosition, vertexPos));
         }
-
         return new Sphere(tmpPosition,tmpRadius);
     }
 
     doesIntersectRayon(rayon) {
-        let outResult = {};
         let e   = vec3.subtract([], this.position, rayon.origine);
-        let rSq = vec3.scale([], this.rayon, this.rayon);
+        let rSq = this.rayon* this.rayon;
         let eSq = vec3.dot(e, e);
         let a   = vec3.dot(e, rayon.direction);
         let bSq = eSq - (a * a);
@@ -71,16 +78,15 @@ class Sphere extends Collider{
 
         // Pas de collisions
         if (rSq - (eSq - a * a) < 0.0) {
-            return undefined;
+            return;
         } else if (eSq < rSq) {    // Rayon dans la sphère
             t = a + f;
         }
 
-        outResult.t         = t;
-        outResult.hit       = true;
-        outResult.point     = rayon.origine + rayon.direction * t;
-        outResult.normal    = vec3.normalize([], vec3.subtract([],outResult.point,this.position));
-        return outResult;
+        this.rayAnswer.t         = t;
+        this.rayAnswer.hit       = true;
+        this.rayAnswer.point     = vec3.add([],rayon.origine, vec3.scale([],rayon.direction, t));
+        this.rayAnswer.normal    = vec3.normalize([], vec3.subtract([],this.rayAnswer.point,this.position));
     }
 
     isPointOn(point) {
@@ -102,6 +108,6 @@ class Sphere extends Collider{
 
     transform(transformation) {
         //On applique que la translation
-        this.position = vec3.add([],this.position,vec3.clone(transformation[13],transformation[14],transformation[15]));
+        this.position = vec3.add([],this.center,vec3.clone([transformation[12],transformation[13],transformation[14]]));
     }
 }

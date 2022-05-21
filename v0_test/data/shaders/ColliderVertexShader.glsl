@@ -11,7 +11,7 @@ uniform mat4 uProjectionMatrix;
 uniform vec3 uSize;
 
 void main(){
-    //gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aVertexPosition * uSize, 1.0);
+    gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aVertexPosition * uSize, 1.0);
     //gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aVertexPosition * 2.0, 1.0);
-    gl_Position = uProjectionMatrix * uViewMatrix * vec4(aVertexPosition * 3.0, 1.0);
+    //gl_Position = uProjectionMatrix * uViewMatrix * vec4(aVertexPosition * 3.0, 1.0);
 }

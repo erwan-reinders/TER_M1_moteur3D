@@ -188,16 +188,18 @@ function picking_test(){
     //Texture
     m = new Model(cube());
     m.matrix.modelMatrix = mat4.clone(
-        [2, 0, 0, 0,
-        0, 2, 0, 0,
-        0, 0, 2, 0,
-        0, 0, -2, 1]
+        [10, 0, 0, 0,
+            0, 2, 0, 0,
+            0, 0, 2, 0,
+            0, 0, -2, 1]
     )
     m.diffuseTexture    = getTextureImage("data/img/chouette.png");
     m.specularTexture   = getTextureImage("data/img/white.png");
     m.specularFactor    = 16.0;
 
     m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+    //m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+    //m.collider = OBB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
     console.log(m);
     scene.addModel(m);
 
