@@ -27,10 +27,13 @@ class Ray {
         let pNear   = unproject(nearPoint, viewportOrigin, viewportSize, view, projection);
         let pFar    = unproject(farPoint, viewportOrigin, viewportSize, view, projection);
 
+        console.log("==============");
         console.log("UNPROJECT");
         console.log(pNear);
         console.log(pFar);
-
+        console.log("UNPROJECT END");
+        console.log(this);
+        console.log("==============");
 
         let normal = vec3.normalize([], vec3.subtract([], pFar, pNear));
         this.origine = pNear;

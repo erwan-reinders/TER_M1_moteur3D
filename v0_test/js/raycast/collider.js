@@ -7,6 +7,23 @@ class Collider {
         if(this.constructor === Collider){
             throw new Error("On ne peut pas construire de collider comme ca !");
         }
+
+        this.drawn = false;
+
+        this.rayAnswer = {
+            hit : false,
+            t : Number.MAX_VALUE,
+            point : undefined,
+            normal : undefined,
+        }
+    }
+
+    /**Fonction permettant de reset la réponse d'intersection avec le rayon**/
+    resetRayIntersection(){
+        this.rayAnswer.hit      = false;
+        this.rayAnswer.t        = Number.MAX_VALUE;
+        this.rayAnswer.point    = undefined;
+        this.rayAnswer.normal   = undefined;
     }
 
     /**
