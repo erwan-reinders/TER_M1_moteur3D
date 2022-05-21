@@ -40,7 +40,9 @@ class ShaderPipeline {
     render(scene) {
         this.shaderRenderers.forEach(shaderRenderer => {
             shaderRenderer.usePreviousResult(this.shaderRendererResults);
-            shaderRenderer.render(scene).forEach(result => this.setResult(result.name, result));
+            shaderRenderer.render(scene).forEach(
+                result => this.setResult(result.name, result)
+            );
         });
     }
 }

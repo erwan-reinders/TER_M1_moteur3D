@@ -38,7 +38,6 @@ class ApplyToScreen extends ShaderRenderer {
     /** @inheritdoc*/
     usePreviousResult(shaderResults) {
         this.shaderProgram.use();
-
         this.shaderProgram.setUniformValueByName("inputColor", 0, shaderResults.get(this.textureToApplyName).getTexture());
     }
 

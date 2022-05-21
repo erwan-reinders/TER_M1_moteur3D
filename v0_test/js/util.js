@@ -339,11 +339,11 @@ function getCubeMapImage(srcs, silence = false) {
  * @param {Float32Array} v2 second vecteur
  **/
 function minVec3(v1, v2){
-    return vec3.clone(
+    return vec3.clone([
         ((v1[0] < v2[0]) ? v1[0] : v2[0]),
         ((v1[1] < v2[1]) ? v1[1] : v2[1]),
         ((v1[2] < v2[2]) ? v1[2] : v2[2])
-    );
+    ]);
 }
 
 /**
@@ -352,11 +352,11 @@ function minVec3(v1, v2){
  * @param {Float32Array} v2 second vecteur
  **/
 function maxVec3(v1, v2) {
-    return vec3.clone(
+    return vec3.clone([
         ((v1[0] > v2[0]) ? v1[0] : v2[0]),
         ((v1[1] > v2[1]) ? v1[1] : v2[1]),
         ((v1[2] > v2[2]) ? v1[2] : v2[2])
-    );
+    ]);
 }
 
 

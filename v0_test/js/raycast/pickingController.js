@@ -45,13 +45,21 @@ class PickingController {
         //On teste ensuite pour tous les éléments possédant un collider
         for (let el of this.scene.models){
             if(el.collider){
+                el.collider.resetRayIntersection();
                 //On peut donc lancer un rayon et déterminer le point d'impact
                 let collision = el.collider.doesIntersectRayon(ray);
                 if(collision && collision.hit){
+
                     console.log("==== ON A TOUCHE UN ELEMENT DE LA SCENE ====");
                     console.log(collision);
                     console.log(ray);
                     console.log(el.collider);
+
+                    el.collider.rayAnswer.hit       = collision.hit;
+                    el.collider.rayAnswer.t         = collision.t;
+                    el.collider.rayAnswer.normal    = collision.normal;
+                    el.collider.rayAnswer.point     = collision.point;
+
                     console.log("============================================");
 
                     let objectT = collision.t;
@@ -66,6 +74,10 @@ class PickingController {
                 }
             }
         }
+
+        console.log("PLUS PROCHE : ");
+        console.log(obj);
+        if(obj) obj.collider.drawn = true;
     }
 
 

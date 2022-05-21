@@ -24,6 +24,8 @@ class Collider {
         this.rayAnswer.t        = Number.MAX_VALUE;
         this.rayAnswer.point    = undefined;
         this.rayAnswer.normal   = undefined;
+
+        this.drawn = false;
     }
 
     /**

@@ -10,8 +10,8 @@ class AABB extends Collider{
         this.center = center;
         this.size   = size;
 
-        this.dimension  = vec3.create();
-        this.position   = vec3.create();
+        this.dimension  = vec3.create(0);
+        this.position   = vec3.create(0);
 
         this.verticesUnitCube = [
             [-1, -1, 1],
@@ -23,6 +23,8 @@ class AABB extends Collider{
             [-1, 1, -1],
             [1, 1, -1]
         ];
+
+        this.test = true;
     }
 
     static fromObject(t, in_vertices) {
@@ -99,14 +101,19 @@ class AABB extends Collider{
 
     getAccurateMinMax(){
         return {
-            min : -this.dimension/2,
-            max : this.dimension/2,
+            min : vec3.scale([],this.dimension, -.5),
+            max : vec3.scale([], this.dimension, .5),
         }
     }
 
     doesIntersectRayon(rayon) {
         let outResult = {};
         let dim = this.getAccurateMinMax();
+
+        console.log("INTERSECT AABB ?");
+        console.log(rayon);
+        console.log("ACCURATE DIMENSIONS");
+        console.log(dim);
 
         let t1 = (dim.min[0] - rayon.origine[0]) / (compareWithEpsilon(rayon.direction[0], 0.0) ? 0.00001 : rayon.direction[0]);
         let t2 = (dim.max[0] - rayon.origine[0]) / (compareWithEpsilon(rayon.direction[0], 0.0) ? 0.00001 : rayon.direction[0]);
@@ -203,78 +210,115 @@ class AABB extends Collider{
     }
 
     transform(transformation) {
-        let v1 = vec3.scale([], vec3.clone([transformation[0],transformation[1],transformation[2]]),this.size[0]);
-        let v2 = vec3.scale([], vec3.clone([transformation[4],transformation[5],transformation[6]]),this.size[1]);
-        let v3 = vec3.scale([], vec3.clone([transformation[8],transformation[9],transformation[10]]),this.size[2]);
+        //if(this.test) {
+        //    console.log("TRANSFORM COLLIDER !");
+        //    console.log(transformation);
+        //}
+
+        let v1 = vec3.scale([], vec3.clone([transformation[0],transformation[1],transformation[2]])     ,this.size[0]);
+        let v2 = vec3.scale([], vec3.clone([transformation[4],transformation[5],transformation[6]])     ,this.size[1]);
+        let v3 = vec3.scale([], vec3.clone([transformation[8],transformation[9],transformation[10]])    ,this.size[2]);
+
+        //if(this.test) {
+        //    console.log(v1);
+        //    console.log(v2);
+        //    console.log(v3);
+        //    console.log(this.verticesUnitCube);
+        //}
+
 
         let min = vec3.add(
             [],
             vec3.scale(
                 [],
-                this.verticesUnitCube[0][0],
-                v1
+                v1,
+                this.verticesUnitCube[0][0]
             ),
             vec3.add(
+                [],
                 vec3.scale(
                     [],
-                    this.verticesUnitCube[0][1],
-                    v2
+                    v2,
+                    this.verticesUnitCube[0][1]
                 ),
                 vec3.scale(
                     [],
-                    this.verticesUnitCube[0][2],
-                    v2
+                    v3,
+                    this.verticesUnitCube[0][2]
                 )
             )
         );
+        //if(this.test) console.log(min);
 
         let max = vec3.add(
             [],
             vec3.scale(
                 [],
-                this.verticesUnitCube[0][0],
-                v1
+                v1,
+                this.verticesUnitCube[0][0]
             ),
             vec3.add(
+                [],
                 vec3.scale(
                     [],
-                    this.verticesUnitCube[0][1],
-                    v2
+                    v2,
+                    this.verticesUnitCube[0][1]
                 ),
                 vec3.scale(
                     [],
-                    this.verticesUnitCube[0][2],
-                    v2
+                    v3,
+                    this.verticesUnitCube[0][2]
                 )
             )
         );
+        //if(this.test) console.log(max);
+
+
         for (let i = 1; i < 8; i++){
             let vertex = vec3.add(
                 [],
                 vec3.scale(
                     [],
-                    this.verticesUnitCube[i][0],
-                    v1
+                    v1,
+                    this.verticesUnitCube[i][0]
                 ),
                 vec3.add(
+                    [],
                     vec3.scale(
                         [],
-                        this.verticesUnitCube[i][1],
-                        v2
+                        v2,
+                        this.verticesUnitCube[i][1]
                     ),
                     vec3.scale(
                         [],
-                        this.verticesUnitCube[i][2],
-                        v2
+                        v3,
+                        this.verticesUnitCube[i][2]
                     )
                 )
             );
 
+            //if(this.test) {
+            //    console.log("CURRENTLY TESTING");
+            //    console.log(vertex);
+            //}
             min = minVec3(vertex,min);
             max = maxVec3(vertex,max);
         }
-
-        this.dimension = (max - min)/2.0;
-        this.position = vec3.add([],this.position,vec3.clone([transformation[13],transformation[14],transformation[15]]));
+        //if(this.test) {
+        //    console.log("======= END OF TRANSFROM =======");
+        //    console.log(min);
+        //    console.log(max);
+        //}
+        this.dimension = vec3.scale([], vec3.subtract([], max,min), .5);
+        //if(this.test) {
+        //    console.log("xp : " + transformation[12]);
+        //    console.log("yp : " + transformation[13]);
+        //    console.log("zp : " + transformation[14]);
+        //}
+        this.position = vec3.add([],this.center,vec3.clone([transformation[12],transformation[13],transformation[14]]));
+        //if(this.test) {
+        //    console.log(this);
+        //}
+        //this.test = false;
     }
 }

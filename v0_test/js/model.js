@@ -62,7 +62,7 @@ class Model {
     /**
      * Fait un rendu du modèle
      */
-    render(){        
+    render(mode = gl.TRIANGLES){
         gl.bindVertexArray(this.model.vao);
 
         gl.enableVertexAttribArray(0);
@@ -70,7 +70,7 @@ class Model {
         gl.enableVertexAttribArray(2);
 
         //             (mode        , count           , type             , offset)
-        gl.drawElements(gl.TRIANGLES, this.model.count, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(mode, this.model.count, gl.UNSIGNED_SHORT, 0);
 
         gl.disableVertexAttribArray(0);
         gl.disableVertexAttribArray(1);
@@ -82,6 +82,10 @@ class Model {
      */
     update() {
         this.updateNormalMatrix();
+
+        if(this.collider){
+            this.collider.transform(this.matrix.modelMatrix);
+        }
     }
 
     /**
