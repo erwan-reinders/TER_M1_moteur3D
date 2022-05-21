@@ -78,9 +78,16 @@ class Model {
     }
 
     /**
-     * Met à jour le modèle
+     * Met à jour le modèle.
      */
     update() {
+        this.masterUpdate();
+    }
+
+    /**
+     * Comportement de base de mise à jour.
+     */
+    masterUpdate() {
         this.updateNormalMatrix();
         if(this.collider){
             this.collider.transform(this.matrix.modelMatrix);

@@ -200,7 +200,7 @@ function picking_test(){
 
     //m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
     //m.collider = OBB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
-    console.log(m);
+    //console.log(m);
     scene.addModel(m);
 
     scene.addLight(new Light([-10.0, 50.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
@@ -227,6 +227,9 @@ function buildScenes() {
     m.diffuseTexture = getTextureImage("data/img/chouette.png");
     m.specularTexture = getTextureImage("data/img/baboon.png");
     m.specularFactor = 16.0;
+
+    m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+
     scene.addModel(m);
 
 
@@ -243,6 +246,9 @@ function buildScenes() {
     m.diffuseFactor = vec3.multiply([], [0.76, 0.69, 0.48], [factor, factor, factor]);
     m.specularTexture = getTextureImage("data/img/white.png");
     m.specularFactor = 8.0;
+
+    m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+
     scene.addModel(m);
 
     //MAGENTA
@@ -267,10 +273,7 @@ function buildScenes() {
         let z = Math.sin(this.rotationAzimuth) * Math.cos(this.rotationZenith);
         mat4.rotate(this.matrix.modelMatrix, this.matrix.modelMatrix, 0.02, [x, y, z]);
 
-        this.updateNormalMatrix();
-        if(this.collider){
-            this.collider.transform(this.matrix.modelMatrix);
-        }
+        this.masterUpdate();
     }
     m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
     scene.addModel(m);
@@ -318,30 +321,54 @@ function buildScenes() {
     let lights = [
         new Light([ 2.0,  3.0,   1.0],  [0.3, 0.7, 0.9]),
         new Light([-5.0,  5.0,  -2.0],  [0.9, 0.7, 0.3], 0.4, 0.1),
-        new Light([-10.0, 50.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001)
+        new Light([-10.0, 10.0, -10.0], [1.0, 1.0, 1.0], 0.04, 0.004)
     ]
     createSeparateur("Lights");
+    let lightScale = 0.3;
     for (let i = 0; i < lights.length; i++) {
+        m = new Model(uvSphere());
+        m.matrix.modelMatrix = mat4.clone(
+            [lightScale, 0, 0, 0,
+            0, lightScale, 0, 0,
+            0, 0, lightScale, 0,
+            lights[i].position[0], lights[i].position[1], lights[i].position[2], 1]
+        )
+        m.diffuseTexture = getTextureImage("data/img/white.png");
+        m.diffuseFactorValue = 10.0 - 4.0 * lights[i].linear - 8.0 * lights[i].quadratic;
+        m.diffuseFactor = vec3.multiply([], lights[i].color, [m.diffuseFactorValue, m.diffuseFactorValue, m.diffuseFactorValue]);
+        m.specularTexture = getTextureImage("data/img/white.png");
+        m.specularFactor = 0.0;
+        m.invisibleDepth = true;
+        //m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+        //m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+        m.collider = new Sphere(vec3.clone([0.0, 0.0, 0.0]), lightScale * 2.0);
+        m.attachedLight = lights[i];
+        m.update = function() {
+            this.attachedLight.position = vec3.clone([this.matrix.modelMatrix[12], this.matrix.modelMatrix[13], this.matrix.modelMatrix[14]]);
+            this.diffuseFactorValue = 10.0 - 4.0 * this.attachedLight.linear - 8.0 * this.attachedLight.quadratic;
+            this.diffuseFactor = vec3.multiply([], this.attachedLight.color, [this.diffuseFactorValue, this.diffuseFactorValue, this.diffuseFactorValue]);
+
+            this.masterUpdate();
+        }
+        scene.addModel(m);
+
         createSeparateurInside("Light number " + i, "h3");
         let lightsUiHandler = {
             index : i,
 
-            position :  lights[i].position,
             color :     lights[i].color,
             linear :    lights[i].linear,
             quadratic : lights[i].quadratic,
 
             onUiChange : function() {
-                lights[this.index].position  = this.position;
                 lights[this.index].color     = this.color;
                 lights[this.index].linear    = this.linear;
                 lights[this.index].quadratic = this.quadratic;
             }
         }
-        createVecN_UI("position",   lightsUiHandler, "Position ",              3);
         createVecN_UI("color",      lightsUiHandler, "Color ",                 3, undefined, true);
-        createValue_UI("linear",    lightsUiHandler, "Linear attenuation ");
-        createValue_UI("quadratic", lightsUiHandler, "Quadratic attenuation ");
+        createValue_UI("linear",    lightsUiHandler, "Linear attenuation ", 0.1);
+        createValue_UI("quadratic", lightsUiHandler, "Quadratic attenuation ", 0.05);
         endSeparateur();
     }
     lights.forEach(l => scene.addLight(l));

@@ -64,7 +64,7 @@ class Sphere extends Collider{
 
             tmpRadius = Math.max(tmpRadius, vec3.distance(tmpPosition, vertexPos));
         }
-        return new Sphere(tmpPosition,tmpRadius);
+        return new Sphere(tmpPosition, tmpRadius);
     }
 
     doesIntersectRayon(rayon) {
