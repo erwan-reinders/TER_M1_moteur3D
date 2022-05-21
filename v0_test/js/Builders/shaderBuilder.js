@@ -32,6 +32,8 @@ function buildShaders() {
     shaders.set("skybox", new ShaderProgram("VPFragCoordVertexShader.glsl", "skybox.glsl"));
 
 
+    shaders.set("forwardCollider", new ShaderProgram("ColliderVertexShader.glsl", "ColliderFragmentShader.glsl"));
+
     return shaders;
 
     /*

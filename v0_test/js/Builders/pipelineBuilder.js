@@ -8,6 +8,9 @@ function buildPipelines() {
 
 
 function buildDefaultPipelines() {
+    //==================================================================================================
+    // SHADERS DATAs CONSTRUCTION BLINN PHONG ALL LIGHT
+    //==================================================================================================
     //For blinn phong all lights
     let depthCameraAllLights = new Camera(vec3.clone([-1.0, 5.0, -2.0]), vec3.clone([0.0, 1.0, 0.0]), vec3.clone([0.0, 0.0, 0.0]));
     depthCameraAllLights.setOrthographic();
@@ -17,7 +20,7 @@ function buildDefaultPipelines() {
 
     let shadowRendererAllLights = new Shadow(shaders.get("shadowPCFautoBias"), canvas.width, canvas.height, true);
     shadowRendererAllLights.bias = 0.0;//0.00005;
-    
+
     let chainRendererAllLights = new ChainRenderer([depthRendererAllLights, shadowRendererAllLights]);
     chainRendererAllLights.distanceFactor = 5.0;
 
@@ -49,7 +52,6 @@ function buildDefaultPipelines() {
     createValue_UI("nbPasses", gaussianRenderer, "passes", 1.0);
 
 
-    
     //For the skybox
     let skybox = getCubeMapImage([
         "data/img/skybox/right.jpg",
@@ -95,8 +97,11 @@ function buildDefaultPipelines() {
         blurVal, blurVal, blurVal, blurVal
     ]);
 
-    let firstPipeline = new ShaderPipeline();
 
+    //==================================================================================================
+    // FIRST PIPELINE : FROM DIFFERED DATAs TO SCREEN RESULT
+    //==================================================================================================
+    let firstPipeline = new ShaderPipeline();
     //GPass
     firstPipeline.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", undefined, canvas.width, canvas.height));
     firstPipeline.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height, "ReflexionPosition"));
@@ -120,15 +125,18 @@ function buildDefaultPipelines() {
     //Post effects
     firstPipeline.addShader(exposureRenderer);
     firstPipeline.addShader(gammaCorrectionRenderer);
-    
+
     //Render
     firstPipeline.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
+
+    //Collider intersection
+    firstPipeline.addShader(new ColliderShader(shaders.get("forwardCollider")));
     pipelines.push(firstPipeline);
 
 
-
-
-
+    //==================================================================================================
+    // DEFAULT PIPELINE STRUCTURE
+    //==================================================================================================
     let defalutPipeline = new ShaderPipeline();
 
     //GPass
@@ -159,30 +167,31 @@ function buildDefaultPipelines() {
     defalutPipeline.addShader(gammaCorrectionRenderer);
 
 
-    
-
-
+    //==================================================================================================
+    // ADD A DEFAULT PIPELINE WITH A SCREEN RENDERING : ONE BLINNPHONG COMPUTATION
+    //==================================================================================================
     let p = new ShaderPipeline();
 
     defalutPipeline.shaderRenderers.forEach(shaderRenderer => {
         p.addShader(shaderRenderer);
     });
-    
+
     //Render
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
     pipelines.push(p);
 
 
 
-
+    //==================================================================================================
+    // ADD A DEFAULT PIPELINE WITH ALL STEPS RENDERING
+    //==================================================================================================
     //Same but with preview of the different steps
-
     p = new ShaderPipeline();
 
     defalutPipeline.shaderRenderers.forEach(shaderRenderer => {
         p.addShader(shaderRenderer);
     });
-    
+
     //Render
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final"));
     let nb = 6.0;

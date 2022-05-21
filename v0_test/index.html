@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>TER M1</title>
 
     <!-- ==================== FONT ==================== -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
@@ -22,6 +22,14 @@
     <script type="text/javascript" src="js/util.js" defer></script>
     <script type="text/javascript" src="js/util_ui.js" defer ></script>
     <script type="text/javascript" src="js/framebuffer.js" ></script>
+
+    <script type="text/javascript" src="js/raycast/line.js" ></script>
+    <script type="text/javascript" src="js/raycast/ray.js" ></script>
+    <script type="text/javascript" src="js/raycast/collider.js" ></script>
+    <script type="text/javascript" src="js/raycast/AABB.js" ></script>
+    <script type="text/javascript" src="js/raycast/Sphere.js" ></script>
+    <script type="text/javascript" src="js/raycast/OBB.js" ></script>
+    <script type="text/javascript" src="js/raycast/pickingController.js" ></script>
     <!--
     <script type="text/javascript" src="js/texture.js" ></script>
     -->
@@ -53,6 +61,7 @@
     <script type="text/javascript" src="js/Shaders/gaussianBlur.js"></script>
     <script type="text/javascript" src="js/Shaders/ssao.js"></script>
     <script type="text/javascript" src="js/Shaders/cubeMapReflexion.js"></script>
+    <script type="text/javascript" src="js/Shaders/colliderShader.js"></script>
 
     <script type="text/javascript" src="js/Builders/sceneBuilder.js"></script>
     <script type="text/javascript" src="js/Builders/shaderBuilder.js"></script>
@@ -81,6 +90,7 @@
         let currentPipeline = 0;
 
         let controler;
+        let controler_ray;
 
         let previousTime = 0;
         let deltaTime = 0.01;
@@ -90,7 +100,9 @@
             initUi();
             initGl("webglcanvas");
 
-            buildScenes();
+            //buildScenes();
+            picking_test();
+
             buildShaders();
             buildPipelines();
         }
@@ -99,6 +111,8 @@
             init();
 
             controler = new Controller(scenes[currentScene]);
+            controler_ray = new PickingController(scenes[currentScene]);
+
             document.addEventListener('keydown', onKeyDown);
             document.addEventListener('keyup', onKeyUp);
             document.addEventListener('mousemove', onMouseMove);
@@ -119,15 +133,18 @@
         }
         function onMouseMove(event) {
             controler.onMouseMove(event);
+            controler_ray.onMouseMove(event);
         }
         function onWheel(event) {
             controler.onWheel(event);
         }
         function onMouseDown(event) {
             controler.onMouseDown(event);
+            controler_ray.onMouseDown(event);
         }
         function onMouseUp(event) {
             controler.onMouseUp(event);
+            controler_ray.onMouseUp(event);
         }
 
         function frame(time) {
@@ -150,15 +167,6 @@
 
 
         let val = 0;
-        function test_ui(){
-            let obj = {
-                val : 0,
-                test : function () {
-                    console.log(this.val);
-                }
-            }
-            createValue_UI("val", obj, "test");
-        }
 
         window.onload = main;
     </script>

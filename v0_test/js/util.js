@@ -326,3 +326,200 @@ function getCubeMapImage(srcs, silence = false) {
     return textureObject;
 }
 
+
+/**
+ * ====================================
+ * MATH UTIL FUNCTIONS
+ * ====================================
+ **/
+
+/**
+ * Fonction permettant de récupérer le vec3 de coordonnées minimale entre deux vecteurs 3D
+ * @param {Float32Array} v1 premier vecteur
+ * @param {Float32Array} v2 second vecteur
+ **/
+function minVec3(v1, v2){
+    return vec3.clone([
+        ((v1[0] < v2[0]) ? v1[0] : v2[0]),
+        ((v1[1] < v2[1]) ? v1[1] : v2[1]),
+        ((v1[2] < v2[2]) ? v1[2] : v2[2])
+    ]);
+}
+
+/**
+ * Fonction permettant de récupérer le vec3 de coordonnées maximimale entre deux vecteurs 3D
+ * @param {Float32Array} v1 premier vecteur
+ * @param {Float32Array} v2 second vecteur
+ **/
+function maxVec3(v1, v2) {
+    return vec3.clone([
+        ((v1[0] > v2[0]) ? v1[0] : v2[0]),
+        ((v1[1] > v2[1]) ? v1[1] : v2[1]),
+        ((v1[2] > v2[2]) ? v1[2] : v2[2])
+    ]);
+}
+
+
+/**
+ * Fonction permettant de projeter un vec2 sur un autre vec2
+ * @param {Float32Array} length vecteur à projeter
+ * @param {Float32Array} direction vecteur où projeter
+ **/
+function ProjectVec2(length, direction) {
+    let dot     = vec2.dot(length, direction);
+    let magSq   = vec2.dot(direction,direction);
+    return vec2.scale([],direction,dot / magSq);
+}
+
+/**
+ * Fonction permettant de projeter un vec3 sur un autre vec3
+ * @param {Float32Array} length vecteur à projeter
+ * @param {Float32Array} direction vecteur où projeter
+ **/
+function ProjectVec3(length,direction) {
+    let dot     = vec3.dot(length, direction);
+    let magSq   = vec3.dot(direction,direction);
+    return vec3.scale([],direction,dot / magSq);
+}
+
+
+/**
+ * Fonction permettant de projeter un vec3 sur les axes formées par les colones de la matrice mat
+ * @param {Float32Array} vec vecteur à projeter
+ * @param {Float32Array} mat matrice de projection
+ **/
+function projectV3OnM3(vec, mat) {
+    let result = vec3.create();
+    result[0] = vec3.dot(vec, vec3.clone(mat[0],mat[1],mat[2]));
+    result[1] = vec3.dot(vec, vec3.clone(mat[3],mat[4],mat[5]));
+    result[2] = vec3.dot(vec, vec3.clone(mat[6],mat[7],mat[8]));
+    return result;
+}
+
+/**
+ * Fonction permettant de passer d'un angle en degré à un angle en radian
+ * @param {Number} deg angle en deg
+ **/
+function degToRad(deg) {
+    return Math.PI / 180.0 * deg;
+}
+
+/**
+ * Fonction permettant de passer d'un angle en radiant à un angle en degré
+ * @param {Number} rad angle en rad
+ **/
+function radToDeg(rad) {
+    return 180.0/Math.PI * rad;
+}
+
+/**
+ * Fonction permettant de comparer deux valeurs à un espilon près*
+ * @param {Number} f1 première valeur à comparer
+ * @param {Number} f2 seconde valeur à comparer
+**/
+function compareWithEpsilon(f1, f2) {
+    return (Math.abs(f1 - f2) <= Number.EPSILON * Math.max(1.0, Math.max(Math.abs(f1), Math.abs(f2))));
+}
+
+
+/**
+ * Fonction permettant de multiplier un vec4 par une mat4
+ * @param {Float32Array} v
+ * @param {Float32Array} m
+ **/
+function multVec4Mat4(v,m){
+    let res = vec4.create();
+    for (let i = 0; i < 4; i++) {
+        res[i] = v[0] * m[i*4] + v[1] * m[i*4+1] + v[2] * m[i*4+2] + v[3] * m[i*4+3];
+    }
+    return res;
+}
+
+/**
+ * Fonction permettant de multiplier un vec3 par une mat3
+ * @param {Float32Array} v
+ * @param {Float32Array} m
+ * **/
+function multVec3Mat3(v,m){
+    let res = vec3.create();
+    for (let i = 0; i < 3; i++) {
+        res[i] = v[0] * m[i*4] + v[1] * m[i*4+1] + v[2] * m[i*4+2] + v[3] * m[i*4+3];
+    }
+    return res;
+}
+
+/**
+ * Fonction Permettant de transformer un point d'écran en une coordonnée monde
+ * @param {Float32Array} viewportPoint vec3 point de l'écran
+ * @param {Float32Array} viewportOrigin vec2 point de début de l'écran
+ * @param {Float32Array} viewportSize vec2 taille de l'écran
+ * @param {Float32Array} view mat4 matrice de vue
+ * @param {Float32Array} projection vec4 matrice de projection
+ * **/
+function unproject(viewportPoint, viewportOrigin, viewportSize, view, projection) {
+    //1) Normaliser les coordonnées du point
+    let normalized = [
+        (viewportPoint[0] - viewportOrigin[0]) / viewportSize[0],
+        (viewportPoint[1] - viewportOrigin[1]) / viewportSize[1],
+        viewportPoint[2],
+        1.0
+    ];
+
+    //2) Passage en coordonnées NDC
+    let ndcSpace = vec4.clone([
+        normalized[0], normalized[1],
+        normalized[2], normalized[3]]
+    );
+
+    // X : -1 to 1
+    ndcSpace[0] = ndcSpace[0] * 2.0 - 1.0;
+    // Y : -1 to 1 (axe inversé)
+    ndcSpace[1] = 1.0 - ndcSpace[1] * 2.0;
+    ndcSpace[2] = ndcSpace[2] * 2.0 - 1.0;
+
+    //3) NDC -> espace caméra
+    let invProjection = mat4.invert([], projection);
+    let eyeSpace = multVec4Mat4(ndcSpace, invProjection);
+
+    //4) espace caméra -> espace monde
+    let invView = mat4.invert([], view);
+    let worldSpace = multVec4Mat4(eyeSpace, invView);
+
+    //5) On enlève la division perspective
+    if (!compareWithEpsilon(worldSpace[3], 0.0)) {
+        worldSpace[0] /= worldSpace[3];
+        worldSpace[1] /= worldSpace[3];
+        worldSpace[2] /= worldSpace[3];
+    }
+    return vec3.clone([worldSpace[0], worldSpace[1], worldSpace[2]]);
+}
+
+
+/**
+ * Fonction permettant de récupérer les coorodonnées normalisées quand on clique sur un élément
+ * @param {HTMLElement} element
+ * @param {*} event position du curseur au moment du clicke
+ * **/
+function getLinearCursorPosition(element, event) {
+    const rect = element.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    return {
+        xcoord : x/(rect.right - rect.left),
+        ycoord : y/(rect.bottom - rect.top),
+    }
+}
+
+
+function getCursorPosition(element, event) {
+    const rect = element.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    return {
+        xcoord : x,
+        ycoord : y,
+
+    }
+}
