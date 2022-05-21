@@ -14,17 +14,17 @@ class AABB extends Collider{
         this.position   = vec3.create(0);
 
         this.verticesUnitCube = [
-            [-1, -1, 1],
-            [1, -1, 1],
-            [-1, 1, 1],
-            [1, 1, 1],
-            [-1, -1, -1],
-            [1, -1, -1],
-            [-1, 1, -1],
-            [1, 1, -1]
+            [-.5, -.5, .5],
+            [.5, -.5, .5],
+            [-.5, .5, .5],
+            [.5, .5, .5],
+            [-.5, -.5, -.5],
+            [.5, -.5, -.5],
+            [-.5, .5, -.5],
+            [.5, .5, -.5]
         ];
-
-        this.test = true;
+        //this.test = true;
+        this.test = false;
     }
 
     static fromObject(t, in_vertices) {
@@ -101,38 +101,47 @@ class AABB extends Collider{
 
     getAccurateMinMax(){
         return {
-            min : vec3.scale([],this.dimension, -.5),
-            max : vec3.scale([], this.dimension, .5),
+            min : vec3.scale([],this.dimension, -1),
+            max : this.dimension
         }
     }
 
     doesIntersectRayon(rayon) {
-        let outResult = {};
         let dim = this.getAccurateMinMax();
 
-        console.log("INTERSECT AABB ?");
-        console.log(rayon);
-        console.log("ACCURATE DIMENSIONS");
-        console.log(dim);
+        let min = vec3.add([], dim.min, this.position);
+        let max = vec3.add([], dim.max, this.position);
 
-        let t1 = (dim.min[0] - rayon.origine[0]) / (compareWithEpsilon(rayon.direction[0], 0.0) ? 0.00001 : rayon.direction[0]);
-        let t2 = (dim.max[0] - rayon.origine[0]) / (compareWithEpsilon(rayon.direction[0], 0.0) ? 0.00001 : rayon.direction[0]);
-        let t3 = (dim.min[1] - rayon.origine[1]) / (compareWithEpsilon(rayon.direction[0], 0.0) ? 0.00001 : rayon.direction[1]);
-        let t4 = (dim.max[1] - rayon.origine[1]) / (compareWithEpsilon(rayon.direction[0], 0.0) ? 0.00001 : rayon.direction[1]);
-        let t5 = (dim.min[2] - rayon.origine[2]) / (compareWithEpsilon(rayon.direction[0], 0.0) ? 0.00001 : rayon.direction[2]);
-        let t6 = (dim.max[2] - rayon.origine[2]) / (compareWithEpsilon(rayon.direction[0], 0.0) ? 0.00001 : rayon.direction[2]);
+        let t1 = (min[0] - rayon.origine[0]) / (compareWithEpsilon(rayon.direction[0], 0.0) ? 0.00001 : rayon.direction[0]);
+        let t2 = (max[0] - rayon.origine[0]) / (compareWithEpsilon(rayon.direction[0], 0.0) ? 0.00001 : rayon.direction[0]);
+        let t3 = (min[1] - rayon.origine[1]) / (compareWithEpsilon(rayon.direction[1], 0.0) ? 0.00001 : rayon.direction[1]);
+        let t4 = (max[1] - rayon.origine[1]) / (compareWithEpsilon(rayon.direction[1], 0.0) ? 0.00001 : rayon.direction[1]);
+        let t5 = (min[2] - rayon.origine[2]) / (compareWithEpsilon(rayon.direction[2], 0.0) ? 0.00001 : rayon.direction[2]);
+        let t6 = (max[2] - rayon.origine[2]) / (compareWithEpsilon(rayon.direction[2], 0.0) ? 0.00001 : rayon.direction[2]);
 
         //Détermination des points d'entré et de sortie du rayon d'après les deux axes d'observation
-        let tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
-        let tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
+        let tmin = Math.max(
+            Math.max(
+                Math.min(t1, t2),
+                Math.min(t3, t4)
+            ),
+            Math.min(t5, t6)
+        );
+        let tmax = Math.min(
+            Math.min(
+                Math.max(t1, t2),
+                Math.max(t3, t4)
+            ),
+            Math.max(t5, t6)
+        );
 
         //tmax<0 => touché mais AABB derrière le rayon
         if (tmax < 0) {
-            return undefined;
+            return;
         }
         //Pas touché
         if (tmin > tmax) {
-            return undefined;
+            return;
         }
 
         let t_result = tmin;
@@ -142,9 +151,9 @@ class AABB extends Collider{
             t_result = tmax;
         }
 
-        outResult.t = t_result;
-        outResult.hit = true;
-        outResult.point = rayon.origine + rayon.direction * t_result;
+        this.rayAnswer.t = t_result;
+        this.rayAnswer.hit = true;
+        this.rayAnswer.point = vec3.add([], rayon.origine, vec3.scale([],rayon.direction, t_result));
 
         let normals = [
             new Array(-1, 0, 0),
@@ -154,14 +163,14 @@ class AABB extends Collider{
             new Array(0, 0, -1),
             new Array(0, 0, 1)
         ];
-        let t = {t1, t2, t3, t4, t5, t6};
+        let t = [t1, t2, t3, t4, t5, t6];
 
         for (let i = 0; i < 6; ++i) {
             if (compareWithEpsilon(t_result, t[i])) {
-                outResult.normal = normals[i];
+                //console.log("ON A UNE NORMALE");
+                this.rayAnswer.normal = normals[i];
             }
         }
-        return outResult;
     }
 
     isPointOn(point) {
@@ -210,22 +219,9 @@ class AABB extends Collider{
     }
 
     transform(transformation) {
-        //if(this.test) {
-        //    console.log("TRANSFORM COLLIDER !");
-        //    console.log(transformation);
-        //}
-
-        let v1 = vec3.scale([], vec3.clone([transformation[0],transformation[1],transformation[2]])     ,this.size[0]);
-        let v2 = vec3.scale([], vec3.clone([transformation[4],transformation[5],transformation[6]])     ,this.size[1]);
-        let v3 = vec3.scale([], vec3.clone([transformation[8],transformation[9],transformation[10]])    ,this.size[2]);
-
-        //if(this.test) {
-        //    console.log(v1);
-        //    console.log(v2);
-        //    console.log(v3);
-        //    console.log(this.verticesUnitCube);
-        //}
-
+        let v1 = vec3.scale([], vec3.normalize([],vec3.clone([transformation[0],transformation[1],transformation[2]]))     ,this.size[0]);
+        let v2 = vec3.scale([], vec3.normalize([],vec3.clone([transformation[4],transformation[5],transformation[6]]))     ,this.size[1]);
+        let v3 = vec3.scale([], vec3.normalize([],vec3.clone([transformation[8],transformation[9],transformation[10]]))    ,this.size[2]);
 
         let min = vec3.add(
             [],
@@ -248,7 +244,6 @@ class AABB extends Collider{
                 )
             )
         );
-        //if(this.test) console.log(min);
 
         let max = vec3.add(
             [],
@@ -271,7 +266,6 @@ class AABB extends Collider{
                 )
             )
         );
-        //if(this.test) console.log(max);
 
 
         for (let i = 1; i < 8; i++){
@@ -297,28 +291,11 @@ class AABB extends Collider{
                 )
             );
 
-            //if(this.test) {
-            //    console.log("CURRENTLY TESTING");
-            //    console.log(vertex);
-            //}
             min = minVec3(vertex,min);
             max = maxVec3(vertex,max);
         }
-        //if(this.test) {
-        //    console.log("======= END OF TRANSFROM =======");
-        //    console.log(min);
-        //    console.log(max);
-        //}
-        this.dimension = vec3.scale([], vec3.subtract([], max,min), .5);
-        //if(this.test) {
-        //    console.log("xp : " + transformation[12]);
-        //    console.log("yp : " + transformation[13]);
-        //    console.log("zp : " + transformation[14]);
-        //}
+
+        this.dimension = vec3.subtract([], max,min);
         this.position = vec3.add([],this.center,vec3.clone([transformation[12],transformation[13],transformation[14]]));
-        //if(this.test) {
-        //    console.log(this);
-        //}
-        //this.test = false;
     }
 }

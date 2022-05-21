@@ -435,6 +435,14 @@ function multVec4Mat4(v,m){
     return res;
 }
 
+function multMat4Vec4(m,v){
+    let res = vec4.create();
+    for (let i = 0; i < 4; i++) {
+        res[i] = v[0] * m[i] + v[1] * m[i+4] + v[2] * m[i+8] + v[3] * m[i+12];
+    }
+    return res;
+}
+
 /**
  * Fonction permettant de multiplier un vec3 par une mat3
  * @param {Float32Array} v
@@ -443,7 +451,7 @@ function multVec4Mat4(v,m){
 function multVec3Mat3(v,m){
     let res = vec3.create();
     for (let i = 0; i < 3; i++) {
-        res[i] = v[0] * m[i*4] + v[1] * m[i*4+1] + v[2] * m[i*4+2] + v[3] * m[i*4+3];
+        res[i] = v[0] * m[i*3] + v[1] * m[i*3+1] + v[2] * m[i*3+2];
     }
     return res;
 }
@@ -466,24 +474,23 @@ function unproject(viewportPoint, viewportOrigin, viewportSize, view, projection
     ];
 
     //2) Passage en coordonnées NDC
-    let ndcSpace = vec4.clone([
-        normalized[0], normalized[1],
-        normalized[2], normalized[3]]
-    );
+    let ndcSpace = vec4.clone([normalized[0], normalized[1], normalized[2], normalized[3]]);
 
     // X : -1 to 1
     ndcSpace[0] = ndcSpace[0] * 2.0 - 1.0;
     // Y : -1 to 1 (axe inversé)
     ndcSpace[1] = 1.0 - ndcSpace[1] * 2.0;
-    ndcSpace[2] = ndcSpace[2] * 2.0 - 1.0;
+    ndcSpace[2] = (ndcSpace[2] <-1)? -1 : (ndcSpace[2]>1)? 1.0 : ndcSpace[2];
 
     //3) NDC -> espace caméra
     let invProjection = mat4.invert([], projection);
-    let eyeSpace = multVec4Mat4(ndcSpace, invProjection);
+    //let eyeSpace = multVec4Mat4(ndcSpace, invProjection);
+    let eyeSpace = multMat4Vec4(invProjection,ndcSpace);
 
     //4) espace caméra -> espace monde
     let invView = mat4.invert([], view);
-    let worldSpace = multVec4Mat4(eyeSpace, invView);
+    //let worldSpace = multVec4Mat4(eyeSpace, invView);
+    let worldSpace = multMat4Vec4(invView,eyeSpace);
 
     //5) On enlève la division perspective
     if (!compareWithEpsilon(worldSpace[3], 0.0)) {
@@ -510,8 +517,6 @@ function getLinearCursorPosition(element, event) {
         ycoord : y/(rect.bottom - rect.top),
     }
 }
-
-
 function getCursorPosition(element, event) {
     const rect = element.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -522,4 +527,38 @@ function getCursorPosition(element, event) {
         ycoord : y,
 
     }
+}
+
+
+
+/*UNPROJECT BIS (TEST)*/
+function unprojectBis(camera,viewportPoint, viewportOrigin, viewportSize) {
+    let view        = camera.getViewMatrix();
+    let projection  = camera.getProjectionMatrix();
+
+    let modelviewProjection = mat4.multiply([], view, projection);
+    let modelviewProjection_inverse = mat4.invert([], modelviewProjection);
+
+
+    let v = vec4.clone([
+        ((viewportOrigin[0] + viewportPoint[0]) / (viewportSize[0]-viewportOrigin[0])) * 2 - 1,
+        1 - ((viewportOrigin[0] + viewportPoint[1]) / (viewportSize[1]-viewportOrigin[0])) * 2,
+        0,
+        1
+    ]);
+
+   let inverseM = multMat4Vec4(
+        modelviewProjection_inverse,
+        v
+    );
+
+    //Homogénéiser
+    let w = inverseM[3];
+    let h_inverse = [];
+    for (var i = 0; i < 4; i++) {
+        h_inverse.push(inverseM[i] / w);
+    }
+    let tov3 = vec3.clone([h_inverse[0],h_inverse[1],h_inverse[2]]);
+
+    return vec3.subtract([], tov3, camera.position);
 }

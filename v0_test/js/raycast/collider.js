@@ -1,3 +1,7 @@
+const colliderType = {
+    CUBE    : 1,
+    SPHERE  : 2
+}
 /*Classe modélisant un collider pour un objet*/
 class Collider {
     /**
@@ -16,6 +20,7 @@ class Collider {
             point : undefined,
             normal : undefined,
         }
+        this.type = colliderType.CUBE;
     }
 
     /**Fonction permettant de reset la réponse d'intersection avec le rayon**/
@@ -33,9 +38,7 @@ class Collider {
     * @abstract
     * @param {Float32Array} point à regarder
     **/
-    isPointOn(point){
-
-    }
+    isPointOn(point){}
 
     /**
      *Fonction permettant de renseigner si un segment intersecte un collider

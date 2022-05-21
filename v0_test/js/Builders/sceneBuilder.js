@@ -189,7 +189,7 @@ function picking_test(){
     //Texture
     m = new Model(cube());
     m.matrix.modelMatrix = mat4.clone(
-        [2, 0, 0, 0,
+        [10, 0, 0, 0,
             0, 2, 0, 0,
             0, 0, 2, 0,
             0, 0, -2, 1]
@@ -199,6 +199,8 @@ function picking_test(){
     m.specularFactor    = 16.0;
 
     m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+    //m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+    //m.collider = OBB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
     console.log(m);
     scene.addModel(m);
 

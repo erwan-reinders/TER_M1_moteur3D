@@ -14,7 +14,7 @@ class OBB extends Collider{
         this.size   = size;
         this.orientation = orientation
 
-        this.dimension  = vec3.create();
+        this.dimension  = size;
         this.position   = vec3.create();
     }
 
@@ -25,7 +25,7 @@ class OBB extends Collider{
             in_vertices[2],
         ]);
 
-        let min_dim = 1;
+        let min_dim = 0;
 
         let min_x = cur_pt[0];
         let max_x = cur_pt[0];
@@ -96,7 +96,6 @@ class OBB extends Collider{
     }
 
     doesIntersectRayon(rayon) {
-        let outResult = {};
         let p = vec3.subtract([], this.position, rayon.origine);
 
         let X = vec3.clone([this.orientation[0], this.orientation[1], this.orientation[2]]);
@@ -119,25 +118,38 @@ class OBB extends Collider{
 
         for (let i = 0; i < 3; ++i) {
             if (compareWithEpsilon(f[i], 0)) {
-                if (-e[i] - this.size[i] > 0 || -e[i] + this.size[i] < 0) {
-                    return undefined;
+                if (-e[i] - this.dimension[i] > 0 || -e[i] + this.dimension[i] < 0) {
+                    return;
                 }
                 f[i] = 0.00001; //Pas diviser par zéros
             }
 
-            t[i * 2 + 0] = (e[i] + this.size[i]) / f[i]; // tmin[x, y, z]
-            t[i * 2 + 1] = (e[i] - this.size[i]) / f[i]; // tmax[x, y, z]
+            t[i * 2]     = (e[i] + this.dimension[i]) / f[i]; // tmin[x, y, z]
+            t[i * 2 + 1] = (e[i] - this.dimension[i]) / f[i]; // tmax[x, y, z]
         }
 
-        let tmin = Math.max(Math.max(Math.min(t[0], t[1]), Math.min(t[2], t[3])), Math.min(t[4], t[5]));
-        let tmax = Math.min(Math.min(Math.max(t[0], t[1]), Math.max(t[2], t[3])), Math.max(t[4], t[5]));
+        let tmin = Math.max(
+            Math.max(
+                Math.min(t[0], t[1]),
+                Math.min(t[2], t[3])
+            ),
+            Math.min(t[4], t[5])
+        );
+        let tmax = Math.min(
+            Math.min(
+                Math.max(t[0], t[1]),
+                Math.max(t[2], t[3])
+            ),
+            Math.max(t[4], t[5])
+        );
+
 
         if (tmax < 0) {
-            return undefined;
+            return;
         }
 
         if (tmin > tmax) {
-            return undefined;
+            return;
         }
 
         // If tmin is < 0, tmax is closer
@@ -146,25 +158,24 @@ class OBB extends Collider{
             t_result = tmax;
         }
 
-        outResult.hit = true;
-        outResult.t = t_result;
-        outResult.point = vec3.add([], rayon.origine, vec3.scale([], rayon.direction, t_result));
+        this.rayAnswer.hit = true;
+        this.rayAnswer.t = t_result;
+        this.rayAnswer.point = vec3.add([], rayon.origine, vec3.scale([], rayon.direction, t_result));
 
         let normals = [
             X,			// +x
-            X * -1.0,	// -x
+            vec3.scale([],X,-1.0),	// -x
             Y,			// +y
-            Y * -1.0,	// -y
+            vec3.scale([],Y, -1.0),	// -y
             Z,			// +z
-            Z * -1.0	// -z
+            vec3.scale([],Z, -1.0)	// -z
         ];
 
         for (let i = 0; i < 6; ++i) {
             if (compareWithEpsilon(t_result, t[i])) {
-                outResult.normal = vec3.normalize([], normals[i]);
+                this.rayAnswer.normal = vec3.normalize([], normals[i]);
             }
         }
-        return outResult;
     }
 
     isPointOn(point) {
@@ -228,11 +239,16 @@ class OBB extends Collider{
     }
 
     transform(transformation) {
-        this.position       = vec3.add([],this.position,vec3.clone([transformation[12],transformation[13],transformation[14]]));
-        this.orientation    = mat3.clone([
-            transformation[0],transformation[1],transformation[2],
-            transformation[4],transformation[5],transformation[6],
-            transformation[8],transformation[9],transformation[10]
+        this.position       = vec3.add([],this.center,vec3.clone([transformation[12],transformation[13],transformation[14]]));
+
+        let c1 = vec3.normalize([], vec3.clone([transformation[0],transformation[1],transformation[2]]));
+        let c2 = vec3.normalize([], vec3.clone([transformation[4],transformation[5],transformation[6]]));
+        let c3 = vec3.normalize([], vec3.clone([transformation[8],transformation[9],transformation[10]]));
+
+        this.orientation = mat3.clone([
+            c1[0],c1[1],c1[2],
+            c2[0],c2[1],c2[2],
+            c3[0],c3[1],c3[2]
         ]);
     }
 }
