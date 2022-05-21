@@ -189,7 +189,6 @@ class ColliderShader extends ShaderRenderer {
 
     render(scene) {
         this.initFromScene(scene);
-
         /*raycastPoll.forEach(ray => {
             this.shaderProgram.setUniformValueByName("uModelMatrix",  mat4.identity([]));
             this.shaderProgram.setUniformValueByName("uSize", vec3.clone([1,1,1]));
@@ -206,19 +205,11 @@ class ColliderShader extends ShaderRenderer {
 
         scene.models.forEach(model => {
             if (this.shouldRenderOnModel(model)) {
-                if(model.collider.test) {
-                    console.log("IM DRAWING ELEMENT COLLIDER !");
-                    console.log(this);
-                    console.log(model);
-                }
                 model.collider.test = false;
-
                 this.setModelData(model);
                 if(model.collider.type === colliderType.CUBE) {
                     this.models.cube.render(gl.LINES);
                 }else if(model.collider.type === colliderType.SPHERE) {
-
-                    console.log("SPHERE RENDERING !");
                     this.models.sphere.render(gl.LINES);
                 }
             }
