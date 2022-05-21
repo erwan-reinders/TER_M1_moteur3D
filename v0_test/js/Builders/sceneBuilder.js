@@ -198,6 +198,7 @@ function picking_test(){
     m.specularFactor    = 16.0;
 
     m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+
     //m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
     //m.collider = OBB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
     console.log(m);
