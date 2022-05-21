@@ -98,16 +98,20 @@ function buildDefaultPipelines() {
     let firstPipeline = new ShaderPipeline();
 
     //GPass
-    firstPipeline.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height));
+    firstPipeline.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", undefined, canvas.width, canvas.height));
+    firstPipeline.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height, "ReflexionPosition"));
+    firstPipeline.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", "Position", canvas.width, canvas.height));
     //Skybox
-    firstPipeline.addShader(new Skybox(shaders.get("skybox"), skybox, canvas.width, canvas.height));
+    firstPipeline.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
+    //Reflexion
+    firstPipeline.addShader(new CubeMapReflexion(shaders.get("cubemapReflexion"), skybox, canvas.width, canvas.height));
     //SSAO
     firstPipeline.addShader(ssao);
     firstPipeline.addShader(new Kernel(shaders.get("kernel4R"), blurKernel4, "SSAO", "SSAO", canvas.width, canvas.height));
     //Light and shadows : blinnPhongWithShadowsAllLights
     firstPipeline.addShader(blinnPhongRendererAllLights);
     //Fusion 1 : BlinnPhong avec la skybox
-    firstPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Skybox"], "BlinnPhongAndSkybox", canvas.width, canvas.height));
+    firstPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Skybox", "Reflexion"], "BlinnPhongAndSkybox", canvas.width, canvas.height));
     //Bloom
     firstPipeline.addShader(extractRenderer);
     firstPipeline.addShader(gaussianRenderer);
@@ -128,9 +132,13 @@ function buildDefaultPipelines() {
     let defalutPipeline = new ShaderPipeline();
 
     //GPass
-    defalutPipeline.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height));
+    defalutPipeline.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", undefined, canvas.width, canvas.height));
+    defalutPipeline.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height, "ReflexionPosition"));
+    defalutPipeline.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", "Position", canvas.width, canvas.height));
     //Skybox
-    defalutPipeline.addShader(new Skybox(shaders.get("skybox"), skybox, canvas.width, canvas.height));
+    defalutPipeline.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
+    //Reflexion
+    defalutPipeline.addShader(new CubeMapReflexion(shaders.get("cubemapReflexion"), skybox, canvas.width, canvas.height));
     //Shadow
     defalutPipeline.addShader(new DepthMap(shaders.get("depthMap"), depthCamera, 1024, 1024));
     defalutPipeline.addShader(shadowRenderer);
@@ -140,7 +148,7 @@ function buildDefaultPipelines() {
     //Light : blinnPhongWithShadows
     defalutPipeline.addShader(blinnPhongRenderer);
     //Fusion 1 : BlinnPhong avec la skybox
-    defalutPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Skybox"], "BlinnPhongAndSkybox", canvas.width, canvas.height));
+    defalutPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Skybox", "Reflexion"], "BlinnPhongAndSkybox", canvas.width, canvas.height));
     //Bloom
     defalutPipeline.addShader(extractRenderer);
     defalutPipeline.addShader(gaussianRenderer);
@@ -177,26 +185,31 @@ function buildDefaultPipelines() {
     
     //Render
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final"));
-    let nb = 7.0;
+    let nb = 6.0;
     let w = canvas.width  / nb;
     let h = canvas.height / nb;
     //let startH = canvas.height * (nb-1.0) / nb;
     let startH = 0.0;
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Position",            w * 0.0, startH+h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Normal",              w * 1.0, startH+h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "ColorSpecular",       w * 2.0, startH+h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenA"),    "ColorSpecular",       w * 3.0, startH+h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Skybox",              w * 4.0, startH+h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "DepthMap",            w * 5.0, startH+h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "Shadow",              w * 6.0, startH+h, w, h));
-
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "SSAO",                w * 0.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong",          w * 1.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Extract",             w * 2.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Bloom",               w * 3.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "AllinOne",            w * 4.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "ExposedImage",        w * 5.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final",               w * 6.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Position",            w * 0.0, startH+2*h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Normal",              w * 1.0, startH+2*h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "ColorSpecular",       w * 2.0, startH+2*h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenA"),    "ColorSpecular",       w * 3.0, startH+2*h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "ReflexionPosition",   w * 4.0, startH+2*h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "ReflexionNormal",     w * 5.0, startH+2*h, w, h));
+    
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Skybox",              w * 0.0, startH+h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "DepthMap",            w * 1.0, startH+h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRawR"), "Shadow",              w * 2.0, startH+h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "SSAO",                w * 3.0, startH+h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong",          w * 4.0, startH+h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Reflexion",           w * 5.0, startH+h, w, h));
+    
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "BlinnPhongAndSkybox", w * 0.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Extract",             w * 1.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Bloom",               w * 2.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "AllinOne",            w * 3.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "ExposedImage",        w * 4.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final",               w * 5.0, startH, w, h));
     
 
     pipelines.push(p);
@@ -210,32 +223,33 @@ function buildTestPipelines() {
 
     // let p = new ShaderPipeline();
 
-    // p.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width * testCanvasScale, canvas.height * testCanvasScale));
-    // p.addShader(new SSAO(shaders.get("ssao"), 8, 4, 4, canvas.width * testCanvasScale, canvas.height * testCanvasScale));
+    // p.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", undefined, canvas.width * testCanvasScale, canvas.height * testCanvasScale));
+    // p.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height, "ReflexionPosition"));
+    // p.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", "Position", canvas.width * testCanvasScale, canvas.height * testCanvasScale));
 
-    // let depthCamera = new Camera(vec3.clone([-1.0, 5.0, -2.0]), vec3.clone([0.0, 1.0, 0.0]), vec3.clone([0.0, 0.0, 0.0]));
-    // depthCamera.setOrthographic();
-    // depthCamera.setOrthographicSize(5.0);
-    // let depthRenderer = new DepthMap(shaders.get("depthMap"), depthCamera, 512, 512);
+    // //p.addShader(new Skybox(shaders.get("skybox"), {ready : false}, "invPosition", canvas.width, canvas.height));
 
-    // let shadowRenderer = new Shadow(shaders.get("shadowPCFautoBias"), canvas.width * testCanvasScale, canvas.height * testCanvasScale, true);
-    // shadowRenderer.bias = 0.00005;
-    // createValueSlider_UI("bias", shadowRenderer, "bias", 0.0, 0.001, 0.00005);
-    
-    // let chainRenderer = new ChainRenderer([depthRenderer, shadowRenderer]);
+    // let skybox = getCubeMapImage([
+    //     "data/img/skybox/right.jpg",
+    //     "data/img/skybox/left.jpg",
+    //     "data/img/skybox/top.jpg",
+    //     "data/img/skybox/bottom.jpg",
+    //     "data/img/skybox/front.jpg",
+    //     "data/img/skybox/back.jpg"
+    // ]);
 
-    // chainRenderer.setRenderingFrom = function(position) {
-    //     const distanceFactor = 5.0;
-    //     let newCamPos = vec3.multiply([], position, [distanceFactor, distanceFactor, distanceFactor]);
-    //     this.pipeline.shaderRenderers[0].camera.position = newCamPos;
-    // }
+    // p.addShader(new CubeMapReflexion(shaders.get("cubemapReflexion"), skybox, canvas.width, canvas.height));
+    // p.addShader(new BlinnPhong(shaders.get("blinnPhong"), canvas.width, canvas.height, false, false));
 
+    // p.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Reflexion"], "fus", canvas.width, canvas.height));
 
-    // let blinnPhong = new BlinnPhongAllLight(shaders.get("blinnPhongShadowSSAOOneLight"), chainRenderer, canvas.width * testCanvasScale, canvas.height * testCanvasScale);
-    // p.addShader(blinnPhong);
 
     // //Render
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong"));
+    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Skybox"));
+    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Reflexion"));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "fus"));
+    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Position"));
+    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "invPosition"));
 
     // pipelines.push(p);
 

@@ -244,17 +244,21 @@ function buildScenes() {
 
     //TEA POT
     m = new Model(teapotModel);
-    let scale = 0.05;
+    let teaPotScale = 0.05;
     m.matrix.modelMatrix = mat4.clone(
-        [scale, 0, 0, 0,
-        0, scale, 0, 0,
-        0, 0, scale, 0,
+        [teaPotScale, 0, 0, 0,
+        0, teaPotScale, 0, 0,
+        0, 0, teaPotScale, 0,
         0, -0.6, 0, 1]
     )
     m.diffuseTexture = getTextureImage("data/img/white.png");
     m.diffuseFactor = vec3.clone([1.0, 1.0, 1.0]);
     m.specularTexture = getTextureImage("data/img/white.png");
     m.specularFactor = 3.0;
+
+    m.invisible = true;
+    m.reflective = true;
+
     scene.addModel(m);
 
 

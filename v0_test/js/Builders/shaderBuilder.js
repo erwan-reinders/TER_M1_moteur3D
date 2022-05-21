@@ -4,8 +4,9 @@ let shaders;
 function buildShaders() {
     shaders = new Map();
 
-    shaders.set("textureGBuffer" , new ShaderProgram("MVPVertexShader.glsl"      , "GBufferTextureFragmentShader.glsl"));
-    shaders.set("depthMap",        new ShaderProgram("MVPDepthVertexShader.glsl",  "Depth.glsl"));
+    shaders.set("GBuffer",        new ShaderProgram("MVPVertexShader.glsl",      "GBuffer.glsl"));
+    shaders.set("textureGBuffer", new ShaderProgram("MVPVertexShader.glsl",      "GBufferTextureFragmentShader.glsl"));
+    shaders.set("depthMap",       new ShaderProgram("MVPDepthVertexShader.glsl", "Depth.glsl"));
 
     shaders.set("applyToScreenRaw",             new ShaderProgram("ScreenPosVertexShader.glsl", "EndFragmentShader.glsl"));
     shaders.set("applyToScreenRawR",            new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyRawR.glsl"));
@@ -26,6 +27,7 @@ function buildShaders() {
     shaders.set("gaussianBlur",                 new ShaderProgram("ScreenPosVertexShader.glsl", "gaussianBlur.glsl"));
     shaders.set("ssao",                         new ShaderProgram("ScreenPosVertexShader.glsl", "ssao.glsl"));
     shaders.set("extractColorByBrigthness",     new ShaderProgram("ScreenPosVertexShader.glsl", "extractColorByBrigthness.glsl"));
+    shaders.set("cubemapReflexion",             new ShaderProgram("ScreenPosVertexShader.glsl", "cubeMapReflexionFragmentShader.glsl"));
     
     shaders.set("skybox", new ShaderProgram("VPFragCoordVertexShader.glsl", "skybox.glsl"));
 

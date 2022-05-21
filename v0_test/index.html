@@ -36,11 +36,13 @@
     <script type="text/javascript" src="js/controller.js"></script>
     
     <script type="text/javascript" src="js/Shaders/chainRenderer.js"></script>
+    <script type="text/javascript" src="js/Shaders/GBuffer.js"></script>
     <script type="text/javascript" src="js/Shaders/textureGBuffer.js"></script>
     <script type="text/javascript" src="js/Shaders/applyToScreen.js"></script>
     <script type="text/javascript" src="js/Shaders/blinnPhong.js"></script>
     <script type="text/javascript" src="js/Shaders/blinnPhongAllLight.js"></script>
     <script type="text/javascript" src="js/Shaders/fusion.js"></script>
+    <script type="text/javascript" src="js/Shaders/fusionDepth.js"></script>
     <script type="text/javascript" src="js/Shaders/gammaCorrection.js"></script>
     <script type="text/javascript" src="js/Shaders/exposure.js"></script>
     <script type="text/javascript" src="js/Shaders/skybox.js"></script>
@@ -50,6 +52,7 @@
     <script type="text/javascript" src="js/Shaders/extractColorByBrigthness.js"></script>
     <script type="text/javascript" src="js/Shaders/gaussianBlur.js"></script>
     <script type="text/javascript" src="js/Shaders/ssao.js"></script>
+    <script type="text/javascript" src="js/Shaders/cubeMapReflexion.js"></script>
 
     <script type="text/javascript" src="js/Builders/sceneBuilder.js"></script>
     <script type="text/javascript" src="js/Builders/shaderBuilder.js"></script>
@@ -104,7 +107,6 @@
             document.addEventListener('mouseup', onMouseUp);
 
             fetchStat("fps");
-            console.log(stats["fps"]);
 
             requestAnimationFrame(frame);
         }
