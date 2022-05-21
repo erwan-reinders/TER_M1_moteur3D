@@ -182,7 +182,6 @@ function reflexion() {
 
 
 function picking_test(){
-    scenes = new Array();
     let scene = new Scene();
     let m;
 
@@ -190,9 +189,9 @@ function picking_test(){
     m = new Model(cube());
     m.matrix.modelMatrix = mat4.clone(
         [2, 0, 0, 0,
-            0, 2, 0, 0,
-            0, 0, 2, 0,
-            0, 0, -2, 1]
+        0, 2, 0, 0,
+        0, 0, 2, 0,
+        0, 0, -2, 1]
     )
     m.diffuseTexture    = getTextureImage("data/img/chouette.png");
     m.specularTexture   = getTextureImage("data/img/white.png");
@@ -209,6 +208,8 @@ function picking_test(){
 
 function buildScenes() {
     scenes = new Array();
+
+    picking_test();
 
     let scene = new Scene();
 
@@ -337,5 +338,43 @@ function buildScenes() {
     lights.forEach(l => scene.addLight(l));
 
     scenes.push(scene);
+
+
+    scene = new Scene();
+
+    for (let i = 0; i < 11; i++) {
+        m = new Model(cube());
+        m.matrix.modelMatrix = mat4.clone(
+            [1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            (i-5.0) * 1.5, 0.75, 0, 1]
+        )
+        m.diffuseTexture = getTextureImage("data/img/white.png");
+        let factor = i / 11.0;
+        m.diffuseFactor = vec3.clone([factor, factor, factor]);
+        m.specularTexture = getTextureImage("data/img/white.png");
+        m.specularFactor = 0.0;
+        scene.addModel(m);
+
+        m = new Model(cube());
+        m.matrix.modelMatrix = mat4.clone(
+            [1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            (i-5.0) * 1.5, -0.75, 0, 1]
+        )
+        m.diffuseTexture = getTextureImage("data/img/white.png");
+        factor = Math.pow(i / 11.0, 1.0/2.2);
+        m.diffuseFactor = vec3.clone([factor, factor, factor]);
+        m.specularTexture = getTextureImage("data/img/white.png");
+        m.specularFactor = 0.0;
+        scene.addModel(m);
+    }
+
+    scene.addLight(new Light([-10.0, 50.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
+
+    scenes.push(scene);
+
     return scenes;
 }

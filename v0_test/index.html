@@ -100,8 +100,7 @@
             initUi();
             initGl("webglcanvas");
 
-            //buildScenes();
-            picking_test();
+            buildScenes();
 
             buildShaders();
             buildPipelines();
@@ -110,8 +109,8 @@
         function main() {
             init();
 
-            controler = new Controller(scenes[currentScene]);
-            controler_ray = new PickingController(scenes[currentScene]);
+            controler = new Controller();
+            controler_ray = new PickingController();
 
             document.addEventListener('keydown', onKeyDown);
             document.addEventListener('keyup', onKeyUp);

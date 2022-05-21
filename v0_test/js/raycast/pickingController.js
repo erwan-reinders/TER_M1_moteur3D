@@ -4,10 +4,8 @@ class PickingController {
 
     /**
      * Construit le controleur.
-     * @param {Scene} scene La scene que l'on vas modifier.
      */
-    constructor(scene) {
-        this.scene = scene;
+    constructor() {
         this.previousMouseX = 0.0;
         this.previousMouseY = 0.0;
         this.mouseDiffX = 0.0;
@@ -34,8 +32,8 @@ class PickingController {
             vec2.clone([coord.xcoord,coord.ycoord]),
             vec2.clone([0,0]),
             vec2.clone([canvas.width,canvas.height]),
-            this.scene.camera.getViewMatrix(),
-            this.scene.camera.getProjectionMatrix(),
+            scenes[currentScene].camera.getViewMatrix(),
+            scenes[currentScene].camera.getProjectionMatrix(),
         );
 
 
@@ -43,7 +41,7 @@ class PickingController {
         let obj = undefined;
 
         //On teste ensuite pour tous les éléments possédant un collider
-        for (let el of this.scene.models){
+        for (let el of scenes[currentScene].models){
             if(el.collider){
                 el.collider.resetRayIntersection();
                 //On peut donc lancer un rayon et déterminer le point d'impact
