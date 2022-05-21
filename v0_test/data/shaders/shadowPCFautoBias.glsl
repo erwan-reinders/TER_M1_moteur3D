@@ -28,15 +28,10 @@ void main()
     // transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
 
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    // float closestDepth = texture(depthMap, projCoords.xy).r;
-
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
 
     // check whether current frag pos is in shadow
-    // float shadow = currentDepth - uBias > closestDepth  ? 1.0 : 0.0;
-    // shadow = projCoords.z >= 1.0 ? 0.0 : shadow;
     float bias = max(uBias * (1.0 - dot(Normal, uLightDir)), uBias * 0.1);
 
     float shadow = 0.0;

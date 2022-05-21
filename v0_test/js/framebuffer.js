@@ -69,13 +69,17 @@ class Framebuffer {
             gl.deleteTexture(this.textures[i]);
         }
         gl.deleteFramebuffer(this.framebuffer);
-        this.init(SCR_WIDTH, SCR_HEIGHT);
+        this.width  = SCR_WIDTH;
+        this.height = SCR_HEIGHT;
+        this.init(this.interpol, this.wrapping);
     }
 
     /**
      * Initialise le framebuffer.
      */
     init(interpol = gl.NEAREST, wrapping = gl.REPEAT) {
+        this.interpol = interpol;
+        this.wrapping = wrapping;
         this.framebuffer = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
         

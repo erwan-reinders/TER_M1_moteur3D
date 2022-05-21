@@ -57,10 +57,7 @@ class GaussianBlur extends ShaderRenderer {
     /** @inheritdoc*/
     getRenderResults() {
         let renderResults = new Array();
-        //let framebufferToUse = (this.nbPasses+1) % 2;
-        //console.log(framebufferToUse);
-        renderResults.push(new ShaderRendererResult(this.textureWriteName, this.pingPongFramebuffers[1].textures[0], this));
-        //renderResults.push(new ShaderRendererResult(this.textureWriteName, this.pingPongFramebuffers[1].textures[0], this));
+        renderResults.push(new ShaderRendererResult(this.textureWriteName, this.pingPongFramebuffers[(parseInt(this.nbPasses)+1)%2].textures[0], this));
         return renderResults;
     }
 
@@ -106,7 +103,7 @@ class GaussianBlur extends ShaderRenderer {
             const idPingPong = ((!horizontal)+0);
             const idOtherPingPong = (horizontal+0);
             
-            this.pingPongFramebuffers[idPingPong].use();            
+            this.pingPongFramebuffers[idPingPong].use();
 
             this.shaderProgram.setUniformValueByName("horizontal", horizontal);
             const texture = firstIteration ? this.colorBuffer : this.pingPongFramebuffers[idOtherPingPong].textures[0];

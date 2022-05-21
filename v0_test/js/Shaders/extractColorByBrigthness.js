@@ -38,7 +38,8 @@ class ExtractColorByBrigthness extends ShaderRenderer {
 
         this.shaderProgram.setAllPos();
 
-        this.framebuffer = new Framebuffer(width, height, 1);
+        this.framebuffer = new Framebuffer(width, height, 1, false);
+        this.framebuffer.init(gl.LINEAR, gl.CLAMP_TO_EDGE);
     }
 
     /** @inheritdoc*/

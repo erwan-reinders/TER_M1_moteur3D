@@ -12,11 +12,11 @@ function buildDefaultPipelines() {
     // SHADERS DATAs CONSTRUCTION BLINN PHONG ALL LIGHT
     //==================================================================================================
     //For blinn phong all lights
-    let depthCameraAllLights = new Camera(vec3.clone([-1.0, 5.0, -2.0]), vec3.clone([0.0, 1.0, 0.0]), vec3.clone([0.0, 0.0, 0.0]));
-    depthCameraAllLights.setOrthographic();
-    depthCameraAllLights.setOrthographicSize(5.0);
+    let depthCameraAllLight = new Camera(vec3.clone([-1.0, 5.0, -2.0]), vec3.clone([0.0, 1.0, 0.0]), vec3.clone([0.0, 0.0, 0.0]));
+    depthCameraAllLight.setOrthographic();
+    depthCameraAllLight.setOrthographicSize(5.0);
     let depthMapResolution = 1024;
-    let depthRendererAllLights = new DepthMap(shaders.get("depthMap"), depthCameraAllLights, depthMapResolution, depthMapResolution);
+    let depthRendererAllLights = new DepthMap(shaders.get("depthMap"), depthCameraAllLight, depthMapResolution, depthMapResolution);
 
     let shadowRendererAllLights = new Shadow(shaders.get("shadowPCFautoBias"), canvas.width, canvas.height, true);
     shadowRendererAllLights.bias = 0.0;//0.00005;
@@ -49,7 +49,16 @@ function buildDefaultPipelines() {
 
     let gaussianRenderer = new GaussianBlur(shaders.get("gaussianBlur"), 20.0, "Extract", "Bloom", canvas.width * canvasScale, canvas.height * canvasScale);
     createValueSlider_UI("nbPasses", gaussianRenderer, "passes", 0.0, 100.0, 2.0);
-    createValue_UI("nbPasses", gaussianRenderer, "passes", 1.0);
+
+    let bloomSizeUpdater = {
+        scaling : 0.3,
+        onUiChange : function() {
+            extractRenderer.framebuffer.update(canvas.width * this.scaling, canvas.height * this.scaling);
+            gaussianRenderer.pingPongFramebuffers[0].update(canvas.width * this.scaling, canvas.height * this.scaling);
+            gaussianRenderer.pingPongFramebuffers[1].update(canvas.width * this.scaling, canvas.height * this.scaling);
+        }
+    }
+    createValue_UI("scaling", bloomSizeUpdater, "resolution scaling", 0.01);
 
 
     //For the skybox
@@ -77,6 +86,14 @@ function buildDefaultPipelines() {
         }
     }
     createValueSlider_UI("value", uiHandler, "bias", 0.0, 0.01, 0.00005);
+    let depthCameraSizeUpdater = {
+        size : 5.0,
+        onUiChange : function() {
+            depthCameraAllLight.setOrthographicSize(parseFloat(this.size));
+            depthCamera.setOrthographicSize(parseFloat(this.size));
+        }
+    }
+    createValueSlider_UI("size", depthCameraSizeUpdater, "map size", 1.0, 20.0, .1);
 
     createValueSlider_UI("distanceFactor", chainRendererAllLights, "distanceFactor", 0.0, 10.0, 0.1);
 
@@ -87,14 +104,14 @@ function buildDefaultPipelines() {
     createValueSlider_UI("radius",         ssao, "radius",            0.0, 1.0, 0.05);
     createValueSlider_UI("depthBias",      ssao, "depth bias",        0.0, .5, 0.001);
     createValueSlider_UI("angleBias",      ssao, "angle bias",        0.0, .5, 0.001);
-    createValueSlider_UI("occlusionPower", ssao, "power",             0.0, 10.0, 0.01);
+    createValueSlider_UI("occlusionPower", ssao, "power",             0.0, 10.0, 0.1);
 
-    let blurVal = 1.0 / 16.0;
+    let blurVal4 = 1.0 / 16.0;
     let blurKernel4 = new Float32Array([
-        blurVal, blurVal, blurVal, blurVal,
-        blurVal, blurVal, blurVal, blurVal,
-        blurVal, blurVal, blurVal, blurVal,
-        blurVal, blurVal, blurVal, blurVal
+        blurVal4, blurVal4, blurVal4, blurVal4,
+        blurVal4, blurVal4, blurVal4, blurVal4,
+        blurVal4, blurVal4, blurVal4, blurVal4,
+        blurVal4, blurVal4, blurVal4, blurVal4
     ]);
 
 

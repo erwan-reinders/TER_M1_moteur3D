@@ -25,16 +25,10 @@ float lerp(float a, float b, float x) {
     return a + x * (b - a);
 }
 
-bool closeToZeroWithBias(vec3 value) {
-    float bias = 0.0001;
-    return value.x < bias && value.x > -bias && value.y < bias && value.y > -bias && value.z < bias && value.z > -bias;
-}
-
 void main()
 {
     // get input for SSAO algorithm
     vec3 WorldFragPos = texture(gPosition,   TexCoords).rgb;
-    WorldFragPos = closeToZeroWithBias(WorldFragPos)? vec3(0.0) : WorldFragPos;
     vec3 FragPos   = (uUsedViewMatrix * vec4(WorldFragPos, 1.0)).rgb;
     vec3 Normal    = texture(gNormal, TexCoords).rgb;
 
@@ -78,7 +72,4 @@ void main()
     occlusion = 1.0 - (occlusion / float(kernelSize));
     
     FragColor = vec4(vec3(pow(occlusion, occlusionPower)), 1.0);
-    //FragColor = vec4(FragPos + vec3(0.0, 0.0, 0.5), 1.0);
-    //FragColor = vec4(WorldFragPos + vec3(0.5, 0.0, 0.0), 1.0);
-    //FragColor = vec4(vec3(TBN * FragPos), 1.0);
 }
