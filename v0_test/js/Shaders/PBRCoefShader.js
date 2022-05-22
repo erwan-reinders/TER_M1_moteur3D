@@ -26,9 +26,10 @@ class PBRShader extends ShaderRenderer {
         this.shaderProgram.use();
         this.shaderProgram.setUniform("gPosition",      valType.texture2D);
         this.shaderProgram.setUniform("gNormal",        valType.texture2D);
-        this.shaderProgram.setUniform("gAlbedoMap",     valType.texture2D);
-        this.shaderProgram.setUniform("gNormalMap",     valType.texture2D);
-        this.shaderProgram.setUniform("gMettalicRoughnesAO",    valType.texture2D);
+        this.shaderProgram.setUniform("albedo",         valType.f3v);
+        this.shaderProgram.setUniform("metallic",       valType.f1);
+        this.shaderProgram.setUniform("roughness",      valType.f1);
+        this.shaderProgram.setUniform("ao",             valType.f1);
 
         this.shaderProgram.setUniform("uNLights",    valType.i1);
         this.shaderProgram.setUniform("uViewPos",    valType.f3v);
@@ -47,15 +48,12 @@ class PBRShader extends ShaderRenderer {
         this.shaderProgram.use();
         this.shaderProgram.setUniformValueByName("gPosition",           0, shaderResults.get("Position").getTexture());
         this.shaderProgram.setUniformValueByName("gNormal",             1, shaderResults.get("Normal").getTexture());
-        this.shaderProgram.setUniformValueByName("gAlbedoMap",          2, shaderResults.get("Albedo").getTexture());
-        this.shaderProgram.setUniformValueByName("gNormalMap",          3, shaderResults.get("NormalMap").getTexture());
-        this.shaderProgram.setUniformValueByName("gMettalicRoughnesAO", 4, shaderResults.get("MetalRougAO").getTexture());
     }
 
     /** @inheritdoc*/
     getRenderResults() {
         let renderResults = new Array();
-        renderResults.push(new ShaderRendererResult("PBR" , this.framebuffer.textures[0], this));
+        renderResults.push(new ShaderRendererResult("PBRCoef" , this.framebuffer.textures[0], this));
         return renderResults;
     }
 

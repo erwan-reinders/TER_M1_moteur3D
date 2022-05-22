@@ -6,6 +6,8 @@ function buildPipelines() {
     buildDefaultPipelines();
 }
 
+function buildPBRPipelines(){}
+
 
 function buildDefaultPipelines() {
     //==================================================================================================
@@ -113,6 +115,13 @@ function buildDefaultPipelines() {
         blurVal4, blurVal4, blurVal4, blurVal4,
         blurVal4, blurVal4, blurVal4, blurVal4
     ]);
+
+    createSeparateur("PBR");
+    let gShaderPBR = new PBRGBuffer(shaders.get("GBufferPBR"), canvas.width, canvas.height);
+    createValueSlider_UI("ShaderAOCoef", gShaderPBR, "AO",             0.0, 1.0, 0.01);
+    createValueSlider_UI("ShaderMetalCoef", gShaderPBR, "metalness",             0.0, 1.0, 0.01);
+    createValueSlider_UI("ShaderRoughnessCoef", gShaderPBR, "roughness",             0.0, 1.0, 0.01);
+    createVecN_UI("ShaderAlbedoCoef",  gShaderPBR, "albedo ",                 3, 0.01, true);
 
 
     //==================================================================================================
@@ -236,60 +245,56 @@ function buildDefaultPipelines() {
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "ExposedImage",        w * 4.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final",               w * 5.0, startH, w, h));
     
+    pipelines.push(p);
 
+    //==================================================================================================
+    // ADD A PBR PIPELINE FOR PHYSICALLY BASED RENDERING
+    //==================================================================================================
+    p = new ShaderPipeline();
+    p.addShader(gShaderPBR);
+    p.addShader(new PBRShader(shaders.get("PBR"),undefined, canvas.width, canvas.height));
+    //Skybox
+    p.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
+    p.addShader(new Fusion(shaders.get("fusion"), ["PBR", "Skybox"], "Colors", canvas.width, canvas.height));
+    //Bloom
+    p.addShader(extractRenderer);
+    p.addShader(gaussianRenderer);
+    p.addShader(new Fusion(shaders.get("fusion"), ["Colors", "Bloom"], "AllinOne", canvas.width, canvas.height));
+    //Post effects
+    p.addShader(exposureRenderer);
+    p.addShader(gammaCorrectionRenderer);
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
     pipelines.push(p);
 
     return pipelines;
 }
 
 function buildTestPipelines() {
-    let canvasScale = 0.5;
+    let canvasScale = 0.3;
     let testCanvasScale = 1.0;
 
-    // let p = new ShaderPipeline();
+    let skybox = getCubeMapImage([
+        "data/img/skybox/right.jpg",
+        "data/img/skybox/left.jpg",
+        "data/img/skybox/top.jpg",
+        "data/img/skybox/bottom.jpg",
+        "data/img/skybox/front.jpg",
+        "data/img/skybox/back.jpg"
+        ]);
 
-    // let g = new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height)
-    // let l = new BlinnPhong(shaders.get("blinnPhong"), canvas.width, canvas.height, false, false);
-
-    // let chainRenderer = new ChainRenderer([g, l]);
-
-    // chainRenderer.setFrameBuffer = function(fbo) {
-    //     this.pipeline.shaderRenderers[1].framebuffer = fbo;
-    // };
-
-    // let cu = new RenderOnCubemap(shaders.get("applyToScreen"), chainRenderer, vec3.clone([0.0, 1.0, 0.0]), "BlinnPhong", "ReflexionMap", canvas.width, canvas.height);
-    // // cu.cubemapTest = getCubeMapImage([
-    // //     "data/img/skybox/right.jpg",
-    // //     "data/img/skybox/left.jpg",
-    // //     "data/img/skybox/top.jpg",
-    // //     "data/img/skybox/bottom.jpg",
-    // //     "data/img/skybox/front.jpg",
-    // //     "data/img/skybox/back.jpg"
-    // //     ]);
-    // p.addShader(cu);
-
-    // //p.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height));
-    // p.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", undefined, canvas.width, canvas.height));
-    
-
-    // p.addShader(new ApplyCubeMapToObject(shaders.get("cubemapReflexion"), "ReflexionMap", canvas.width, canvas.height));
-
-    // // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Reflexion"));
-    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong"));
-    // // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "ReflexionPosition"));
-    // //p.addShader(new Fusion(shaders.get("fusion"), ["Position", "ReflexionPosition"], "Pos", canvas.width, canvas.height));
-    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Pos"));
-    // p.addShader(new Fusion(shaders.get("fusion"), ["ReflexionPosition", "Reflexion"], "Refl", canvas.width, canvas.height));
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Refl"));
-    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong"));
-    // // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "ReflexionMaptest"));
-    // let nb = 6.0;
-    // let w = canvas.width  / nb;
-    // let h = canvas.height / nb;
-    // for (let i = 0; i < 6; i++) {
-    //     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "InsideReflexionMap"+i, w*i, 0, w, h));
-    // }
-
-    // pipelines.push(p);
-
+    p = new ShaderPipeline();
+    p.addShader(new PBRGBuffer(shaders.get("GBufferPBR"), canvas.width, canvas.height));
+    p.addShader(new PBRShader(shaders.get("PBR"), undefined, canvas.width, canvas.height));
+    //Skybox
+    p.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
+    p.addShader(new Fusion(shaders.get("fusion"), ["PBR", "Skybox"], "Colors", canvas.width, canvas.height));
+    //Bloom
+    p.addShader(new ExtractColorByBrigthness(shaders.get("extractColorByBrigthness"), 0.95, vec4.clone([0.0, 0.0, 0.0, 1.0]), "Colors", "Extract", canvas.width * canvasScale, canvas.height * canvasScale));
+    p.addShader(new GaussianBlur(shaders.get("gaussianBlur"), 20.0, "Extract", "Bloom", canvas.width * canvasScale, canvas.height * canvasScale));
+    p.addShader(new Fusion(shaders.get("fusion"), ["Colors", "Bloom"], "AllinOne", canvas.width, canvas.height));
+    //Post effects
+    p.addShader(new Exposure(shaders.get("exposure"), "AllinOne", "ExposedImage", canvas.width, canvas.height));
+    p.addShader(new GammaCorrection(shaders.get("gammaCorrection"), "ExposedImage", "Final", canvas.width, canvas.height));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
+    pipelines.push(p);
 }

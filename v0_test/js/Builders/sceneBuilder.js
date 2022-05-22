@@ -1,28 +1,31 @@
 let scenes;
 
-function picking_test() {
+function pbr_test(){
     let scene = new Scene();
     let m;
 
     //Texture
     m = new Model(cube());
     m.matrix.modelMatrix = mat4.clone(
-        [10, 0, 0, 0,
+        [   2, 0, 0, 0,
             0, 2, 0, 0,
             0, 0, 2, 0,
-            0, 0, -2, 1]
+            0, 0, -2, 1
+        ]
     )
     m.diffuseTexture    = getTextureImage("data/img/chouette.png");
     m.specularTexture   = getTextureImage("data/img/white.png");
     m.specularFactor    = 16.0;
 
     m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+    m.material =  new Material();
 
     //m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
     //m.collider = OBB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
     scene.addModel(m);
 
     scene.addLight(new Light([-10.0, 50.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
+
     pipelines.forEach(p=>scene.pipelines.push(p));
     scenes.push(scene);
 }
@@ -31,9 +34,9 @@ function buildScenes() {
     scenes = new Array();
 
 
-    picking_test();
+    pbr_test();
 
-    //MAJ avancé chargement
+    //MAJ de l'avancée du chargement
     setLoadingPercent(0.4);
 
 

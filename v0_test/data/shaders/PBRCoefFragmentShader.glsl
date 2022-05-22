@@ -1,18 +1,16 @@
 #version 300 es
 precision highp float;
 
-layout (location = 0) out vec4 FragColor;
-
-in vec2 TexCoords;
+out vec4 FragColor;
 
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 
 // material parameters
-uniform sampler2D gAlbedoMap;
-uniform sampler2D gNormalMap;
-uniform sampler2D gMettalicRoughnesAO;
-
+uniform vec3 albedo;
+uniform float metallic;
+uniform float roughness;
+uniform float ao;
 
 // lights
 struct Light {
@@ -24,26 +22,11 @@ const int NR_LIGHTS = 16;
 uniform Light uLights[NR_LIGHTS];
 uniform int uNLights;
 
+in vec2 TexCoords;
+
 uniform vec3 uViewPos;
 
 const float PI = 3.14159265359;
-
-// ----------------------------------------------------------------------------
-// Easy trick to get tangent-normals to world-space to keep PBR code simplified.
-vec3 getNormalFromMap(vec3 Normal, vec3 WorldPos){
-    vec3 tangentNormal = texture(gNormalMap, TexCoords).xyz * 2.0 - 1.0;
-
-    vec3 Q1  = dFdx(WorldPos);
-    vec3 Q2  = dFdy(WorldPos);
-    vec2 st1 = dFdx(TexCoords);
-    vec2 st2 = dFdy(TexCoords);
-
-    vec3 N   = normalize(Normal);
-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
-    vec3 B  = -normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
-    return normalize(TBN * tangentNormal);
-}
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness){
     float a = roughness*roughness;
@@ -85,12 +68,7 @@ void main(){
     vec3 WorldPos = texture(gPosition, TexCoords).rgb;
     vec3 Normal = texture(gNormal, TexCoords).rgb;
 
-    vec3 albedo     = pow(texture(gAlbedoMap, TexCoords).rgb, vec3(2.2));
-    float metallic  = texture(gMettalicRoughnesAO, TexCoords).r;
-    float roughness = texture(gMettalicRoughnesAO, TexCoords).g;
-    float ao        = texture(gMettalicRoughnesAO, TexCoords).b;
-
-    vec3 N = getNormalFromMap(Normal,WorldPos);
+    vec3 N = normalize(Normal);
     vec3 V = normalize(uViewPos - WorldPos);
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
@@ -105,7 +83,6 @@ void main(){
         // calculate per-light radiance
         vec3 L = normalize(uLights[i].Position - WorldPos);
         vec3 H = normalize(V + L);
-
         float distance = length(uLights[i].Position - WorldPos);
         float attenuation = 1.0 / (distance * distance);
         vec3 radiance = uLights[i].Color * attenuation;
@@ -113,7 +90,7 @@ void main(){
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);
         float G   = GeometrySmith(N, V, L, roughness);
-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+        vec3 F    = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
 
         vec3 numerator    = NDF * G * F;
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
@@ -136,10 +113,10 @@ void main(){
         // add to outgoing radiance Lo
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }
-
+    // ambient lighting (note that the next IBL tutorial will replace
+    // this ambient lighting with environment lighting).
     vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo;
-
     // HDR tonemapping
     //color = color / (color + vec3(1.0));
     // gamma correct
