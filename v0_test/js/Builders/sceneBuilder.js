@@ -1,6 +1,6 @@
 let scenes;
 
-function picking_test(){
+function picking_test() {
     let scene = new Scene();
     let m;
 

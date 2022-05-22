@@ -139,6 +139,8 @@
     </div>
     <div id="stats">
         <div class="stat_element">fps : <span id="fps">0</span></div>
+        <div class="stat_element">scene : <span id="scene">0</span></div>
+        <div class="stat_element">pipeline : <span id="pipeline">0</span></div>
     </div>
 
     <script type="text/javascript" defer>
@@ -206,7 +208,12 @@
             document.addEventListener('mouseup', onMouseUp);
 
             fetchStat("fps");
+            fetchStat("scene");
+            fetchStat("pipeline");
 
+            stats["pipeline"].innerHTML = (currentPipeline+1) + " / " + pipelines.length;
+            stats["scene"].innerHTML = (currentScene+1) + " / " + scenes.length;
+        
             setLoadingPercent(1);
             //On doit faire apparaitre d'abord l'écran titre, puis enfin lancer la boucle de rendu
             setTimeout(makeTitleAppear,time_interval_maj);
