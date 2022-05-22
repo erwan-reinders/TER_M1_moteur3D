@@ -3,8 +3,11 @@
  * Rendu sur :
  *  Quad
  * Utilise :
- *  {RGB}  {ScreenSpace} Position      : les coordonées mondes
- *  {RGB}  {ScreenSpace} Normal        : les normales
+ *  {RGB}  {ScreenSpace} Position               : les coordonées mondes
+ *  {RGB}  {ScreenSpace} Normal                 : les normales
+ *  {RGB}  {ScreenSpace} Albedo                 : la couleur albedo
+ *  {RGB}  {ScreenSpace} NormalFromMap          : les normales combinées avec les textures de normales
+ *  {RGB}  {ScreenSpace} MetalRougAO            : les coefficients de metal/rugosite/AO
  Permet d'obtenir :
  *  {RGB}  {ScreenSpace} PBR    : la couleur PBR.
  */
@@ -22,11 +25,11 @@ class PBRShader extends ShaderRenderer {
         this.renderingMode = RenderingMode.quad;
 
         this.shaderProgram.use();
-        this.shaderProgram.setUniform("gPosition",      valType.texture2D);
-        this.shaderProgram.setUniform("gNormal",        valType.texture2D);
-        this.shaderProgram.setUniform("gAlbedoMap",     valType.texture2D);
-        this.shaderProgram.setUniform("gNormalMap",     valType.texture2D);
-        this.shaderProgram.setUniform("gMettalicRoughnesAO",    valType.texture2D);
+        this.shaderProgram.setUniform("gPosition",           valType.texture2D);
+        this.shaderProgram.setUniform("gNormal",             valType.texture2D);
+        this.shaderProgram.setUniform("gAlbedoMap",          valType.texture2D);
+        this.shaderProgram.setUniform("gNormalFromMap",      valType.texture2D);
+        this.shaderProgram.setUniform("gMettalicRoughnesAO", valType.texture2D);
 
         this.shaderProgram.setUniform("uNLights",    valType.i1);
         this.shaderProgram.setUniform("uViewPos",    valType.f3v);
@@ -35,6 +38,8 @@ class PBRShader extends ShaderRenderer {
         for (let i = 0; i < this.nLightsInShader; i++) {
             this.shaderProgram.setUniform("uLights["+i+"].Position"  , valType.f3v);
             this.shaderProgram.setUniform("uLights["+i+"].Color"     , valType.f3v);
+            this.shaderProgram.setUniform("uLights["+i+"].Linear"    , valType.f1);
+            this.shaderProgram.setUniform("uLights["+i+"].Quadratic" , valType.f1);
         }
         this.shaderProgram.setAllPos();
 
@@ -47,7 +52,7 @@ class PBRShader extends ShaderRenderer {
         this.shaderProgram.setUniformValueByName("gPosition",           0, shaderResults.get("Position").getTexture());
         this.shaderProgram.setUniformValueByName("gNormal",             1, shaderResults.get("Normal").getTexture());
         this.shaderProgram.setUniformValueByName("gAlbedoMap",          2, shaderResults.get("Albedo").getTexture());
-        this.shaderProgram.setUniformValueByName("gNormalMap",          3, shaderResults.get("NormalMap").getTexture());
+        this.shaderProgram.setUniformValueByName("gNormalFromMap",      3, shaderResults.get("NormalFromMap").getTexture());
         this.shaderProgram.setUniformValueByName("gMettalicRoughnesAO", 4, shaderResults.get("MetalRougAO").getTexture());
     }
 
@@ -75,6 +80,8 @@ class PBRShader extends ShaderRenderer {
                 for (let i = scene.lights.length; i < this.lights; i++) {
                     this.shaderProgram.setUniformValueByName("uLights["+i+"].Position"  , vec3.clone([0.0, 0.0, 0.0]));
                     this.shaderProgram.setUniformValueByName("uLights["+i+"].Color"     , vec3.clone([0.0, 0.0, 0.0]));
+                    this.shaderProgram.setUniformValueByName("uLights["+i+"].Linear"    , 1.0);
+                    this.shaderProgram.setUniformValueByName("uLights["+i+"].Quadratic" , 1.0);
                 }
             }
             this.nLights = Math.min(this.nLightsInShader, scene.lights.length);
@@ -87,6 +94,8 @@ class PBRShader extends ShaderRenderer {
 
             this.shaderProgram.setUniformValueByName("uLights["+i+"].Position"  , scene.lights[i].position);
             this.shaderProgram.setUniformValueByName("uLights["+i+"].Color"     , scene.lights[i].color);
+            this.shaderProgram.setUniformValueByName("uLights["+i+"].Linear"    , scene.lights[i].linear);
+            this.shaderProgram.setUniformValueByName("uLights["+i+"].Quadratic" , scene.lights[i].quadratic);
         }
     }
 
