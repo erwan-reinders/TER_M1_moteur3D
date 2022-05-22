@@ -101,6 +101,7 @@ void main(){
     // reflectance equation
     vec3 Lo = vec3(0.0);
     int loop = min(uNLights, NR_LIGHTS);
+    vec3 radiance;
     for(int i = 0; i < loop; ++i){
         // calculate per-light radiance
         vec3 L = normalize(uLights[i].Position - WorldPos);
@@ -108,7 +109,7 @@ void main(){
 
         float distance = length(uLights[i].Position - WorldPos);
         float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = uLights[i].Color * attenuation;
+        radiance = uLights[i].Color * attenuation;
 
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);
@@ -145,4 +146,5 @@ void main(){
     // gamma correct
     //color = pow(color, vec3(1.0/2.2));
     FragColor = vec4(color, 1.0);
+    //FragColor = vec4(loop,0,0, 1.0);
 }

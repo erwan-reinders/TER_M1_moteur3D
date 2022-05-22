@@ -17,11 +17,9 @@ class PBRShader extends ShaderRenderer {
      * @param {number}  width  La résolution horizontale du rendu en nombre de pixel.
      * @param {number}  height La résolution verticale du rendu en nombre de pixel.
      * */
-    constructor(shaderProgram, shadowRenderer, width, height) {
+    constructor(shaderProgram, width, height) {
         super(shaderProgram);
         this.renderingMode = RenderingMode.quad;
-
-        this.shadowRenderer = shadowRenderer;
 
         this.shaderProgram.use();
         this.shaderProgram.setUniform("gPosition",      valType.texture2D);
@@ -79,6 +77,8 @@ class PBRShader extends ShaderRenderer {
             }
             this.nLights = Math.min(this.nLightsInShader, scene.lights.length);
         }
+
+        console.log(this.nLights);
 
         this.shaderProgram.setUniformValueByName("uNLights", this.nLights);
         for (let i = 0; i < this.nLights; i++) {
