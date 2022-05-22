@@ -41,7 +41,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness){
 
     float nom   = a2;
     float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = PI * denom * denom;
+    denom = PI * denom * denom + 0.0001;
 
     return nom / denom;
 }
@@ -51,7 +51,7 @@ float GeometrySchlickGGX(float NdotV, float roughness){
     float k = (r*r) / 8.0;
 
     float nom   = NdotV;
-    float denom = NdotV * (1.0 - k) + k;
+    float denom = NdotV * (1.0 - k) + k + 0.0001;
 
     return nom / denom;
 }
@@ -141,14 +141,15 @@ void main(){
     //color = color / (color + vec3(1.0));
     // gamma correct
     //color = pow(color, vec3(1.0/2.2));
-    // FragColor = vec4(color* vec3(10.0), 1.0);
-    // LoColor = vec4(Lo * vec3(10.0), 1.0);
+    FragColor = vec4(color, 1.0);
+    LoColor = vec4(Lo, 1.0);
     // FragColor = vec4(test.rgb, 1.0);
     // LoColor = vec4(vec3(test.a), 1.0);
     // FragColor = vec4(F0, 1.0);
-    FragColor = vec4(color, 1.0);
-    LoColor = vec4(Lo, 1.0);
-    // FragColor = vec4(N, 1.0);
-    // LoColor = vec4(V, 1.0);
+    // FragColor = vec4(ambient * 10.0, 1.0);
+    // LoColor = vec4(Lo * 10.0, 1.0);
+    // FragColor = vec4(vec3(uLights[0].Quadratic * (1.0 / 0.001)), 1.0);
+    // FragColor = vec4(vec3(test.rgb), 1.0);
+    // LoColor = vec4(vec3(test.a), 1.0);
     //FragColor = vec4(F0, 1.0);
 }

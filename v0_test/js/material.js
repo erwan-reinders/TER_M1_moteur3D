@@ -14,7 +14,7 @@ class Material {
      * **/
     constructor(
         albedoMap = "data/img/white.png" ,
-        normalMap= "data/img/white.png",
+        normalMap= "data/img/black.png",
         metallicMap="data/img/white.png",
         roughnessMap="data/img/white.png",
         aoMap="data/img/white.png",

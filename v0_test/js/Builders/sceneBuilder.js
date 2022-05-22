@@ -4,27 +4,42 @@ function pbr_test(){
     let scene = new Scene();
     let m;
 
-    //Texture
-    m = new Model(cube());
-    m.matrix.modelMatrix = mat4.clone(
-        [   2, 0, 0, 0,
-            0, 2, 0, 0,
-            0, 0, 2, 0,
-            0, 0, -2, 1
-        ]
-    )
-    m.diffuseTexture    = getTextureImage("data/img/chouette.png");
-    m.specularTexture   = getTextureImage("data/img/white.png");
-    m.specularFactor    = 16.0;
+    let nbX = 5;
+    let nbY = 5;
+    let spacingX = 1.5;
+    let spacingY = 1.5;
+    let startX = - nbX * 0.5;
+    let startY = - nbY * 0.5;
+    for (let x = 0; x < nbX; x++) {
+        for (let y = 0; y < nbY; y++) {
+            m = new Model(uvSphere());
+            let posX = startX + x * spacingX;
+            let posY = startY + y * spacingY;
+            m.matrix.modelMatrix = mat4.clone(
+                [
+                    1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 1, 0,
+                    posX, posY, -2, 1
+                ]
+            )
+            m.diffuseTexture    = getTextureImage("data/img/chouette.png");
+            m.specularTexture   = getTextureImage("data/img/white.png");
+            m.specularFactor    = 2.0;
+        
+            m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+            m.material =  new Material();
+            m.material.coefMetal = x / nbX;
+            m.material.coefRough = y / nbY;
 
-    m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
-    m.material =  new Material();
-
-    //m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
-    //m.collider = OBB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
-    scene.addModel(m);
+            m.material.renderWithObjCoef = true;
+            
+            scene.addModel(m);
+        }
+    }
 
     scene.addLight(new Light([-10.0, 10.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
+    scene.addLight(new Light([10.0, 5.0, 20.0], [1.0, 1.0, 1.0], 0.4, 0.1));
 
     pipelines.forEach(p=>scene.pipelines.push(p));
     scenes.push(scene);

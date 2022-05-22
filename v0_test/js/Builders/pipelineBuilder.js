@@ -284,7 +284,7 @@ function buildDefaultPipelines() {
     p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Position",    w * 0.0, 0.0, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Normal",      w * 1.0, 0.0, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Albedo",      w * 2.0, 0.0, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "NormalMap",   w * 3.0, 0.0, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "NormalFromMap",   w * 3.0, 0.0, w, h));
 
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenR"), "MetalRougAO", w * 0.0, h, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenG"), "MetalRougAO", w * 1.0, h, w, h));
@@ -324,9 +324,7 @@ function buildTestPipelines() {
     p.addShader(new GammaCorrection(shaders.get("gammaCorrection"), "ExposedImage", "Final", canvas.width, canvas.height));
 
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Colors"));
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "AllinOne"));
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "ExposedImage"));
+    
     let nb = 7.0;
     let w = canvas.width  / nb;
     let h = canvas.height / nb;
