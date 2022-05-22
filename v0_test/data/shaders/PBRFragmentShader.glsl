@@ -2,6 +2,7 @@
 precision highp float;
 
 layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 LoColor;
 
 in vec2 TexCoords;
 
@@ -141,10 +142,11 @@ void main(){
     vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo;
 
+    LoColor = vec4(Lo, 1.0);
     // HDR tonemapping
     //color = color / (color + vec3(1.0));
     // gamma correct
     //color = pow(color, vec3(1.0/2.2));
-    FragColor = vec4(color, 1.0);
-    //FragColor = vec4(loop,0,0, 1.0);
+    //FragColor = vec4(color, 1.0);
+    FragColor = vec4(F0, 1.0);
 }

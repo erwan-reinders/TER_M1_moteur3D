@@ -277,14 +277,20 @@ function buildDefaultPipelines() {
         p.addShader(shaderRenderer);
     });
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
-    nb = 5.0;
+    nb = 4.0;
     w = canvas.width  / nb;
     h = canvas.height / nb;
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Position",            w * 0.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Normal",              w * 1.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Albedo",       w * 2.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenA"),    "NormalMap",       w * 3.0, startH, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "MetalRougAO",   w * 4.0, startH, w, h));
+
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Position",    w * 0.0, 0.0, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Normal",      w * 1.0, 0.0, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Albedo",      w * 2.0, 0.0, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "NormalMap",   w * 3.0, 0.0, w, h));
+
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenR"), "MetalRougAO", w * 4.0, h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenG"), "MetalRougAO", w * 5.0, h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenB"), "MetalRougAO", w * 6.0, h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"), "PBRRadianceSum", w * 6.0, h, w, h));
+
     pipelines.push(p);
 
     return pipelines;
@@ -328,7 +334,6 @@ function buildTestPipelines() {
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenR"), "MetalRougAO", w * 4.0, 0.0, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenG"), "MetalRougAO", w * 5.0, 0.0, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenB"), "MetalRougAO", w * 6.0, 0.0, w, h));
-
 
     pipelines.push(p);
 }

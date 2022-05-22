@@ -37,7 +37,8 @@ class PBRShader extends ShaderRenderer {
             this.shaderProgram.setUniform("uLights["+i+"].Color"     , valType.f3v);
         }
         this.shaderProgram.setAllPos();
-        this.framebuffer = new Framebuffer(width, height, 1);
+
+        this.framebuffer = new Framebuffer(width, height, 2);
     }
 
     /** @inheritdoc*/
@@ -54,6 +55,7 @@ class PBRShader extends ShaderRenderer {
     getRenderResults() {
         let renderResults = new Array();
         renderResults.push(new ShaderRendererResult("PBR" , this.framebuffer.textures[0], this));
+        renderResults.push(new ShaderRendererResult("PBRRadianceSum" , this.framebuffer.textures[1], this));
         return renderResults;
     }
 
@@ -77,9 +79,7 @@ class PBRShader extends ShaderRenderer {
             }
             this.nLights = Math.min(this.nLightsInShader, scene.lights.length);
         }
-
-        console.log(this.nLights);
-
+        //console.log(this.nLights);
         this.shaderProgram.setUniformValueByName("uNLights", this.nLights);
         for (let i = 0; i < this.nLights; i++) {
             this.shaderProgram.setUniformValueByName("uLights["+i+"].Position"  , scene.lights[i].position);
