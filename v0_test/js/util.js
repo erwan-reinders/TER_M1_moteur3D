@@ -260,6 +260,12 @@ function getCubeMap(width, height, interpol = gl.NEAREST, wrapping = gl.REPEAT) 
     return texture;
 }
 
+/**
+ * Génère une cubemap vide.
+ * @param {number} width La largeur de la cubemap.
+ * @param {number} height La hauteur de la cubemap.
+ * @returns {WebGLTexture} La cubemap générée.
+ */
 function getDepthCubeMap(width, height) {
     let texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
@@ -277,11 +283,9 @@ function getDepthCubeMap(width, height) {
     return texture;
 }
 
-
-//https://webglfundamentals.org/webgl/lessons/webgl-cube-maps.html
 /**
- * Génère une cubemap à partir de 6 images.
- * @param {string[6]} srcs Les 6 chemins vers les 6 fichiers images.
+ * Génère une cubemap à partir de 6 images. (https://webglfundamentals.org/webgl/lessons/webgl-cube-maps.html)
+ * @param {string[]} srcs Les 6 chemins vers les 6 fichiers images.
  * @param {boolean} silence Doit-on afficher un message dans la console lors de la fin du chargement de l'image?
  * @returns {Cubemap} La cubemap générée.
  */

@@ -1,5 +1,6 @@
 let scenes;
 
+function picking_test(){
 function testScene() {
     scene = new Scene("webglcanvas");
 
@@ -67,7 +68,7 @@ function testScene() {
     scene.addModel(m);
 
     scene.addModel(new Model(quad(), "end"));
-    
+
     scene.initModels();
 
 
@@ -148,7 +149,7 @@ function reflexion() {
     m = new Model(uvTorus(), "cubeMapReflexionSOLO");
     m.cubemap = c;
     scene.addModel(m);
-    
+
     m = new Model(uvSphere(), "cubeMapRefractionSOLO");
     m.matrix.modelMatrix = mat4.clone(
         [1, 0, 0, 0,
@@ -193,6 +194,9 @@ function pbr_test(){
             0, 0, -2, 1
         ]
     )
+    m.diffuseTexture    = getTextureImage("data/img/chouette.png");
+    m.specularTexture   = getTextureImage("data/img/white.png");
+    m.specularFactor    = 16.0;
 
     m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
 
@@ -201,6 +205,7 @@ function pbr_test(){
     scene.addModel(m);
 
     scene.addLight(new Light([-10.0, 50.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
+    pipelines.forEach(p=>scene.pipelines.push(p));
     scenes.push(scene);
 }
 
@@ -375,6 +380,9 @@ function buildScenes() {
     }
     lights.forEach(l => scene.addLight(l));
 
+
+    pipelines.forEach(p=>scene.pipelines.push(p));
+
     scenes.push(scene);
 
     //MAJ avancé chargement
@@ -414,6 +422,7 @@ function buildScenes() {
 
     scene.addLight(new Light([-10.0, 50.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
 
+    scene.pipelines.push(pipelines[0]);
 
     scenes.push(scene);
 

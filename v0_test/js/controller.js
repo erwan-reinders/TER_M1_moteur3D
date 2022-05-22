@@ -75,6 +75,8 @@ class Controller {
             if (currentScene >= scenes.length) {
                 currentScene = 0;
             }
+            pipelines = scenes[currentScene].pipelines;
+            currentPipeline = 0;
         }
         if (event.key == "o") {
         }
