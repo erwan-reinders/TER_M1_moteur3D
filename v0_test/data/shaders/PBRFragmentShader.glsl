@@ -19,6 +19,9 @@ uniform sampler2D gMettalicRoughnesAO;
 struct Light {
     vec3 Position;
     vec3 Color;
+
+    float Linear;
+    float Quadratic;
 };
 
 const int NR_LIGHTS = 16;
@@ -86,7 +89,8 @@ void main(){
     vec3 WorldPos = texture(gPosition, TexCoords).rgb;
     vec3 Normal = texture(gNormal, TexCoords).rgb;
 
-    vec3 albedo     = pow(texture(gAlbedoMap, TexCoords).rgb, vec3(2.2));
+    // vec3 albedo     = pow(texture(gAlbedoMap, TexCoords).rgb, vec3(2.2));
+    vec3 albedo     = texture(gAlbedoMap, TexCoords).rgb;
     float metallic  = texture(gMettalicRoughnesAO, TexCoords).r;
     float roughness = texture(gMettalicRoughnesAO, TexCoords).g;
     float ao        = texture(gMettalicRoughnesAO, TexCoords).b;
@@ -103,13 +107,15 @@ void main(){
     vec3 Lo = vec3(0.0);
     int loop = min(uNLights, NR_LIGHTS);
     vec3 radiance;
+    vec4 test;
     for(int i = 0; i < loop; ++i){
         // calculate per-light radiance
         vec3 L = normalize(uLights[i].Position - WorldPos);
         vec3 H = normalize(V + L);
 
         float distance = length(uLights[i].Position - WorldPos);
-        float attenuation = 1.0 / (distance * distance);
+        float attenuation = 1.0 / (1.0 + uLights[i].Linear * distance + uLights[i].Quadratic * distance * distance);
+        // float attenuation = 1.0 / (distance * distance * 0.007);
         radiance = uLights[i].Color * attenuation;
 
         // Cook-Torrance BRDF
@@ -137,6 +143,8 @@ void main(){
 
         // add to outgoing radiance Lo
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+        test.rgb = radiance;
+        test.a = attenuation;
     }
 
     vec3 ambient = vec3(0.03) * albedo * ao;
@@ -147,9 +155,12 @@ void main(){
     //color = color / (color + vec3(1.0));
     // gamma correct
     //color = pow(color, vec3(1.0/2.2));
-    FragColor = vec4(color, 1.0);
-    LoColor = vec4(color * vec3(3.0), 1.0);
+    // FragColor = vec4(color* vec3(10.0), 1.0);
+    // LoColor = vec4(Lo * vec3(10.0), 1.0);
+    // FragColor = vec4(test.rgb, 1.0);
+    // LoColor = vec4(vec3(test.a), 1.0);
     // FragColor = vec4(F0, 1.0);
     FragColor = vec4(color, 1.0);
+    LoColor = vec4(Lo, 1.0);
     //FragColor = vec4(F0, 1.0);
 }
