@@ -11,7 +11,7 @@ uniform sampler2D gNormal;
 
 // material parameters
 uniform sampler2D gAlbedoMap;
-uniform sampler2D gNormalMap;
+uniform sampler2D gNormalFromMap;
 uniform sampler2D gMettalicRoughnesAO;
 
 
@@ -32,22 +32,6 @@ uniform vec3 uViewPos;
 
 const float PI = 3.14159265359;
 
-// ----------------------------------------------------------------------------
-// Easy trick to get tangent-normals to world-space to keep PBR code simplified.
-vec3 getNormalFromMap(vec3 Normal, vec3 WorldPos){
-    vec3 tangentNormal = texture(gNormalMap, TexCoords).xyz * 2.0 - 1.0;
-
-    vec3 Q1  = dFdx(WorldPos);
-    vec3 Q2  = dFdy(WorldPos);
-    vec2 st1 = dFdx(TexCoords);
-    vec2 st2 = dFdy(TexCoords);
-
-    vec3 N   = normalize(Normal);
-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
-    vec3 B  = -normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
-    return normalize(TBN * tangentNormal);
-}
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness){
     float a = roughness*roughness;
@@ -95,7 +79,9 @@ void main(){
     float roughness = texture(gMettalicRoughnesAO, TexCoords).g;
     float ao        = texture(gMettalicRoughnesAO, TexCoords).b;
 
-    vec3 N = getNormalFromMap(Normal,WorldPos);
+    vec3 N          = texture(gNormalFromMap, TexCoords).xyz;
+
+
     vec3 V = normalize(uViewPos - WorldPos);
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
@@ -162,5 +148,7 @@ void main(){
     // FragColor = vec4(F0, 1.0);
     FragColor = vec4(color, 1.0);
     LoColor = vec4(Lo, 1.0);
+    // FragColor = vec4(N, 1.0);
+    // LoColor = vec4(V, 1.0);
     //FragColor = vec4(F0, 1.0);
 }

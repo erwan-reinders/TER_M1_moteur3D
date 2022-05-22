@@ -8,7 +8,7 @@
  *  {RGB}  {ScreenSpace} Position               : les coordonées mondes
  *  {RGB}  {ScreenSpace} Normal                 : les normales
  *  {RGB}  {ScreenSpace} Albedo                 : la couleur albedo
- *  {RGB}  {ScreenSpace} NormalMap              : les normales remappees
+ *  {RGB}  {ScreenSpace} NormalFromMap          : les normales combinées avec les textures de normales
  *  {RGB}  {ScreenSpace} MetalRougAO            : les coefficients de metal/rugosite/AO
  */
 
@@ -71,7 +71,7 @@ class PBRGBuffer extends ShaderRenderer {
         renderResults.push(new ShaderRendererResult("Position"      , this.framebuffer.textures[0], this));
         renderResults.push(new ShaderRendererResult("Normal"        , this.framebuffer.textures[1], this));
         renderResults.push(new ShaderRendererResult("Albedo"        , this.framebuffer.textures[2], this));
-        renderResults.push(new ShaderRendererResult("NormalMap"     , this.framebuffer.textures[3], this));
+        renderResults.push(new ShaderRendererResult("NormalFromMap" , this.framebuffer.textures[3], this));
         renderResults.push(new ShaderRendererResult("MetalRougAO"   , this.framebuffer.textures[4], this));
         return renderResults;
     }
