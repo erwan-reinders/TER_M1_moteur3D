@@ -9,6 +9,8 @@ class Scene {
         this.cube = new Model(cube());
         this.lights = [];
 
+        this.pipelines = [];
+
         this.init();
     }
 
@@ -22,6 +24,12 @@ class Scene {
      * @param light : Lumière à ajouter à la scène */
     addLight(light) {
         this.lights.push(light);
+    }
+    
+    /**Méthode permettant d'ajouter une pipeline à la scène
+     * @param pipeline : Pipeline à ajouter à la scène */
+    addPipelines(pipeline) {
+        this.pipelines.push(pipeline);
     }
 
     /** Méthode permettant d'initialiser une scène */

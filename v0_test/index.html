@@ -70,9 +70,9 @@
     <script type="text/javascript" src="js/Shaders/renderOnCubemap.js"></script>
 
     <!-- BUILDERS -->
-    <script type="text/javascript" src="js/Builders/sceneBuilder.js"></script>
     <script type="text/javascript" src="js/Builders/shaderBuilder.js"></script>
     <script type="text/javascript" src="js/Builders/pipelineBuilder.js"></script>
+    <script type="text/javascript" src="js/Builders/sceneBuilder.js"></script>
 
 </head>
 <body>
@@ -179,14 +179,17 @@
             initGl("webglcanvas");
             setLoadingPercent(0.2);
 
-            buildScenes();
-            setLoadingPercent(0.8);
-
+            
             buildShaders();
-            setLoadingPercent(0.85);
-
+            setLoadingPercent(0.8);
+            
             buildPipelines();
+            setLoadingPercent(0.85);
+            
+            buildScenes();
             setLoadingPercent(0.9);
+
+            pipelines = scenes[currentScene].pipelines;
         }
 
         function main() {
