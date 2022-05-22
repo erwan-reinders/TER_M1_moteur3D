@@ -21,6 +21,8 @@
     width: 25vw;
 
     animation: width_disappear .5s forwards;
+
+    user-select:none;
 }
 
 button{
@@ -68,6 +70,8 @@ button:hover{
     background-color: var(--bg_color_ui);
     color: var(--color-text);
     font-family: var(--font_family_text);
+
+    user-select:none;
 }
 
 #option_icon {
@@ -76,6 +80,8 @@ button:hover{
     top: 10px;
     left: 10px;
     font-size: 6rem;
+
+    user-select:none;
 }
 
 #close_icon {
