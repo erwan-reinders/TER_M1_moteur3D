@@ -33,8 +33,8 @@ class ColliderShader extends ShaderRenderer {
 
         this.x = 0;
         this.y = 0;
-        this.width = canvas.width;
-        this.height = canvas.height;
+        this.width = width;
+        this.height = height;
 
         this.models = {};
         this.initModels();

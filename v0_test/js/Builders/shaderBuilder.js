@@ -13,6 +13,7 @@ function buildShaders() {
     shaders.set("applyToScreen",                new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyRGB.glsl"));
     shaders.set("applyToScreenA",               new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyAlpha.glsl"));
     shaders.set("fusion",                       new ShaderProgram("ScreenPosVertexShader.glsl", "fusion.glsl"));
+    shaders.set("fusionDepth",                  new ShaderProgram("ScreenPosVertexShader.glsl", "fusionDepth.glsl"));
     shaders.set("blinnPhong",                   new ShaderProgram("ScreenPosVertexShader.glsl", "LightBlinnPhongFragmentShader.glsl"));
     shaders.set("blinnPhongShadow",             new ShaderProgram("ScreenPosVertexShader.glsl", "BlinnPhongShadow.glsl"));
     shaders.set("blinnPhongShadowSSAO",         new ShaderProgram("ScreenPosVertexShader.glsl", "BlinnPhongShadowSSAO.glsl"));

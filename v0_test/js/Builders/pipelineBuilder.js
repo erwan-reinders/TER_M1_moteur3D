@@ -44,7 +44,7 @@ function buildDefaultPipelines() {
 
     createSeparateur("Bloom");
     let canvasScale = 0.3;
-    let extractRenderer = new ExtractColorByBrigthness(shaders.get("extractColorByBrigthness"), 0.95, vec4.clone([0.0, 0.0, 0.0, 1.0]), "BlinnPhongAndSkybox", "Extract", canvas.width * canvasScale, canvas.height * canvasScale);
+    let extractRenderer = new ExtractColorByBrigthness(shaders.get("extractColorByBrigthness"), 0.95, vec4.clone([0.0, 0.0, 0.0, 1.0]), "Colors", "Extract", canvas.width * canvasScale, canvas.height * canvasScale);
     createValueSlider_UI("seuil", extractRenderer, "seuil", 0.0, 2.0, 0.05);
 
     let gaussianRenderer = new GaussianBlur(shaders.get("gaussianBlur"), 20.0, "Extract", "Bloom", canvas.width * canvasScale, canvas.height * canvasScale);
@@ -120,11 +120,10 @@ function buildDefaultPipelines() {
     //==================================================================================================
     let firstPipeline = new ShaderPipeline();
     //GPass
-    firstPipeline.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", undefined, canvas.width, canvas.height));
-    firstPipeline.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height, "ReflexionPosition"));
+    firstPipeline.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height));
     firstPipeline.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", "Position", canvas.width, canvas.height));
     //Skybox
-    firstPipeline.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
+    firstPipeline.addShader(new Skybox(shaders.get("skybox"), skybox, "ReflexionPosition", canvas.width, canvas.height));
     //Reflexion
     firstPipeline.addShader(new CubeMapReflexion(shaders.get("cubemapReflexion"), skybox, canvas.width, canvas.height));
     //SSAO
@@ -133,12 +132,12 @@ function buildDefaultPipelines() {
     //Light and shadows : blinnPhongWithShadowsAllLights
     firstPipeline.addShader(blinnPhongRendererAllLights);
     //Fusion 1 : BlinnPhong avec la skybox
-    firstPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Skybox", "Reflexion"], "BlinnPhongAndSkybox", canvas.width, canvas.height));
+    firstPipeline.addShader(new FusionDepth(shaders.get("fusionDepth"), ["BlinnPhong", "Reflexion"], ["Position", "ReflexionPosition"], "BlinnPhongAndReflexion", canvas.width, canvas.height));
+    firstPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhongAndReflexion", "Skybox"], "Colors", canvas.width, canvas.height));
     //Bloom
     firstPipeline.addShader(extractRenderer);
     firstPipeline.addShader(gaussianRenderer);
-    //Fusion 2
-    firstPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhongAndSkybox", "Bloom"], "AllinOne", canvas.width, canvas.height));
+    firstPipeline.addShader(new Fusion(shaders.get("fusion"), ["Colors", "Bloom"], "AllinOne", canvas.width, canvas.height));
     //Post effects
     firstPipeline.addShader(exposureRenderer);
     firstPipeline.addShader(gammaCorrectionRenderer);
@@ -157,11 +156,10 @@ function buildDefaultPipelines() {
     let defalutPipeline = new ShaderPipeline();
 
     //GPass
-    defalutPipeline.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", undefined, canvas.width, canvas.height));
-    defalutPipeline.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height, "ReflexionPosition"));
+    defalutPipeline.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height));
     defalutPipeline.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", "Position", canvas.width, canvas.height));
     //Skybox
-    defalutPipeline.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
+    defalutPipeline.addShader(new Skybox(shaders.get("skybox"), skybox, "ReflexionPosition", canvas.width, canvas.height));
     //Reflexion
     defalutPipeline.addShader(new CubeMapReflexion(shaders.get("cubemapReflexion"), skybox, canvas.width, canvas.height));
     //Shadow
@@ -173,12 +171,13 @@ function buildDefaultPipelines() {
     //Light : blinnPhongWithShadows
     defalutPipeline.addShader(blinnPhongRenderer);
     //Fusion 1 : BlinnPhong avec la skybox
-    defalutPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Skybox", "Reflexion"], "BlinnPhongAndSkybox", canvas.width, canvas.height));
+    defalutPipeline.addShader(new FusionDepth(shaders.get("fusionDepth"), ["BlinnPhong", "Reflexion"], ["Position", "ReflexionPosition"], "BlinnPhongAndReflexion", canvas.width, canvas.height));
+    defalutPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhongAndReflexion", "Skybox"], "Colors", canvas.width, canvas.height));
     //Bloom
     defalutPipeline.addShader(extractRenderer);
     defalutPipeline.addShader(gaussianRenderer);
     //Fusion 2
-    defalutPipeline.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhongAndSkybox", "Bloom"], "AllinOne", canvas.width, canvas.height));
+    defalutPipeline.addShader(new Fusion(shaders.get("fusion"), ["Colors", "Bloom"], "AllinOne", canvas.width, canvas.height));
     //Post effects
     defalutPipeline.addShader(exposureRenderer);
     defalutPipeline.addShader(gammaCorrectionRenderer);
@@ -230,7 +229,7 @@ function buildDefaultPipelines() {
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong",          w * 4.0, startH+h, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Reflexion",           w * 5.0, startH+h, w, h));
     
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "BlinnPhongAndSkybox", w * 0.0, startH, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),     "Colors",              w * 0.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Extract",             w * 1.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Bloom",               w * 2.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "AllinOne",            w * 3.0, startH, w, h));
@@ -251,7 +250,7 @@ function buildTestPipelines() {
 
     // p.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", undefined, canvas.width * testCanvasScale, canvas.height * testCanvasScale));
     // p.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height, "ReflexionPosition"));
-    // p.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", "Position", canvas.width * testCanvasScale, canvas.height * testCanvasScale));
+    // //p.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", "Position", canvas.width * testCanvasScale, canvas.height * testCanvasScale));
 
     // //p.addShader(new Skybox(shaders.get("skybox"), {ready : false}, "invPosition", canvas.width, canvas.height));
 
@@ -267,7 +266,8 @@ function buildTestPipelines() {
     // p.addShader(new CubeMapReflexion(shaders.get("cubemapReflexion"), skybox, canvas.width, canvas.height));
     // p.addShader(new BlinnPhong(shaders.get("blinnPhong"), canvas.width, canvas.height, false, false));
 
-    // p.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Reflexion"], "fus", canvas.width, canvas.height));
+    // //p.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Reflexion"], "fus", canvas.width, canvas.height));
+    // p.addShader(new FusionDepth(shaders.get("fusionDepth"), "BlinnPhong", "Position", "Reflexion", "ReflexionPosition", "fus", canvas.width, canvas.height));
 
 
     // //Render
