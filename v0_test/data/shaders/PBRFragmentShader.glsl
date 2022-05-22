@@ -118,7 +118,7 @@ void main(){
         vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
         vec3 numerator    = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
+        float denominator = float(loop) * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
         vec3 specular = numerator / denominator;
 
         // kS is equal to Fresnel
@@ -147,6 +147,6 @@ void main(){
     //color = color / (color + vec3(1.0));
     // gamma correct
     //color = pow(color, vec3(1.0/2.2));
-    //FragColor = vec4(color, 1.0);
-    FragColor = vec4(F0, 1.0);
+    FragColor = vec4(color, 1.0);
+    //FragColor = vec4(F0, 1.0);
 }

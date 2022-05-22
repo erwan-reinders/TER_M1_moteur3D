@@ -286,10 +286,10 @@ function buildDefaultPipelines() {
     p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Albedo",      w * 2.0, 0.0, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "NormalMap",   w * 3.0, 0.0, w, h));
 
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenR"), "MetalRougAO", w * 4.0, h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenG"), "MetalRougAO", w * 5.0, h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenB"), "MetalRougAO", w * 6.0, h, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"), "PBRRadianceSum", w * 6.0, h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenR"), "MetalRougAO", w * 0.0, h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenG"), "MetalRougAO", w * 1.0, h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenB"), "MetalRougAO", w * 2.0, h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"), "PBRRadianceSum", w * 3.0, h, w, h));
 
     pipelines.push(p);
 
@@ -311,7 +311,7 @@ function buildTestPipelines() {
 
     p = new ShaderPipeline();
     p.addShader(new PBRGBuffer(shaders.get("GBufferPBR"), canvas.width, canvas.height));
-    p.addShader(new PBRShader(shaders.get("PBR"), undefined, canvas.width, canvas.height));
+    p.addShader(new PBRShader(shaders.get("PBR"), canvas.width, canvas.height));
     //Skybox
     p.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
     p.addShader(new Fusion(shaders.get("fusion"), ["PBR", "Skybox"], "Colors", canvas.width, canvas.height));

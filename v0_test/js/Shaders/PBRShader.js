@@ -82,6 +82,9 @@ class PBRShader extends ShaderRenderer {
         //console.log(this.nLights);
         this.shaderProgram.setUniformValueByName("uNLights", this.nLights);
         for (let i = 0; i < this.nLights; i++) {
+            //console.log(scene.lights[i].position);
+            //console.log(scene.lights[i].color);
+
             this.shaderProgram.setUniformValueByName("uLights["+i+"].Position"  , scene.lights[i].position);
             this.shaderProgram.setUniformValueByName("uLights["+i+"].Color"     , scene.lights[i].color);
         }
