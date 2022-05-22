@@ -30,6 +30,8 @@ class ApplyToScreen extends ShaderRenderer {
         this.width = width;
         this.height = height;
         
+        this.shaderProgram.use();
+        
         this.shaderProgram.setUniform("inputColor", valType.texture2D);
 
         this.shaderProgram.setAllPos();

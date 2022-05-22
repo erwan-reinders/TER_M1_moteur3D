@@ -77,8 +77,15 @@ class Camera {
      * Met à jour les matrices de la caméra. 
      */
     updateMatrix() {
-        mat4.lookAt(this.matrix.viewMatrix, this.position, this.target, this.up);
+        this.aspect = canvas.getBoundingClientRect().width / canvas.getBoundingClientRect().height;
+        this.updateViewMatrix();
+        this.updateProjMatrix();
+    }
+    updateProjMatrix() {
         this.projection();
+    }
+    updateViewMatrix() {
+        mat4.lookAt(this.matrix.viewMatrix, this.position, this.target, this.up);
     }
 
     /**

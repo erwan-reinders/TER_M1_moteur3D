@@ -13,9 +13,12 @@ class ChainRenderer extends ShaderRenderer {
      * Construit le faiseur de rendu permettant de dessiner une texture sur une zone de l'ecran.
      * @inheritdoc
      * @param {ShaderRenderer[]} shaderRenderers Une liste de ShaderRenderer.
+     * @param {boolean} addToPipeline Doit-on ajouter les résultats à la pipeline courrante?
      */
-    constructor(shaderRenderers) {
+    constructor(shaderRenderers, addToPipeline = true) {
         super(undefined);
+
+        this.addToPipeline = addToPipeline;
 
         this.pipeline = new ShaderPipeline();
         this.pipeline.shaderRenderers = shaderRenderers;
@@ -23,10 +26,14 @@ class ChainRenderer extends ShaderRenderer {
 
     /** @inheritdoc*/
     usePreviousResult(shaderResults) {
-        this.pipeline.shaderRendererResults = shaderResults;
-        // shaderResults.forEach(result => {
-        //     this.pipeline.shaderRendererResults.set(result.name, result);
-        // });
+        if (this.addToPipeline) {
+            this.pipeline.shaderRendererResults = shaderResults;
+        }
+        else {
+            shaderResults.forEach(result => {
+                this.pipeline.shaderRendererResults.set(result.name, result);
+            });
+        }
     }
 
     /** @inheritdoc*/

@@ -15,12 +15,13 @@ class DepthMap extends ShaderRenderer {
      * @param {number} width  La résolution horizontale du rendu en nombre de pixel.
      * @param {number} height La résolution verticale du rendu en nombre de pixel.
      */
-    constructor(shaderProgram, camera, width, height) {
+    constructor(shaderProgram, camera, width, height, prettyZFar = false) {
         super(shaderProgram);
 
         this.renderingMode = RenderingMode.scene;
 
         this.camera = camera;
+        this.prettyZFar = prettyZFar;
 
         this.shaderProgram.setUniform("uModelMatrix",      valType.Mat4fv);
         this.shaderProgram.setUniform("uViewMatrix",       valType.Mat4fv);
@@ -65,7 +66,9 @@ class DepthMap extends ShaderRenderer {
 
     /** @inheritdoc*/
     initFromScene(scene) {
-        this.camera.zFar = 1.5 * vec3.dist(this.camera.position, this.camera.target);
+        if (this.prettyZFar) {
+            this.camera.zFar = 2.0 * vec3.dist(this.camera.position, this.camera.target);
+        }
         this.camera.updateMatrix();
         //this.camera = scene.camera;
 

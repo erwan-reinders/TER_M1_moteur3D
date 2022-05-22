@@ -163,7 +163,7 @@ function buildDefaultPipelines() {
     //Reflexion
     defalutPipeline.addShader(new CubeMapReflexion(shaders.get("cubemapReflexion"), skybox, canvas.width, canvas.height));
     //Shadow
-    defalutPipeline.addShader(new DepthMap(shaders.get("depthMap"), depthCamera, 1024, 1024));
+    defalutPipeline.addShader(new DepthMap(shaders.get("depthMap"), depthCamera, 1024, 1024, true));
     defalutPipeline.addShader(shadowRenderer);
     //SSAO
     defalutPipeline.addShader(ssao);
@@ -248,34 +248,47 @@ function buildTestPipelines() {
 
     // let p = new ShaderPipeline();
 
-    // p.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", undefined, canvas.width * testCanvasScale, canvas.height * testCanvasScale));
-    // p.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height, "ReflexionPosition"));
-    // //p.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", "Position", canvas.width * testCanvasScale, canvas.height * testCanvasScale));
+    // let g = new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height)
+    // let l = new BlinnPhong(shaders.get("blinnPhong"), canvas.width, canvas.height, false, false);
 
-    // //p.addShader(new Skybox(shaders.get("skybox"), {ready : false}, "invPosition", canvas.width, canvas.height));
+    // let chainRenderer = new ChainRenderer([g, l]);
 
-    // let skybox = getCubeMapImage([
-    //     "data/img/skybox/right.jpg",
-    //     "data/img/skybox/left.jpg",
-    //     "data/img/skybox/top.jpg",
-    //     "data/img/skybox/bottom.jpg",
-    //     "data/img/skybox/front.jpg",
-    //     "data/img/skybox/back.jpg"
-    // ]);
+    // chainRenderer.setFrameBuffer = function(fbo) {
+    //     this.pipeline.shaderRenderers[1].framebuffer = fbo;
+    // };
 
-    // p.addShader(new CubeMapReflexion(shaders.get("cubemapReflexion"), skybox, canvas.width, canvas.height));
-    // p.addShader(new BlinnPhong(shaders.get("blinnPhong"), canvas.width, canvas.height, false, false));
+    // let cu = new RenderOnCubemap(shaders.get("applyToScreen"), chainRenderer, vec3.clone([0.0, 1.0, 0.0]), "BlinnPhong", "ReflexionMap", canvas.width, canvas.height);
+    // // cu.cubemapTest = getCubeMapImage([
+    // //     "data/img/skybox/right.jpg",
+    // //     "data/img/skybox/left.jpg",
+    // //     "data/img/skybox/top.jpg",
+    // //     "data/img/skybox/bottom.jpg",
+    // //     "data/img/skybox/front.jpg",
+    // //     "data/img/skybox/back.jpg"
+    // //     ]);
+    // p.addShader(cu);
 
-    // //p.addShader(new Fusion(shaders.get("fusion"), ["BlinnPhong", "Reflexion"], "fus", canvas.width, canvas.height));
-    // p.addShader(new FusionDepth(shaders.get("fusionDepth"), "BlinnPhong", "Position", "Reflexion", "ReflexionPosition", "fus", canvas.width, canvas.height));
+    // //p.addShader(new TextureGBuffer(shaders.get("textureGBuffer"), canvas.width, canvas.height));
+    // p.addShader(new GBuffer(shaders.get("GBuffer"), m=>m.reflective==true, "Reflexion", undefined, canvas.width, canvas.height));
+    
 
+    // p.addShader(new ApplyCubeMapToObject(shaders.get("cubemapReflexion"), "ReflexionMap", canvas.width, canvas.height));
 
-    // //Render
-    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Skybox"));
-    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Reflexion"));
-    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "fus"));
-    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Position"));
-    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "invPosition"));
+    // // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Reflexion"));
+    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong"));
+    // // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "ReflexionPosition"));
+    // //p.addShader(new Fusion(shaders.get("fusion"), ["Position", "ReflexionPosition"], "Pos", canvas.width, canvas.height));
+    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Pos"));
+    // p.addShader(new Fusion(shaders.get("fusion"), ["ReflexionPosition", "Reflexion"], "Refl", canvas.width, canvas.height));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Refl"));
+    // //p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "BlinnPhong"));
+    // // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "ReflexionMaptest"));
+    // let nb = 6.0;
+    // let w = canvas.width  / nb;
+    // let h = canvas.height / nb;
+    // for (let i = 0; i < 6; i++) {
+    //     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "InsideReflexionMap"+i, w*i, 0, w, h));
+    // }
 
     // pipelines.push(p);
 
