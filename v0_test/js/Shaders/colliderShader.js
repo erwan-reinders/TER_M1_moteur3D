@@ -38,7 +38,7 @@ class ColliderShader extends ShaderRenderer {
 
         this.models = {};
         this.initModels();
-        console.log(this.models);
+        //console.log(this.models);
     }
 
     /**Méthode permettant de générer la géométrie necessaire à l'affichage du bon collider**/
@@ -193,13 +193,6 @@ class ColliderShader extends ShaderRenderer {
             this.shaderProgram.setUniformValueByName("uModelMatrix",  mat4.identity([]));
             this.shaderProgram.setUniformValueByName("uSize", vec3.clone([1,1,1]));
             this.shaderProgram.setUniformValueByName("uColor", vec3.clone([0,1,0]));
-
-            if(aff) {
-                console.log("IM DRAWING A RAY");
-                console.log(ray);
-            }
-            aff = false;
-
             ray.model.render(gl.LINES);
         });*/
 

@@ -197,10 +197,8 @@ function picking_test(){
     m.specularFactor    = 16.0;
 
     m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
-
     //m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
     //m.collider = OBB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
-    console.log(m);
     scene.addModel(m);
 
     scene.addLight(new Light([-10.0, 50.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
@@ -210,7 +208,12 @@ function picking_test(){
 function buildScenes() {
     scenes = new Array();
 
+
     picking_test();
+
+    //MAJ avancé chargement
+    setLoadingPercent(0.4);
+
 
     let scene = new Scene();
 
@@ -323,6 +326,7 @@ function buildScenes() {
     createSeparateur("Lights");
     for (let i = 0; i < lights.length; i++) {
         createSeparateurInside("Light number " + i, "h3");
+
         let lightsUiHandler = {
             index : i,
 
@@ -348,6 +352,8 @@ function buildScenes() {
 
     scenes.push(scene);
 
+    //MAJ avancé chargement
+    setLoadingPercent(0.6);
 
     scene = new Scene();
 
@@ -382,6 +388,7 @@ function buildScenes() {
     }
 
     scene.addLight(new Light([-10.0, 50.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
+
 
     scenes.push(scene);
 

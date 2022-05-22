@@ -1,3 +1,4 @@
+//Poour afficher les rayons (phase de test uniquement)
 let raycastPoll = [];
 
 /*Classe modélisant un controlleur pour le piclking d'objets dans la scène */
@@ -48,9 +49,9 @@ class PickingController {
                         let objectT = el.collider.rayAnswer.t;
                         if (objectT < t) {
                             t = objectT;
-                            if (obj) {
-                                obj.resetRayIntersection();
-                            }
+                            //if (obj) {
+                            //    obj.resetRayIntersection();
+                            //}
                             obj = el;
                         }
                         this.moving = true;

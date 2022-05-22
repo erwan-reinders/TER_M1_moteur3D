@@ -21,8 +21,8 @@ class Controller {
      * Construit le controleur.
      */
     constructor() {
-        this.keyControls    = new Map();
-        this.mouseControls  = new Map();
+        this.keyControls = new Map();
+        this.mouseControls = new Map();
         this.initControls();
 
         this.previousMouseX = 0.0;
@@ -33,19 +33,19 @@ class Controller {
         this.scrollingAmount = 0.2;
 
         this.azimuth = 1.5;
-        this.zenith  = 0.0;
-        this.radius  = 5.0;
+        this.zenith = 0.0;
+        this.radius = 5.0;
     }
 
     /**
      * Initialise les touches à capter.
      */
     initControls() {
-        this.keyControls.set("up",       new Input("ArrowUp"));
-        this.keyControls.set("down",     new Input("ArrowDown"));
-        this.keyControls.set("left",     new Input("ArrowRight"));
-        this.keyControls.set("right",    new Input("ArrowLeft"));
-        this.keyControls.set("forward",  new Input("z"));
+        this.keyControls.set("up", new Input("ArrowUp"));
+        this.keyControls.set("down", new Input("ArrowDown"));
+        this.keyControls.set("left", new Input("ArrowRight"));
+        this.keyControls.set("right", new Input("ArrowLeft"));
+        this.keyControls.set("forward", new Input("z"));
         this.keyControls.set("backward", new Input("s"));
         this.mouseControls.set("drag", new Input(2));
     }
@@ -135,15 +135,16 @@ class Controller {
      * Modifie la scene en fonction de l'état des entrées.
      */
     processInput() {
+
         let mouseSpeed = 0.005;
-        
+
         if (this.mouseControls.get("drag").value) {
-            this.azimuth    += Math.floor(this.mouseDiffX) * mouseSpeed;
-            this.zenith     += Math.floor(this.mouseDiffY) * mouseSpeed;
+            this.azimuth += Math.floor(this.mouseDiffX) * mouseSpeed;
+            this.zenith += Math.floor(this.mouseDiffY) * mouseSpeed;
         }
 
         let keyboardSpeed = 0.05;
-        
+
         if (this.keyControls.get("right").value) {
             this.azimuth += keyboardSpeed;
         }
@@ -162,14 +163,14 @@ class Controller {
         if (this.keyControls.get("backward").value) {
             this.radius += keyboardSpeed * this.radius * 0.5;
         }
-        
+
         if (this.zenith > 1.57)
             this.zenith = 1.57;
         if (this.zenith < -1.57)
             this.zenith = -1.57;
         if (this.radius < 0.1)
             this.radius = 0.1;
-            
+
         let x = this.radius * Math.cos(this.azimuth) * Math.cos(this.zenith);
         let y = this.radius * Math.sin(this.zenith);
         let z = this.radius * Math.sin(this.azimuth) * Math.cos(this.zenith);
@@ -177,5 +178,6 @@ class Controller {
 
         this.mouseDiffX = 0.0;
         this.mouseDiffY = 0.0;
+
     }
 }

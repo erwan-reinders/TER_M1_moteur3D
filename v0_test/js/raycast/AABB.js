@@ -107,9 +107,6 @@ class AABB extends Collider{
     }
 
     doesIntersectRayon(rayon) {
-        console.log("DOES INTERSECT AABB");
-        console.log(this);
-
         let dim = this.getAccurateMinMax();
 
         let min = vec3.add([], dim.min, this.position);
@@ -170,7 +167,6 @@ class AABB extends Collider{
 
         for (let i = 0; i < 6; ++i) {
             if (compareWithEpsilon(t_result, t[i])) {
-                //console.log("ON A UNE NORMALE");
                 this.rayAnswer.normal = normals[i];
             }
         }

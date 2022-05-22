@@ -1,8 +1,14 @@
 /** FOR CREATING UI IN THE INTERFACE **/
 /**
  * Pour la création de l'interface.
- */
+ **/
+
 let rendering_options;
+
+let allObjectsSlider    = [];
+let allSliders          = [];
+
+
 let currentContainer;
 let options_title;
 let stats = new Array();
@@ -18,31 +24,72 @@ let CSS_TAG = {
 let vec_txt = ["x", "y", "z", "w"];
 let color_txt = ["r", "g", "b", "a"];
 
-let default_step = 0.1;
-let default_val_min = 0;
-let default_val_max = 1.0;
+let default_step        = 0.1;
+let default_val_min     = 0;
+let default_val_max     = 1.0;
 
 function initUi() {
-    rendering_options = document.getElementById("options_list");
+    rendering_options   = document.getElementById("options_list");
+    options_title       = document.getElementById("options_title");
+
     currentContainer = rendering_options;
-    options_title = document.getElementById("options_title");
-    options_title.onclick = function() {
-        toggleDisplayOnElement(rendering_options);
+    dom_options.style.display = "none";
+
+    dom_options_icon.onclick = function() {
+        dom_options_icon.style.display = "none";
+        dom_options.style.setProperty("animation", "width_appear .5s forwards");
+        dom_options.style.display = "block";
     };
+
+    dom_options_icon_close.onclick = function (){
+
+        setTimeout(function () {
+            dom_options_icon.style.display = "block";
+        }, time_interval_maj);
+
+        dom_options.style.setProperty("animation", "width_disappear .5s forwards");
+        //dom_options.style.display = "none";
+    }
 }
 
 /**
  * Modifie l'élement pour le cacher si il est visible ou le rendre visible si il est caché.
  * @param {Element} el L'élement à modifier.
  */
+
 function toggleDisplayOnElement(el) {
     if (el.style.display != "block") {
         el.style.display = "block";
+        //el.style.setProperty("animation", "height_appear .5s forwards");
     }
     else {
         el.style.display = "none";
+        //el.style.setProperty("animation", "height_disappear .5s forwards");
     }
 }
+
+function toggleDisplayOnElementAnimation(el) {
+    if (el.style.maxHeight) {
+        el.style.maxHeight = null;
+    } else {
+        let v = getScrollH(el);
+        //console.log(el);
+        //console.log("SCROLL VAL OF EL : " + v);
+        el.style.maxHeight = v + "px";
+    }
+}
+
+
+function getScrollH(opOptContainer){
+    let res = opOptContainer.scrollHeight;
+    let subel = opOptContainer.getElementsByClassName("options_container");
+
+    for (let e of subel){
+        res+= getScrollH(e);
+    }
+    return res;
+}
+
 
 
 /**
@@ -111,7 +158,7 @@ function createValue_UI(elem, obj, name, step = default_step) {
 function createVecN_UI(elem, obj, name, vecN, step = default_step, color = false) {
     if (vecN < 2) vecN = 2;
     if (vecN > 4) vecN = 4;
-    let wrapper = create_wrapper_UI(name, CSS_TAG.vec[vecN - 1]);
+    let wrapper = create_wrapper_UI(name, CSS_TAG.vec[vecN - 2]);
 
     for (var i = 0; i < vecN; i++) {
         let txt = ((color) ? color_txt[i] : vec_txt[i]);
@@ -187,10 +234,14 @@ function createValueSlider_UI(elem, obj, name, val_min = default_val_min, val_ma
 
     let btn = document.createElement("button");
     btn.innerHTML = "reset";
+
+    allObjectsSlider.push([obj, elem]);
+    allSliders.push([input, span]);
+
     btn.onclick = function () {
-        obj[elem] = input.defaultValue;
-        input.value = input.defaultValue;
-        span.innerHTML = input.defaultValue;
+        obj[elem]       = input.defaultValue;
+        input.value     = input.defaultValue;
+        span.innerHTML  = input.defaultValue;
         if (obj.onUiChange != undefined) {
             obj.onUiChange(this);
         }
@@ -238,15 +289,26 @@ function createSeparateur(name) {
  * @param {string} elementType Le type de séparateur (h2, h3, ...)
  */
 function createSeparateurInside(name, elementType = "h2") {
+
+
     let elem = document.createElement(elementType);
     let repeatNumber = 3;
-    elem.innerHTML = "-".repeat(repeatNumber) + name + "-".repeat(repeatNumber);
+    //elem.innerHTML = "-".repeat(repeatNumber) + name + "-".repeat(repeatNumber);
+    elem.innerHTML = name;
     elem.classList.add("option_separator");
+    //elem.classList.add("row");
 
     let newContainer = document.createElement("div");
     newContainer.classList.add("options_container");
 
-    elem.onclick = function() {toggleDisplayOnElement(newContainer);};
+    elem.onclick = function() {
+        //toggleDisplayOnElement(newContainer);
+        //console.log("ONCLICK !");
+        //console.log(elem);
+        //console.log(newContainer);
+
+        toggleDisplayOnElementAnimation(newContainer);
+    };
     currentContainer.appendChild(elem);
     currentContainer.appendChild(newContainer);
 
@@ -272,4 +334,19 @@ function resetSeparateur() {
 
 function fetchStat(id) {
     stats[id] = document.getElementById(id);
+}
+
+dom_resetAllButton.onclick = function (){
+    for (let i = 0; i < allSliders.length; i++) {
+        let slider  = allSliders[i][0];
+        let span    = allSliders[i][1];
+        slider.value    = slider.defaultValue;
+        span.innerHTML  = slider.defaultValue;
+
+        let sliderObj = allObjectsSlider[i];
+        sliderObj[0][sliderObj[1]] = slider.defaultValue;
+        if (sliderObj[0].onUiChange != undefined) {
+            sliderObj[0].onUiChange(this);
+        }
+    }
 }
