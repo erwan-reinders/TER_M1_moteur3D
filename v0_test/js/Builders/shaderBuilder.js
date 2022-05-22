@@ -11,6 +11,9 @@ function buildShaders() {
     shaders.set("applyToScreenRaw",             new ShaderProgram("ScreenPosVertexShader.glsl", "EndFragmentShader.glsl"));
     shaders.set("applyToScreenRawR",            new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyRawR.glsl"));
     shaders.set("applyToScreen",                new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyRGB.glsl"));
+    shaders.set("applyToScreenR",               new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyR.glsl"));
+    shaders.set("applyToScreenG",               new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyG.glsl"));
+    shaders.set("applyToScreenB",               new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyB.glsl"));
     shaders.set("applyToScreenA",               new ShaderProgram("ScreenPosVertexShader.glsl", "ApplyAlpha.glsl"));
     shaders.set("fusion",                       new ShaderProgram("ScreenPosVertexShader.glsl", "fusion.glsl"));
     shaders.set("fusionDepth",                  new ShaderProgram("ScreenPosVertexShader.glsl", "fusionDepth.glsl"));
