@@ -6,6 +6,10 @@ function buildPipelines() {
     buildDefaultPipelines();
 }
 
+function buildPBRPipelines(){
+
+}
+
 
 function buildDefaultPipelines() {
     //==================================================================================================
@@ -236,7 +240,23 @@ function buildDefaultPipelines() {
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "ExposedImage",        w * 4.0, startH, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"),  "Final",               w * 5.0, startH, w, h));
     
+    pipelines.push(p);
 
+    //==================================================================================================
+    // ADD A PBR PIPELINE FOR PHYSICALLY BASED RENDERING
+    //==================================================================================================
+    p = new ShaderPipeline();
+    p.addShader(new PBRGBuffer(shaders.get("GBufferPBR"), canvas.width, canvas.height));
+    //Skybox
+    p.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
+    p.addShader(new Fusion(shaders.get("fusion"), ["PBR", "Skybox"], "Colors", canvas.width, canvas.height));
+    //Bloom
+    p.addShader(extractRenderer);
+    p.addShader(gaussianRenderer);
+    p.addShader(new Fusion(shaders.get("fusion"), ["Colors", "Bloom"], "AllinOne", canvas.width, canvas.height));
+    //Post effects
+    p.addShader(exposureRenderer);
+    p.addShader(gammaCorrectionRenderer);
     pipelines.push(p);
 
     return pipelines;

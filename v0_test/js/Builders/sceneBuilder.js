@@ -180,21 +180,19 @@ function reflexion() {
     return scene;
 }
 
-function picking_test(){
+function pbr_test(){
     let scene = new Scene();
     let m;
 
     //Texture
     m = new Model(cube());
     m.matrix.modelMatrix = mat4.clone(
-        [10, 0, 0, 0,
+        [   2, 0, 0, 0,
             0, 2, 0, 0,
             0, 0, 2, 0,
-            0, 0, -2, 1]
+            0, 0, -2, 1
+        ]
     )
-    m.diffuseTexture    = getTextureImage("data/img/chouette.png");
-    m.specularTexture   = getTextureImage("data/img/white.png");
-    m.specularFactor    = 16.0;
 
     m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
 
@@ -209,8 +207,7 @@ function picking_test(){
 function buildScenes() {
     scenes = new Array();
 
-
-    picking_test();
+    pbr_test();
 
     //MAJ avancé chargement
     setLoadingPercent(0.4);

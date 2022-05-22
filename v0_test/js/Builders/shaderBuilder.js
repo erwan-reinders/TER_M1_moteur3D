@@ -32,8 +32,10 @@ function buildShaders() {
     
     shaders.set("skybox", new ShaderProgram("VPFragCoordVertexShader.glsl", "skybox.glsl"));
 
-
     shaders.set("forwardCollider", new ShaderProgram("ColliderVertexShader.glsl", "ColliderFragmentShader.glsl"));
 
+    shaders.set("GBufferPBR",           new ShaderProgram("MVPVertexShader.glsl",      "PBRGShader.glsl"));
+    shaders.set("PBR",                  new ShaderProgram("ScreenPosVertexShader.glsl", "PBRFragmentShader.glsl"));
+    //shaders.set("PBRCoef",              new ShaderProgram("ScreenPosVertexShader.glsl", "PBRCoefFragmentShader.glsl"));
     return shaders;
 }
