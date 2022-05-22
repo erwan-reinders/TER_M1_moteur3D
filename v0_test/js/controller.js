@@ -69,6 +69,7 @@ class Controller {
             if (currentPipeline >= pipelines.length) {
                 currentPipeline = 0;
             }
+            stats["pipeline"].innerHTML = (currentPipeline+1) + " / " + pipelines.length;
         }
         if (event.key == "Backspace") {
             currentScene++;
@@ -77,6 +78,8 @@ class Controller {
             }
             pipelines = scenes[currentScene].pipelines;
             currentPipeline = 0;
+            stats["scene"].innerHTML = (currentScene+1) + " / " + scenes.length;
+            stats["pipeline"].innerHTML = (currentPipeline+1) + " / " + pipelines.length;
         }
         if (event.key == "o") {
         }

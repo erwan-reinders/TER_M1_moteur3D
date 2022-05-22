@@ -9,7 +9,7 @@
  *  {RGB}  {ScreenSpace} Normal                 : les normales
  *  {RGB}  {ScreenSpace} Albedo                 : la couleur albedo
  *  {RGB}  {ScreenSpace} NormalMap              : les normales remappees
- *  {RGB}  {ScreenSpace} MettalicRoughnessAO    : les coefficients de metal/rugosite/AO
+ *  {RGB}  {ScreenSpace} MetalRougAO            : les coefficients de metal/rugosite/AO
  */
 
 class PBRGBuffer extends ShaderRenderer {
@@ -97,11 +97,11 @@ class PBRGBuffer extends ShaderRenderer {
         this.shaderProgram.setUniformValueByName("uModelMatrix",  model.matrix.modelMatrix);
         this.shaderProgram.setUniformValueByName("uNormalMatrix", model.matrix.normalMatrix);
 
-        this.shaderProgram.setUniformValueByName("albedoMap", 0     , model.material.albedoMap);
-        this.shaderProgram.setUniformValueByName("normalMap", 1     , model.material.normalMap);
-        this.shaderProgram.setUniformValueByName("metallicMap", 2   , model.material.metallicMap);
-        this.shaderProgram.setUniformValueByName("roughnessMap", 3  , model.material.roughnessMap);
-        this.shaderProgram.setUniformValueByName("aoMap", 4         , model.material.aoMap);
+        this.shaderProgram.setUniformValueByName("albedoMap",    0, model.material.albedoMap);
+        this.shaderProgram.setUniformValueByName("normalMap",    1, model.material.normalMap);
+        this.shaderProgram.setUniformValueByName("metallicMap",  2, model.material.metallicMap);
+        this.shaderProgram.setUniformValueByName("roughnessMap", 3, model.material.roughnessMap);
+        this.shaderProgram.setUniformValueByName("aoMap",        4, model.material.aoMap);
 
         this.shaderProgram.setUniformValueByName("uAlbedoCoef"      , (model.material.renderWithObjCoef)? model.material.coefAlbedo : this.ShaderAlbedoCoef);
         this.shaderProgram.setUniformValueByName("uMetallicCoef"    , (model.material.renderWithObjCoef)? model.material.coefMetal : this.ShaderMetalCoef);
