@@ -288,15 +288,18 @@ function buildTestPipelines() {
     //Skybox
     p.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
     p.addShader(new Fusion(shaders.get("fusion"), ["PBR", "Skybox"], "Colors", canvas.width, canvas.height));
-    //Bloom
+    // //Bloom
     p.addShader(new ExtractColorByBrigthness(shaders.get("extractColorByBrigthness"), 0.95, vec4.clone([0.0, 0.0, 0.0, 1.0]), "Colors", "Extract", canvas.width * canvasScale, canvas.height * canvasScale));
     p.addShader(new GaussianBlur(shaders.get("gaussianBlur"), 20.0, "Extract", "Bloom", canvas.width * canvasScale, canvas.height * canvasScale));
     p.addShader(new Fusion(shaders.get("fusion"), ["Colors", "Bloom"], "AllinOne", canvas.width, canvas.height));
-    //Post effects
+    // //Post effects
     p.addShader(new Exposure(shaders.get("exposure"), "AllinOne", "ExposedImage", canvas.width, canvas.height));
     p.addShader(new GammaCorrection(shaders.get("gammaCorrection"), "ExposedImage", "Final", canvas.width, canvas.height));
 
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Colors"));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "AllinOne"));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "ExposedImage"));
     let nb = 7.0;
     let w = canvas.width  / nb;
     let h = canvas.height / nb;
@@ -307,6 +310,9 @@ function buildTestPipelines() {
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenR"), "MetalRougAO", w * 4.0, 0.0, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenG"), "MetalRougAO", w * 5.0, 0.0, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenB"), "MetalRougAO", w * 6.0, 0.0, w, h));
+
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "PBR",          w * 0.0, h, 2*w, 2*h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "ExposedImage", w * 2.0, h, 2*w, 2*h));
 
 
     pipelines.push(p);
