@@ -92,6 +92,11 @@ class PBRGBuffer extends ShaderRenderer {
         //console.log(model);
         //console.log(model.material);
         //console.log("===============");
+        //console.log(this.ShaderMetalCoef);
+        //console.log(this.ShaderRoughnessCoef);
+        //console.log(this.ShaderAOCoef);
+        //console.log(this.ShaderAlbedoCoef);
+        //console.log("===============");
 
 
         this.shaderProgram.setUniformValueByName("uModelMatrix",  model.matrix.modelMatrix);
