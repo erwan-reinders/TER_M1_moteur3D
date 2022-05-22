@@ -6,9 +6,7 @@ function buildPipelines() {
     buildDefaultPipelines();
 }
 
-function buildPBRPipelines(){
-
-}
+function buildPBRPipelines(){}
 
 
 function buildDefaultPipelines() {
@@ -117,6 +115,13 @@ function buildDefaultPipelines() {
         blurVal4, blurVal4, blurVal4, blurVal4,
         blurVal4, blurVal4, blurVal4, blurVal4
     ]);
+
+    createSeparateur("PBR");
+    let gShaderPBR = new PBRGBuffer(shaders.get("GBufferPBR"), canvas.width, canvas.height);
+    createValueSlider_UI("ShaderAOCoef", gShaderPBR, "AO",             0.0, 1.0, 0.01);
+    createValueSlider_UI("ShaderMetalCoef", gShaderPBR, "metalness",             0.0, 1.0, 0.01);
+    createValueSlider_UI("ShaderRoughnessCoef", gShaderPBR, "roughness",             0.0, 1.0, 0.01);
+    createVecN_UI("ShaderAlbedoCoef",  gShaderPBR, "albedo ",                 3, 0.01, true);
 
 
     //==================================================================================================
@@ -246,7 +251,8 @@ function buildDefaultPipelines() {
     // ADD A PBR PIPELINE FOR PHYSICALLY BASED RENDERING
     //==================================================================================================
     p = new ShaderPipeline();
-    p.addShader(new PBRGBuffer(shaders.get("GBufferPBR"), canvas.width, canvas.height));
+    p.addShader(gShaderPBR);
+    p.addShader(new PBRShader(shaders.get("PBR"),undefined, canvas.width, canvas.height));
     //Skybox
     p.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
     p.addShader(new Fusion(shaders.get("fusion"), ["PBR", "Skybox"], "Colors", canvas.width, canvas.height));
@@ -257,6 +263,7 @@ function buildDefaultPipelines() {
     //Post effects
     p.addShader(exposureRenderer);
     p.addShader(gammaCorrectionRenderer);
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
     pipelines.push(p);
 
     return pipelines;

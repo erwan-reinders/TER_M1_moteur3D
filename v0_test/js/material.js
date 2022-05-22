@@ -10,6 +10,7 @@ class Material {
      * @param  {Number} metallicCoef            : Coefficient de métal
      * @param  {Number} roughnessCoef           : Coefficient de rugosité
      * @param  {Number} aoCoef                  : Coefficient d'occlusion ambiante
+     * @param  {Boolean} renderWithObjCoef      : Indique si on doit prendre en compte les coef donnés à l'objet ou ceux des sliders
      * **/
     constructor(
         albedoMap = "data/img/white.png" ,
@@ -21,8 +22,9 @@ class Material {
         metallicCoef= 1.0,
         roughnessCoef = 1.0,
         aoCoef=1.0,
+        renderWithObjCoef = false
     ) {
-        // --------------------------
+        this.renderWithObjCoef = renderWithObjCoef;
         this.albedoMap    = getTextureImage(albedoMap);
         this.normalMap    = getTextureImage(normalMap);
         this.metallicMap  = getTextureImage(metallicMap);

@@ -1,6 +1,5 @@
 let scenes;
 
-function picking_test(){
 function testScene() {
     scene = new Scene("webglcanvas");
 
@@ -199,12 +198,14 @@ function pbr_test(){
     m.specularFactor    = 16.0;
 
     m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+    m.material =  new Material();
 
     //m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
     //m.collider = OBB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
     scene.addModel(m);
 
     scene.addLight(new Light([-10.0, 50.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
+
     pipelines.forEach(p=>scene.pipelines.push(p));
     scenes.push(scene);
 }

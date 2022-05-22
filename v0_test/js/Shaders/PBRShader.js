@@ -29,6 +29,7 @@ class PBRShader extends ShaderRenderer {
         this.shaderProgram.setUniform("gAlbedoMap",     valType.texture2D);
         this.shaderProgram.setUniform("gNormalMap",     valType.texture2D);
         this.shaderProgram.setUniform("gMettalicRoughnesAO",    valType.texture2D);
+
         this.shaderProgram.setUniform("uNLights",    valType.i1);
         this.shaderProgram.setUniform("uViewPos",    valType.f3v);
 
