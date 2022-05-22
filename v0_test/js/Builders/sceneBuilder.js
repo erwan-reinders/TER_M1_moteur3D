@@ -8,8 +8,8 @@ function pbr_test(){
     let nbY = 5;
     let spacingX = 1.5;
     let spacingY = 1.5;
-    let startX = - nbX * 0.5;
-    let startY = - nbY * 0.5;
+    let startX = - (nbX-1) * spacingX * 0.5;
+    let startY = - (nbY-1) * spacingY * 0.5;
     for (let x = 0; x < nbX; x++) {
         for (let y = 0; y < nbY; y++) {
             m = new Model(uvSphere());
@@ -20,7 +20,7 @@ function pbr_test(){
                     1, 0, 0, 0,
                     0, 1, 0, 0,
                     0, 0, 1, 0,
-                    posX, posY, -2, 1
+                    posX, posY, 0, 1
                 ]
             )
             m.diffuseTexture    = getTextureImage("data/img/chouette.png");
@@ -28,9 +28,17 @@ function pbr_test(){
             m.specularFactor    = 2.0;
         
             m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+            // m.material =  new Material(
+            //     "data/img/pbr/rusted_iron/rustediron2_basecolor_small.png",
+            //     "data/img/pbr/rusted_iron/rustediron2_normal_small.png",
+            //     "data/img/pbr/rusted_iron/rustediron2_metallic_small.png",
+            //     "data/img/pbr/rusted_iron/rustediron2_roughness_small.png"
+            // );
             m.material =  new Material();
+            m.material.coefAlbedo = vec3.clone([1.0, 0.1, 0.01]);
             m.material.coefMetal = x / nbX;
             m.material.coefRough = y / nbY;
+            m.material.coefAO = 0.9;
 
             m.material.renderWithObjCoef = true;
             
@@ -38,11 +46,61 @@ function pbr_test(){
         }
     }
 
-    scene.addLight(new Light([-10.0, 10.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
-    scene.addLight(new Light([10.0, 5.0, 20.0], [1.0, 1.0, 1.0], 0.4, 0.1));
+    nbX = 4;
+    nbY = 4;
+    spacingX = 5.0;
+    spacingY = 5.0;
+    startX = - (nbX-1) * spacingX * 0.5;
+    startY = - (nbY-1) * spacingY * 0.5;
+    for (let x = 0; x < nbX; x++) {
+        for (let y = 0; y < nbY; y++) {
+            let posX = startX + x * spacingX;
+            let posY = startY + y * spacingY;
+            let l = new Light([posX, posY, 10.0], [1.0, 1.0, 1.0], 0.4, 0.01);
+            scene.addLight(l);
+
+            createModelColliderForLight(l, scene);
+        }
+    }
+    // scene.addLight(new Light([-10.0, 10.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
+    // scene.addLight(new Light([10.0, 5.0, 5.0], [1.0, 1.0, 1.0], 0.2, 0.01));
 
     pipelines.forEach(p=>scene.pipelines.push(p));
     scenes.push(scene);
+}
+
+function createModelColliderForLight(light, scene) {
+    let lightScale = 0.3;
+
+    m = new Model(uvSphere());
+    m.matrix.modelMatrix = mat4.clone(
+        [lightScale, 0, 0, 0,
+        0, lightScale, 0, 0,
+        0, 0, lightScale, 0,
+        light.position[0], light.position[1], light.position[2], 1]
+    )
+    m.diffuseTexture = getTextureImage("data/img/white.png");
+    m.diffuseFactorValue = 10.0 - 4.0 * light.linear - 8.0 * light.quadratic;
+    m.diffuseFactor = vec3.multiply([], light.color, [m.diffuseFactorValue, m.diffuseFactorValue, m.diffuseFactorValue]);
+    m.specularTexture = getTextureImage("data/img/white.png");
+    m.specularFactor = 0.0;
+
+    m.material =  new Material();
+    m.material.albedoCoef = m.diffuseFactor;
+
+    m.invisibleDepth = true;
+
+    m.collider = new Sphere(vec3.clone([0.0, 0.0, 0.0]), lightScale * 2.0);
+    m.attachedLight = light;
+    m.update = function() {
+        this.attachedLight.position = vec3.clone([this.matrix.modelMatrix[12], this.matrix.modelMatrix[13], this.matrix.modelMatrix[14]]);
+        this.diffuseFactorValue = 10.0 - 4.0 * this.attachedLight.linear - 8.0 * this.attachedLight.quadratic;
+        this.diffuseFactor = vec3.multiply([], this.attachedLight.color, [this.diffuseFactorValue, this.diffuseFactorValue, this.diffuseFactorValue]);
+        this.material.albedoCoef = this.diffuseFactor;
+
+        this.masterUpdate();
+    }
+    scene.addModel(m);
 }
 
 function buildScenes() {

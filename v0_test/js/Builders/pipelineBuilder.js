@@ -324,21 +324,21 @@ function buildTestPipelines() {
     p.addShader(new GammaCorrection(shaders.get("gammaCorrection"), "ExposedImage", "Final", canvas.width, canvas.height));
 
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
-    
+
     let nb = 7.0;
     let w = canvas.width  / nb;
     let h = canvas.height / nb;
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Position",      w * 0.0, 0.0, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Normal",        w * 1.0, 0.0, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Albedo",        w * 2.0, 0.0, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "NormalFromMap", w * 3.0, 0.0, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenR"), "MetalRougAO",   w * 4.0, 0.0, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenG"), "MetalRougAO",   w * 5.0, 0.0, w, h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenB"), "MetalRougAO",   w * 6.0, 0.0, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Position",      w * 0.0, 0.0, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Normal",        w * 1.0, 0.0, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Albedo",        w * 2.0, 0.0, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "NormalFromMap", w * 3.0, 0.0, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenR"), "MetalRougAO",   w * 4.0, 0.0, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenG"), "MetalRougAO",   w * 5.0, 0.0, w, h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenB"), "MetalRougAO",   w * 6.0, 0.0, w, h));
 
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "PBR",            w * 0.0, h, 2*w, 2*h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "ExposedImage",   w * 2.0, h, 2*w, 2*h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "PBRRadianceSum", w * 4.0, h, 2*w, 2*h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "PBR",            w * 0.0, h, 2*w, 2*h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "ExposedImage",   w * 2.0, h, 2*w, 2*h));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "PBRRadianceSum", w * 4.0, h, 2*w, 2*h));
 
 
     pipelines.push(p);

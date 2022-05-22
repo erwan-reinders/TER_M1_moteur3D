@@ -44,6 +44,7 @@ void main()
     gPosition           = vec4(vFragPos, 1.0);
     gNormal             = vec4(normalize(vNormal), 1.0);
     gAlbedo.rgb         = texture(albedoMap, vFragUV).rgb * pow(uAlbedoCoef, vec3(2.2));
-    gNormalFromMap      = vec4(getNormalFromMap(texture(normalMap, vFragUV).rgb, gPosition.xyz), 1.0);
+    // gNormalFromMap      = vec4(getNormalFromMap(gNormal.xyz, gPosition.xyz), 1.0);
+    gNormalFromMap      = vec4(gNormal.xyz, 1.0);
     gMettalicRoughnesAO = vec4(texture(metallicMap,vFragUV).r * uMetallicCoef,texture(roughnessMap,vFragUV).r * uRoughnessCoef,texture(aoMap,vFragUV).r * uAOCoef,1);
 }
