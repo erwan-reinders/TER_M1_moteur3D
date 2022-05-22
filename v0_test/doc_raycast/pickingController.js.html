@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pickingController.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pickingController.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>//Poour afficher les rayons (phase de test uniquement)
+let raycastPoll = [];
+
+/*Classe modélisant un controlleur pour le piclking d'objets dans la scène */
+class PickingController {
+
+    /**
+     * Construit le controleur.
+     * @param {Scene} scene La scene que l'on vas modifier.
+     */
+    constructor(scene) {
+        this.lastElemCollid = undefined;
+        this.moving = false;
+    }
+
+    onMouseDown(event) {
+        if(event.button ===0) {
+            let t;
+            let coord = getCursorPosition(canvas, event);
+
+            let w = canvas.getBoundingClientRect().width;
+            let h = canvas.getBoundingClientRect().height;
+
+            let ray = new Ray();
+            ray.getPickRay(
+                vec2.clone([coord.xcoord, coord.ycoord]),
+                vec2.clone([0, 0]),
+                vec2.clone([w, h]),
+                scenes[currentScene].camera.getViewMatrix(),
+                scenes[currentScene].camera.getProjectionMatrix(),
+                scenes[currentScene].camera.position
+            );
+            raycastPoll.push(ray);
+            t = Number.MAX_VALUE;
+            let obj = undefined;
+            ray.t = 100;
+
+            //On va d'abord tester si on est pas encore en train de clicker sur
+
+            //On teste ensuite pour tous les éléments possédant un collider
+            for (let el of scenes[currentScene].models) {
+                if (el.collider) {
+                    el.collider.resetRayIntersection();
+                    //On peut donc lancer un rayon et déterminer le point d'impact
+                    el.collider.doesIntersectRayon(ray);
+                    if (el.collider.rayAnswer.hit) {
+                        ray.t = el.collider.rayAnswer.t;
+
+                        let objectT = el.collider.rayAnswer.t;
+                        if (objectT &lt; t) {
+                            t = objectT;
+                            //if (obj) {
+                            //    obj.resetRayIntersection();
+                            //}
+                            obj = el;
+                        }
+                        this.moving = true;
+                    }
+                }
+            }
+
+            ray.initDataDrawing();
+            if (obj) {
+                obj.collider.drawn = true;
+
+                if (obj.collider.type == colliderType.SPHERE) {
+                    obj.collider.rayAnswer.normal = vec3.scale([], scenes[currentScene].camera.getForward(), -1.0);
+                }
+
+                this.currentTranslationObj = vec3.clone([obj.matrix.modelMatrix[12], obj.matrix.modelMatrix[13], obj.matrix.modelMatrix[14]]);
+                this.movementDistance = vec3.dot(
+                    obj.collider.rayAnswer.point,
+                    obj.collider.rayAnswer.normal
+                );
+            }
+            this.lastElemCollid = obj;
+        }
+    }
+
+    onMouseUp(event) {
+        this.moving = false;
+        canvas.style.cursor = "default";
+    }
+
+    onMouseMove(event) {
+        //Si on a intersecté quelque chose et que l'on est en train de déplacer la souris
+        if (this.lastElemCollid &amp;&amp; this.moving) {
+            canvas.style.cursor = "grabbing";
+
+            let coord = getCursorPosition(canvas,event);
+            let w = canvas.getBoundingClientRect().width;
+            let h = canvas.getBoundingClientRect().height;
+            let ray = new Ray();
+            ray.getPickRay(
+                vec2.clone([coord.xcoord,coord.ycoord]),
+                vec2.clone([0,0]),
+                vec2.clone([w,h]),
+                scenes[currentScene].camera.getViewMatrix(),
+                scenes[currentScene].camera.getProjectionMatrix(),
+                scenes[currentScene].camera.position
+            );
+            let deno =      vec3.dot(this.lastElemCollid.collider.rayAnswer.normal, ray.direction);
+            let d_nori =    vec3.dot(this.lastElemCollid.collider.rayAnswer.normal,ray.origine);
+
+            var t = (this.movementDistance - d_nori) / deno;
+            let hit_pts = vec3.add([], ray.origine, vec3.scale([], ray.direction, t));
+
+            let translation = vec3.subtract([], hit_pts,this.lastElemCollid.collider.rayAnswer.point);
+
+            let newPos = vec3.add([], this.currentTranslationObj, translation);
+
+            this.lastElemCollid.matrix.modelMatrix[12] = newPos[0];
+            this.lastElemCollid.matrix.modelMatrix[13] = newPos[1];
+            this.lastElemCollid.matrix.modelMatrix[14] = newPos[2];
+        }
+    };
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AABB.html">AABB</a></li><li><a href="Collider.html">Collider</a></li><li><a href="OBB.html">OBB</a></li><li><a href="PickingController.html">PickingController</a></li><li><a href="Ray.html">Ray</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sun May 22 2022 17:20:01 GMT+0200 (heure d’été d’Europe centrale)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: GBuffer.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: GBuffer.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** GBuffer Classe modélisant la passe géométrique sur certain modèles.
+ * @extends ShaderRenderer
+ * Rendu sur : 
+ *  Scene
+ * Utilise :
+ *  Rien
+ * Permet d'obtenir :
+ *  {RGB}  {ScreenSpace} XPosition      : les coordonées mondes
+ *  {RGB}  {ScreenSpace} XNormal        : les normales
+ */
+class GBuffer extends ShaderRenderer {
+    /** 
+     * Construit le faiseur de rendu permettant de générer des informations géométriques
+     * @inheritdoc
+     * @param {function(Model) : boolean} conditionOnModelFunction  La résolution horizontale du rendu en nombre de pixel.
+     * @param {string} namePrefix Le nom pour préfixer les résultats.
+     * @param {string} textureReadDepthName Le nom de la texture auquelle on vas lire les valeurs de profondeurs.
+     * @param {number} width  La résolution horizontale du rendu en nombre de pixel.
+     * @param {number} height La résolution verticale du rendu en nombre de pixel.
+     */
+    constructor(shaderProgram, conditionOnModelFunction, namePrefix, textureReadDepthName, width, height) {
+        super(shaderProgram);
+
+        this.renderingMode = RenderingMode.scene;
+        this.conditionOnModelFunction = conditionOnModelFunction;
+        this.namePrefix = namePrefix;
+        this.textureReadDepthName = textureReadDepthName;
+
+        this.shaderProgram.setUniform("uModelMatrix",      valType.Mat4fv);
+        this.shaderProgram.setUniform("uViewMatrix",       valType.Mat4fv);
+        this.shaderProgram.setUniform("uProjectionMatrix", valType.Mat4fv);
+        this.shaderProgram.setUniform("uNormalMatrix",     valType.Mat4fv);
+
+        this.shaderProgram.setAllPos();
+
+        this.framebuffer = new Framebuffer(width, height, 2, false);
+        this.framebuffer.init(gl.NEAREST, gl.MIRRORED_REPEAT);
+    }
+
+    /** @inheritdoc*/
+    usePreviousResult(shaderResults) {
+        this.framebuffer.use();
+        this.framebuffer.clearColorAndDepth();
+        if (this.textureReadDepthName != undefined) {
+            this.framebuffer.copyBitsOf(shaderResults.get(this.textureReadDepthName).getFramebuffer(), gl.DEPTH_BUFFER_BIT);
+        }
+    }
+
+    /** @inheritdoc*/
+    getRenderResults() {
+        let renderResults = new Array();
+        renderResults.push(new ShaderRendererResult(this.namePrefix+"Position", this.framebuffer.textures[0], this));
+        renderResults.push(new ShaderRendererResult(this.namePrefix+"Normal"  , this.framebuffer.textures[1], this));
+        return renderResults;
+    }
+
+    /** @inheritdoc*/
+    initFromScene(scene) {
+        this.camera = scene.camera;
+        
+        this.framebuffer.use();
+
+        this.shaderProgram.use();
+
+        this.shaderProgram.setUniformValueByName("uProjectionMatrix", this.camera.getProjectionMatrix());
+        this.shaderProgram.setUniformValueByName("uViewMatrix",       this.camera.getViewMatrix());
+
+        gl.depthFunc(gl.LEQUAL);
+    }
+
+    /** @inheritdoc*/
+    setModelData(model) {
+        this.shaderProgram.setUniformValueByName("uModelMatrix",  model.matrix.modelMatrix);
+        this.shaderProgram.setUniformValueByName("uNormalMatrix", model.matrix.normalMatrix);
+    }
+
+    /** @inheritdoc*/
+    shouldRenderOnModel(model) {
+        return this.conditionOnModelFunction(model);
+    }
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ApplyCubeMapToObject.html">ApplyCubeMapToObject</a></li><li><a href="ApplyToScreen.html">ApplyToScreen</a></li><li><a href="BlinnPhong.html">BlinnPhong</a></li><li><a href="BlinnPhongAllLight.html">BlinnPhongAllLight</a></li><li><a href="ChainRenderer.html">ChainRenderer</a></li><li><a href="ColliderShader.html">ColliderShader</a></li><li><a href="CubeMapReflexion.html">CubeMapReflexion</a></li><li><a href="DepthMap.html">DepthMap</a></li><li><a href="Exposure.html">Exposure</a></li><li><a href="ExtractColorByBrigthness.html">ExtractColorByBrigthness</a></li><li><a href="Fusion.html">Fusion</a></li><li><a href="FusionDepth.html">FusionDepth</a></li><li><a href="GammaCorrection.html">GammaCorrection</a></li><li><a href="GaussianBlur.html">GaussianBlur</a></li><li><a href="GBuffer.html">GBuffer</a></li><li><a href="Kernel.html">Kernel</a></li><li><a href="PBRShader.html">PBRShader</a></li><li><a href="RenderOnCubemap.html">RenderOnCubemap</a></li><li><a href="Shadow.html">Shadow</a></li><li><a href="Skybox.html">Skybox</a></li><li><a href="SSAO.html">SSAO</a></li><li><a href="TextureGBuffer.html">TextureGBuffer</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sun May 22 2022 17:18:27 GMT+0200 (heure d’été d’Europe centrale)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
