@@ -250,20 +250,47 @@ function buildDefaultPipelines() {
     //==================================================================================================
     // ADD A PBR PIPELINE FOR PHYSICALLY BASED RENDERING
     //==================================================================================================
-    p = new ShaderPipeline();
-    p.addShader(gShaderPBR);
-    p.addShader(new PBRShader(shaders.get("PBR"),undefined, canvas.width, canvas.height));
+    let pipeline_shaders_PBR = new ShaderPipeline();
+    pipeline_shaders_PBR.addShader(gShaderPBR);
+    pipeline_shaders_PBR.addShader(new PBRShader(shaders.get("PBR"), canvas.width, canvas.height));
     //Skybox
-    p.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
-    p.addShader(new Fusion(shaders.get("fusion"), ["PBR", "Skybox"], "Colors", canvas.width, canvas.height));
+    pipeline_shaders_PBR.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
+    pipeline_shaders_PBR.addShader(new Fusion(shaders.get("fusion"), ["PBR", "Skybox"], "Colors", canvas.width, canvas.height));
     //Bloom
-    p.addShader(extractRenderer);
-    p.addShader(gaussianRenderer);
-    p.addShader(new Fusion(shaders.get("fusion"), ["Colors", "Bloom"], "AllinOne", canvas.width, canvas.height));
+    pipeline_shaders_PBR.addShader(extractRenderer);
+    pipeline_shaders_PBR.addShader(gaussianRenderer);
+    pipeline_shaders_PBR.addShader(new Fusion(shaders.get("fusion"), ["Colors", "Bloom"], "AllinOne", canvas.width, canvas.height));
     //Post effects
-    p.addShader(exposureRenderer);
-    p.addShader(gammaCorrectionRenderer);
+    pipeline_shaders_PBR.addShader(exposureRenderer);
+    pipeline_shaders_PBR.addShader(gammaCorrectionRenderer);
+
+
+    p = new ShaderPipeline();
+    pipeline_shaders_PBR.shaderRenderers.forEach(shaderRenderer => {
+        p.addShader(shaderRenderer);
+    });
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
+    pipelines.push(p);
+
+    p = new ShaderPipeline();
+    pipeline_shaders_PBR.shaderRenderers.forEach(shaderRenderer => {
+        p.addShader(shaderRenderer);
+    });
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
+    nb = 4.0;
+    w = canvas.width  / nb;
+    h = canvas.height / nb;
+
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Position",    w * 0.0, 0.0, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Normal",      w * 1.0, 0.0, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Albedo",      w * 2.0, 0.0, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "NormalMap",   w * 3.0, 0.0, w, h));
+
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenR"), "MetalRougAO", w * 4.0, h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenG"), "MetalRougAO", w * 5.0, h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenB"), "MetalRougAO", w * 6.0, h, w, h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreen"), "PBRRadianceSum", w * 6.0, h, w, h));
+
     pipelines.push(p);
 
     return pipelines;
@@ -284,7 +311,7 @@ function buildTestPipelines() {
 
     p = new ShaderPipeline();
     p.addShader(new PBRGBuffer(shaders.get("GBufferPBR"), canvas.width, canvas.height));
-    p.addShader(new PBRShader(shaders.get("PBR"), undefined, canvas.width, canvas.height));
+    p.addShader(new PBRShader(shaders.get("PBR"), canvas.width, canvas.height));
     //Skybox
     p.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
     p.addShader(new Fusion(shaders.get("fusion"), ["PBR", "Skybox"], "Colors", canvas.width, canvas.height));
@@ -311,8 +338,9 @@ function buildTestPipelines() {
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenG"), "MetalRougAO", w * 5.0, 0.0, w, h));
     p.addShader(new ApplyToScreen(shaders.get("applyToScreenB"), "MetalRougAO", w * 6.0, 0.0, w, h));
 
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "PBR",          w * 0.0, h, 2*w, 2*h));
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "ExposedImage", w * 2.0, h, 2*w, 2*h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "PBR",            w * 0.0, h, 2*w, 2*h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "ExposedImage",   w * 2.0, h, 2*w, 2*h));
+    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "PBRRadianceSum", w * 4.0, h, 2*w, 2*h));
 
 
     pipelines.push(p);
