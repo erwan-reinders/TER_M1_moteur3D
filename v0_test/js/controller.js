@@ -65,21 +65,10 @@ class Controller {
             updateRender = !updateRender;
         }
         if (event.key == "Enter") {
-            currentPipeline++;
-            if (currentPipeline >= pipelines.length) {
-                currentPipeline = 0;
-            }
-            stats["pipeline"].innerHTML = (currentPipeline+1) + " / " + pipelines.length;
+            nextPipeline();
         }
         if (event.key == "Backspace") {
-            currentScene++;
-            if (currentScene >= scenes.length) {
-                currentScene = 0;
-            }
-            pipelines = scenes[currentScene].pipelines;
-            currentPipeline = 0;
-            stats["scene"].innerHTML = (currentScene+1) + " / " + scenes.length;
-            stats["pipeline"].innerHTML = (currentPipeline+1) + " / " + pipelines.length;
+            nextScene();
         }
         if (event.key == "o") {
         }

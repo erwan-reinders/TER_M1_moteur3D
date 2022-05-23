@@ -140,6 +140,10 @@
         <h1 id="options_title">RENDERING OPTIONS <i id="close_icon" class="material-icons">close</i></h1>
         <div id="options_list">
             <button id="resetAll">Reset all options</button>
+            <span id="nextButtonContainer">
+                <button id="nextPipeline">Next pipeline</button>
+                <button id="nextScene">Next scene</button>
+            </span>
         </div>
     </div>
     <div id="stats">
@@ -164,6 +168,8 @@
 
         let dom_startButton         = document.getElementById("startingbtn");
         let dom_resetAllButton      = document.getElementById("resetAll");
+        let dom_nextPipelineButton  = document.getElementById("nextPipeline");
+        let dom_nextSceneButton     = document.getElementById("nextScene");
 
         /*==========================================================================*/
         //=== VARIABLES GLOBALES

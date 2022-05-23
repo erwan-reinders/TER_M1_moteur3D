@@ -254,6 +254,24 @@ function createValueSlider_UI(elem, obj, name, val_min = default_val_min, val_ma
 }
 
 /**
+ * Génère et affiche un boutton.
+ * @param {function(Event)} callback L'attribut à modifier.
+ * @param {string} name Le nom à afficher.
+ */
+ function createButton_UI(callback, name) {
+    let elem = document.createElement("div");
+    let button = document.createElement("button");
+
+    // elem.classList.add(tag_elem);
+
+    button.innerHTML = name;
+    button.onclick = callback;
+    elem.appendChild(button);
+
+    currentContainer.appendChild(elem);
+}
+
+/**
  * Génère et affiche une boite pouvant accepter une image afin de modifier une texture.
  * PAS ENCORE IMPLEMENTE!!
  * @param {string} name Le nom affiché.
@@ -356,4 +374,31 @@ dom_resetAllButton.onclick = function (){
             sliderObj[0].onUiChange(this);
         }
     }
+}
+
+function nextPipeline() {
+    currentPipeline++;
+    if (currentPipeline >= pipelines.length) {
+        currentPipeline = 0;
+    }
+    stats["pipeline"].innerHTML = (currentPipeline+1) + " / " + pipelines.length;
+}
+
+function nextScene() {
+    currentScene++;
+    if (currentScene >= scenes.length) {
+        currentScene = 0;
+    }
+    pipelines = scenes[currentScene].pipelines;
+    currentPipeline = 0;
+    stats["scene"].innerHTML = (currentScene+1) + " / " + scenes.length;
+    stats["pipeline"].innerHTML = (currentPipeline+1) + " / " + pipelines.length;
+}
+
+dom_nextPipelineButton.onclick = function() {
+    nextPipeline();
+}
+
+dom_nextSceneButton.onclick = function() {
+    nextScene();
 }

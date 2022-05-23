@@ -53,7 +53,7 @@ function pbr_test(){
             scene.models.forEach(m=>m.material.coefAO = this.coefAO);
         }
     }
-    createValueSlider_UI("coefAO", pbrWrap, "Global AO");
+    createValueSlider_UI("coefAO", pbrWrap, "Global AO", 0.0, 2.0, 0.05);
 
     nbX = 4;
     nbY = 4;
@@ -239,6 +239,40 @@ function buildScenes() {
         new Light([-10.0, 10.0, -10.0], [1.0, 1.0, 1.0], 0.04, 0.004)
     ]
     createSeparateur("Lights");
+    
+
+    createButton_UI(e=>{
+        if (scenes[currentScene].lights.length < 16) {
+            let lightId = scenes[currentScene].lights.length;
+            let l = new Light([0.0, 5.0, -5.0],  [1.0, 1.0, 1.0], 0.4, 0.1);
+            scenes[currentScene].addLight(l);
+            createModelColliderForLight(l, scenes[currentScene]);
+
+            createSeparateurInside("Light number " + lightId, "h3");
+
+            let lightsUiHandler = {
+                index : lightId,
+    
+                color :     scenes[currentScene].lights[lightId].color,
+                linear :    scenes[currentScene].lights[lightId].linear,
+                quadratic : scenes[currentScene].lights[lightId].quadratic,
+    
+                onUiChange : function() {
+                    if (scenes[currentScene].lights[this.index] != undefined) {
+                        scenes[currentScene].lights[this.index].color     = this.color;
+                        scenes[currentScene].lights[this.index].linear    = this.linear;
+                        scenes[currentScene].lights[this.index].quadratic = this.quadratic;
+                    }
+                }
+            }
+            createVecN_UI("color",      lightsUiHandler, "Color ",                 3, undefined, true);
+            createValue_UI("linear",    lightsUiHandler, "Linear attenuation ",    0.1);
+            createValue_UI("quadratic", lightsUiHandler, "Quadratic attenuation ", 0.05);
+            endSeparateur();
+        }
+    }, "Add light")
+
+
     for (let i = 0; i < lights.length; i++) {
         createModelColliderForLight(lights[i], scene);
 
@@ -263,7 +297,6 @@ function buildScenes() {
         endSeparateur();
     }
     lights.forEach(l => scene.addLight(l));
-
     scene.pipelines.push(pipelines[0]);
     scene.pipelines.push(pipelines[1]);
     scene.pipelines.push(pipelines[2]);
