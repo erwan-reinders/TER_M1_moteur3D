@@ -35,7 +35,7 @@ function pbr_test(){
             //     "data/img/pbr/rusted_iron/rustediron2_roughness_small.png"
             // );
             m.material =  new Material();
-            m.material.coefAlbedo = vec3.clone([1.0, 0.1, 0.01]);
+            m.material.coefAlbedo = vec3.clone([1.0, 0.3, 0.01]);
             m.material.coefMetal = x / nbX;
             m.material.coefRough = y / nbY;
             m.material.coefAO = 0.9;
@@ -45,6 +45,15 @@ function pbr_test(){
             scene.addModel(m);
         }
     }
+
+    goInsideSeparateur("PBR");
+    let pbrWrap = {
+        coefAO : scene.models[0].material.coefAO,
+        onUiChange : function() {
+            scene.models.forEach(m=>m.material.coefAO = this.coefAO);
+        }
+    }
+    createValueSlider_UI("coefAO", pbrWrap, "Global AO");
 
     nbX = 4;
     nbY = 4;
@@ -56,16 +65,15 @@ function pbr_test(){
         for (let y = 0; y < nbY; y++) {
             let posX = startX + x * spacingX;
             let posY = startY + y * spacingY;
-            let l = new Light([posX, posY, 10.0], [1.0, 1.0, 1.0], 0.4, 0.01);
+            let l = new Light([posX, posY, 10.0], [1.0, 1.0, 1.0], 0.2, 0.01);
             scene.addLight(l);
 
             createModelColliderForLight(l, scene);
         }
     }
-    // scene.addLight(new Light([-10.0, 10.0, -20.0], [1.0, 1.0, 1.0], 0.01, 0.001));
-    // scene.addLight(new Light([10.0, 5.0, 5.0], [1.0, 1.0, 1.0], 0.2, 0.01));
 
-    pipelines.forEach(p=>scene.pipelines.push(p));
+    scene.pipelines.push(pipelines[3]);
+    scene.pipelines.push(pipelines[4]);
     scenes.push(scene);
 }
 
@@ -86,7 +94,8 @@ function createModelColliderForLight(light, scene) {
     m.specularFactor = 0.0;
 
     m.material =  new Material();
-    m.material.albedoCoef = m.diffuseFactor;
+    m.material.coefAlbedo = m.diffuseFactor;
+    m.material.renderWithObjCoef = true;
 
     m.invisibleDepth = true;
 
@@ -96,7 +105,7 @@ function createModelColliderForLight(light, scene) {
         this.attachedLight.position = vec3.clone([this.matrix.modelMatrix[12], this.matrix.modelMatrix[13], this.matrix.modelMatrix[14]]);
         this.diffuseFactorValue = 10.0 - 4.0 * this.attachedLight.linear - 8.0 * this.attachedLight.quadratic;
         this.diffuseFactor = vec3.multiply([], this.attachedLight.color, [this.diffuseFactorValue, this.diffuseFactorValue, this.diffuseFactorValue]);
-        this.material.albedoCoef = this.diffuseFactor;
+        this.material.coefAlbedo = this.diffuseFactor;
 
         this.masterUpdate();
     }
@@ -163,6 +172,7 @@ function buildScenes() {
     m.diffuseTexture = getTextureImage("data/img/white.png");
     m.diffuseFactor = vec3.clone([0.76, 0.48, 0.69]);
     m.specularTexture = getTextureImage("data/img/white.png");
+    m.specularFactor = 1.0;
     
     m.rotationAzimuth = 0.0;
     m.rotationZenith = 0.0;
@@ -177,6 +187,10 @@ function buildScenes() {
         this.masterUpdate();
     }
     m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
+
+    goInsideSeparateur("Rendering");
+    createVecN_UI("diffuseFactor", m, "diffuse", 3, 0.1, true);
+    createValueSlider_UI("specularFactor", m, "specular", 0.0, 6.0, 0.05);
     scene.addModel(m);
 
 
@@ -225,33 +239,8 @@ function buildScenes() {
         new Light([-10.0, 10.0, -10.0], [1.0, 1.0, 1.0], 0.04, 0.004)
     ]
     createSeparateur("Lights");
-    let lightScale = 0.3;
     for (let i = 0; i < lights.length; i++) {
-        m = new Model(uvSphere());
-        m.matrix.modelMatrix = mat4.clone(
-            [lightScale, 0, 0, 0,
-            0, lightScale, 0, 0,
-            0, 0, lightScale, 0,
-            lights[i].position[0], lights[i].position[1], lights[i].position[2], 1]
-        )
-        m.diffuseTexture = getTextureImage("data/img/white.png");
-        m.diffuseFactorValue = 10.0 - 4.0 * lights[i].linear - 8.0 * lights[i].quadratic;
-        m.diffuseFactor = vec3.multiply([], lights[i].color, [m.diffuseFactorValue, m.diffuseFactorValue, m.diffuseFactorValue]);
-        m.specularTexture = getTextureImage("data/img/white.png");
-        m.specularFactor = 0.0;
-        m.invisibleDepth = true;
-        //m.collider = AABB.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
-        //m.collider = Sphere.fromObject(m.matrix.modelMatrix, m.modelData.vertexPositions);
-        m.collider = new Sphere(vec3.clone([0.0, 0.0, 0.0]), lightScale * 2.0);
-        m.attachedLight = lights[i];
-        m.update = function() {
-            this.attachedLight.position = vec3.clone([this.matrix.modelMatrix[12], this.matrix.modelMatrix[13], this.matrix.modelMatrix[14]]);
-            this.diffuseFactorValue = 10.0 - 4.0 * this.attachedLight.linear - 8.0 * this.attachedLight.quadratic;
-            this.diffuseFactor = vec3.multiply([], this.attachedLight.color, [this.diffuseFactorValue, this.diffuseFactorValue, this.diffuseFactorValue]);
-
-            this.masterUpdate();
-        }
-        scene.addModel(m);
+        createModelColliderForLight(lights[i], scene);
 
         createSeparateurInside("Light number " + i, "h3");
 
@@ -275,11 +264,16 @@ function buildScenes() {
     }
     lights.forEach(l => scene.addLight(l));
 
-    
-    pipelines.forEach(p=>scene.pipelines.push(p));
+    scene.pipelines.push(pipelines[0]);
+    scene.pipelines.push(pipelines[1]);
+    scene.pipelines.push(pipelines[2]);
 
     scenes.push(scene);
 
+
+    //=================================================================
+    //                       Scene gamma correction
+    //=================================================================
     //MAJ avancé chargement
     setLoadingPercent(0.6);
 

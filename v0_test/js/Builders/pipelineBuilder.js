@@ -35,7 +35,7 @@ function buildDefaultPipelines() {
     createSeparateur("Rendering");
     let blinnPhongRenderer = new BlinnPhong(shaders.get("blinnPhongShadowSSAO"), canvas.width, canvas.height);
     let blinnPhongRendererAllLights = new BlinnPhongAllLight(shaders.get("blinnPhongShadowSSAOOneLight"), chainRendererAllLights, canvas.width, canvas.height);
-    createValueSlider_UI("ambiant", blinnPhongRendererAllLights, "ambiant", 0.0, 1.0, 0.05);
+    createValueSlider_UI("ambiant", blinnPhongRendererAllLights, "ambient", 0.0, 1.0, 0.05);
 
     let exposureRenderer = new Exposure(shaders.get("exposure"), "AllinOne", "ExposedImage", canvas.width, canvas.height);
     createValueSlider_UI("exposure", exposureRenderer, "exposition", 0.0, 10.0, 0.1);
@@ -300,34 +300,34 @@ function buildTestPipelines() {
     let canvasScale = 0.3;
     let testCanvasScale = 1.0;
 
-    let skybox = getCubeMapImage([
-        "data/img/skybox/right.jpg",
-        "data/img/skybox/left.jpg",
-        "data/img/skybox/top.jpg",
-        "data/img/skybox/bottom.jpg",
-        "data/img/skybox/front.jpg",
-        "data/img/skybox/back.jpg"
-        ]);
+    // let skybox = getCubeMapImage([
+    //     "data/img/skybox/right.jpg",
+    //     "data/img/skybox/left.jpg",
+    //     "data/img/skybox/top.jpg",
+    //     "data/img/skybox/bottom.jpg",
+    //     "data/img/skybox/front.jpg",
+    //     "data/img/skybox/back.jpg"
+    //     ]);
 
-    p = new ShaderPipeline();
-    p.addShader(new PBRGBuffer(shaders.get("GBufferPBR"), canvas.width, canvas.height));
-    p.addShader(new PBRShader(shaders.get("PBR"), canvas.width, canvas.height));
-    //Skybox
-    p.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
-    p.addShader(new Fusion(shaders.get("fusion"), ["PBR", "Skybox"], "Colors", canvas.width, canvas.height));
-    // //Bloom
-    p.addShader(new ExtractColorByBrigthness(shaders.get("extractColorByBrigthness"), 0.95, vec4.clone([0.0, 0.0, 0.0, 1.0]), "Colors", "Extract", canvas.width * canvasScale, canvas.height * canvasScale));
-    p.addShader(new GaussianBlur(shaders.get("gaussianBlur"), 20.0, "Extract", "Bloom", canvas.width * canvasScale, canvas.height * canvasScale));
-    p.addShader(new Fusion(shaders.get("fusion"), ["Colors", "Bloom"], "AllinOne", canvas.width, canvas.height));
-    // //Post effects
-    p.addShader(new Exposure(shaders.get("exposure"), "AllinOne", "ExposedImage", canvas.width, canvas.height));
-    p.addShader(new GammaCorrection(shaders.get("gammaCorrection"), "ExposedImage", "Final", canvas.width, canvas.height));
+    // p = new ShaderPipeline();
+    // p.addShader(new PBRGBuffer(shaders.get("GBufferPBR"), canvas.width, canvas.height));
+    // p.addShader(new PBRShader(shaders.get("PBR"), canvas.width, canvas.height));
+    // //Skybox
+    // p.addShader(new Skybox(shaders.get("skybox"), skybox, "Position", canvas.width, canvas.height));
+    // p.addShader(new Fusion(shaders.get("fusion"), ["PBR", "Skybox"], "Colors", canvas.width, canvas.height));
+    // // //Bloom
+    // p.addShader(new ExtractColorByBrigthness(shaders.get("extractColorByBrigthness"), 0.95, vec4.clone([0.0, 0.0, 0.0, 1.0]), "Colors", "Extract", canvas.width * canvasScale, canvas.height * canvasScale));
+    // p.addShader(new GaussianBlur(shaders.get("gaussianBlur"), 20.0, "Extract", "Bloom", canvas.width * canvasScale, canvas.height * canvasScale));
+    // p.addShader(new Fusion(shaders.get("fusion"), ["Colors", "Bloom"], "AllinOne", canvas.width, canvas.height));
+    // // //Post effects
+    // p.addShader(new Exposure(shaders.get("exposure"), "AllinOne", "ExposedImage", canvas.width, canvas.height));
+    // p.addShader(new GammaCorrection(shaders.get("gammaCorrection"), "ExposedImage", "Final", canvas.width, canvas.height));
 
-    p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
+    // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "Final"));
 
-    let nb = 7.0;
-    let w = canvas.width  / nb;
-    let h = canvas.height / nb;
+    // let nb = 7.0;
+    // let w = canvas.width  / nb;
+    // let h = canvas.height / nb;
     // p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Position",      w * 0.0, 0.0, w, h));
     // p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Normal",        w * 1.0, 0.0, w, h));
     // p.addShader(new ApplyToScreen(shaders.get("applyToScreen"),  "Albedo",        w * 2.0, 0.0, w, h));
@@ -341,5 +341,5 @@ function buildTestPipelines() {
     // p.addShader(new ApplyToScreen(shaders.get("applyToScreenRaw"), "PBRRadianceSum", w * 4.0, h, 2*w, 2*h));
 
 
-    pipelines.push(p);
+    // pipelines.push(p);
 }

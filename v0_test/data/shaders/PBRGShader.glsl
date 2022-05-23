@@ -17,7 +17,7 @@ uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D aoMap;
 
-uniform vec3 uAlbedoCoef;
+uniform vec3  uAlbedoCoef;
 uniform float uMetallicCoef;
 uniform float uRoughnessCoef;
 uniform float uAOCoef;

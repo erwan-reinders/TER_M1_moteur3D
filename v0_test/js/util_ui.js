@@ -289,17 +289,16 @@ function createSeparateur(name) {
  * @param {string} elementType Le type de séparateur (h2, h3, ...)
  */
 function createSeparateurInside(name, elementType = "h2") {
-
-
     let elem = document.createElement(elementType);
-    let repeatNumber = 3;
+    // let repeatNumber = 3;
     //elem.innerHTML = "-".repeat(repeatNumber) + name + "-".repeat(repeatNumber);
     elem.innerHTML = name;
     elem.classList.add("option_separator");
     //elem.classList.add("row");
-
+    
     let newContainer = document.createElement("div");
     newContainer.classList.add("options_container");
+    newContainer.id = name;
 
     elem.onclick = function() {
         //toggleDisplayOnElement(newContainer);
@@ -329,6 +328,14 @@ function endSeparateur() {
  */
 function resetSeparateur() {
     currentContainer = rendering_options;
+}
+
+/**
+ * Remet le séparateur courrant dans le séparateur spécifié.
+ * @param {string} name Le nom du séparateur.
+ */
+function goInsideSeparateur(name) {
+    currentContainer = document.getElementById(name);
 }
 
 
