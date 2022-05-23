@@ -1,0 +1,225 @@
+/*CSS for the UI behavior*/
+#options{
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    padding: 20px;
+
+    background-color   : var(--bg_color_ui);
+    color              : var(--color-text);
+    font-family        : var(--font_family_text);
+
+    border-bottom       : solid var(--border_size_option) var(--color-second);
+    border-right        : solid var(--border_size_option) var(--color-second);
+    -webkit-border-radius: 0 0 var(--border_radius_option) 0;
+    -moz-border-radius: 0 0 var(--border_radius_option) 0;
+    border-radius: 0 0 var(--border_radius_option) 0;
+    text-align: center;
+    overflow: auto;
+    height: 100%;
+    width: 25vw;
+
+    animation: width_disappear .5s forwards;
+
+    user-select:none;
+}
+
+button{
+    color: var(--color-main);
+    background-color: white;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    margin-top: 10px;
+}
+
+button:hover{
+    color: white;
+    background-color: var(--color-second-oposite);
+    border: none;
+}
+
+
+#options::-webkit-scrollbar {
+    width: 0;
+}
+
+@keyframes width_appear {
+    0%{
+        transform: translateX(-25vw);
+    }
+    100%{
+        transform: translateX(0);
+    }
+}
+
+@keyframes width_disappear {
+    0%{
+        transform: translateX(0);
+    }
+    100%{
+        transform: translateX(-30vw);
+    }
+}
+
+#stats {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 20px;
+    background-color: var(--bg_color_ui);
+    color: var(--color-text);
+    font-family: var(--font_family_text);
+
+    user-select:none;
+}
+
+#option_icon {
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 6rem;
+
+    user-select:none;
+}
+
+#close_icon {
+    position: absolute;
+    top: 10px;
+    left: calc(25vw - 1.5rem);
+    cursor: pointer;
+    font-size: 3rem;
+}
+
+#option_icon:hover, #close_icon:hover {
+    color: var(--color-second-oposite);
+}
+
+#options #options_title{
+    display      : block;
+    text-align   : left;
+    color        : var(--color-title_main);
+    padding-bottom: 20px;
+}
+
+#options h2.option_separator {
+    margin: 0 !important;
+    padding-block-start: 1em;
+    padding-block-end: 1em;
+
+    font-weight: bolder;
+    cursor: pointer;
+    color : var(--color-title-light);
+    background-color: var(--color-main);
+    border-bottom: solid 1px var(--color-main-light);
+
+    overflow: hidden;
+}
+
+#options h3.option_separator {
+    margin: 0 !important;
+    padding-block-start: 1.33em;
+    padding-block-end: 1.33em;
+    cursor: pointer;
+    font-weight: bold;
+
+    color: var(--color-main);
+}
+
+#options #options_list {
+    display: block;
+    position: relative;
+    margin-bottom: 30px;
+}
+
+#options .options_container{
+    /*display: none;*/
+    color : var(--color-text);
+    /*background-color: var(--bg_color_ui);*/
+
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
+
+#options_list div.vec2,#options_list div.vec3,#options_list div.vec4, #options_list div.number {
+    margin-bottom: 20px;
+}
+
+#options_list div span.description{
+    color: var(--color-second-oposite_dark);
+    font-size: larger;
+    display: inline-block;
+}
+
+
+#options_list div.vec2 span.description ,#options_list div.vec3 span.description,#options_list div.vec4 span.description {
+    display: block;
+    width: 100%;
+}
+
+#options_list div.vec2 input{
+    display: inline;
+    width: 40%;
+}
+#options_list div.vec3 input {
+    display: inline;
+    width: 25%;
+}
+#options_list div.vec4 input {
+    display: inline;
+    width: 15%;
+}
+
+#options_list div.number span.description{
+    width: 50%;
+}
+
+#options_list div.number input{
+    width: 50%;
+    box-sizing: border-box;
+}
+
+#options_list div.number input[type=range]{
+    width: 60%;
+    box-sizing: border-box;
+}
+
+
+#options_list div.number input[type='range']::-webkit-slider-thumb {
+    background: #434343;
+}
+
+#options_list div.number .sliderdescription{
+    width: 20%;
+    display: inline-block;
+    box-sizing: border-box;
+}
+
+#options_list div.number button{
+    float: right;
+}
+
+#options_list div input.texture{}
+
+#options_list #resetAll{
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 25px;
+}
+
+#options_list #nextButtonContainer{
+    position: absolute;
+    bottom: -90px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#options_list #nextButtonContainer .button{
+    padding: 10px 25px;
+}
