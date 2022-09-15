@@ -2,7 +2,7 @@
 Dépôt de projet du TER de deuxième semestre de M1 informatique.
 
 <p align="center">
-<img align="center" src="./presentations/RECA.JPG" width="800" height="800"/>
+<img align="center" src="./presentations/RECA.JPG" width="800" height="500"/>
 </p>
 
 <b>Encadrante :</b>    
