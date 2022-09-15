@@ -33,8 +33,8 @@ Ce projet est fait via <b>WebGl</b> en <b>JS</b>.
 </p>
 
 ## Documentations :
-- Rapport de projet : &emsp;&emsp;&emsp;&nbsp;
-[<img align="center" src="./presentations/french.png" width="50" height="50"/>](./presentations/[TER_M1_2022]_Rapport_et_travail-RECA-Réalisation_d_un_moteur_de_rendu_3D_temps_réel_réaliste_en_WebGL-Ange_CLEMENT-Erwan_REINDERS)
+- Rapport de projet : &emsp;&emsp;&emsp;
+[<img align="center" src="./presentations/french.png" width="50" height="50"/>](./presentations/[TER_M1_2022]_Rapport_et_travail-RECA-Réalisation_d_un_moteur_de_rendu_3D_temps_réel_réaliste_en_WebGL-Ange_CLEMENT-Erwan_REINDERS.pdf)
 
 - Présentation du projet : &emsp;
 [<img align="center" src="./presentations/french.png" width="50" height="50"/>](./presentations/[TER_M1_2022]-présentation.pdf)
