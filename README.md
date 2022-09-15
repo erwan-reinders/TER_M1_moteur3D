@@ -1,6 +1,10 @@
 # Réalisation d'un moteur 3D temps réel réaliste.
 Dépôt de projet du TER de deuxième semestre de M1 informatique.
 
+<p align="center">
+<img align="center" src="./presentations/RECA.jpg" width="800" height="800"/>
+</p>
+
 <b>Encadrante :</b>    
 -  Noura Faraj (noura.faraj@umontpellier.fr) 
 
@@ -27,4 +31,11 @@ On pourrait aussi envisager la possibilité pour un <b>utilisateur extérieur</b
 <p align="justify">
 Ce projet est fait via <b>WebGl</b> en <b>JS</b>.
 </p>
+
+## Documentations :
+- Rapport de projet : &emsp;&emsp;&emsp;&nbsp;
+[<img align="center" src="./presentations/french.png" width="50" height="50"/>](./presentations/[TER_M1_2022] Rapport et travail - RECA - Réalisation d’un moteur de rendu 3D temps réel réaliste en WebGL - Ange CLEMENT - Erwan REINDERS-min.pdf)
+
+- Présentation du projet : &emsp;
+[<img align="center" src="./presentations/french.png" width="50" height="50"/>](./presentations/[TER_M1_2022]-présentation.pdf)
 
