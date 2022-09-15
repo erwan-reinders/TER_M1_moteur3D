@@ -2,7 +2,9 @@
 Dépôt de projet du TER de deuxième semestre de M1 informatique.
 
 <p align="center">
+<a href="http://78.193.65.81/webgl/TER_M1_moteur3D/RECA/">
 <img align="center" src="./presentations/RECA.JPG" width="800" height="500"/>
+</a>
 </p>
 
 <b>Encadrante :</b>    
