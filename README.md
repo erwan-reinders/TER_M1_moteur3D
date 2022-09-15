@@ -2,7 +2,7 @@
 Dépôt de projet du TER de deuxième semestre de M1 informatique.
 
 <p align="center">
-<img align="center" src="./presentations/RECA.jpg" width="800" height="800"/>
+<img align="center" src="./presentations/RECA.JPG" width="800" height="800"/>
 </p>
 
 <b>Encadrante :</b>    
@@ -34,7 +34,7 @@ Ce projet est fait via <b>WebGl</b> en <b>JS</b>.
 
 ## Documentations :
 - Rapport de projet : &emsp;&emsp;&emsp;&nbsp;
-[<img align="center" src="./presentations/french.png" width="50" height="50"/>](./presentations/[TER_M1_2022] Rapport et travail - RECA - Réalisation d’un moteur de rendu 3D temps réel réaliste en WebGL - Ange CLEMENT - Erwan REINDERS-min.pdf)
+[<img align="center" src="./presentations/french.png" width="50" height="50"/>](./presentations/[TER_M1_2022]_Rapport_et_travail-RECA-Réalisation_d_un_moteur_de_rendu_3D_temps_réel_réaliste_en_WebGL-Ange_CLEMENT-Erwan_REINDERS)
 
 - Présentation du projet : &emsp;
 [<img align="center" src="./presentations/french.png" width="50" height="50"/>](./presentations/[TER_M1_2022]-présentation.pdf)
